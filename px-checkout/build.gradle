@@ -13,9 +13,6 @@ android {
         jvmTarget = "1.8"
         freeCompilerArgs = ['-Xjvm-default=enable', '-Xuse-experimental=kotlin.contracts.ExperimentalContracts']
     }
-    testOptions {
-        unitTests.includeAndroidResources = true
-    }
 }
 
 dependencies {

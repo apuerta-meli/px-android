@@ -1,5 +1,7 @@
 package com.mercadopago.android.px.internal.features.express;
 
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
@@ -79,7 +81,7 @@ public interface ExpressPayment {
 
         void startDeepLink(@NonNull String deepLink);
 
-        void onDeepLinkReceived();
+        void onDeepLinkReceived(@NonNull final Uri uri);
 
         void showLoading();
 

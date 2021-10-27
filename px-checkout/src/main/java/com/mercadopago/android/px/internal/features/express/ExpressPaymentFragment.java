@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 import com.mercadolibre.android.andesui.bottomsheet.AndesBottomSheet;
+import com.mercadolibre.android.andesui.snackbar.duration.AndesSnackbarDuration;
+import com.mercadolibre.android.andesui.snackbar.type.AndesSnackbarType;
 import com.mercadolibre.android.cardform.CardForm;
 import com.mercadolibre.android.cardform.internal.CardFormWithFragment;
 import com.mercadolibre.android.cardform.internal.LifecycleListener;
@@ -29,6 +31,9 @@ import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.BackHandler;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.BaseFragment;
+import com.mercadopago.android.px.internal.callbacks.DeepLinkHandler;
+import com.mercadopago.android.px.internal.callbacks.DeepLinkListener;
+import com.mercadopago.android.px.internal.callbacks.TokenizationResponse;
 import com.mercadopago.android.px.internal.di.CheckoutConfigurationModule;
 import com.mercadopago.android.px.internal.di.FactoryProvider;
 import com.mercadopago.android.px.internal.di.MapperProvider;
@@ -36,6 +41,7 @@ import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.experiments.ScrolledVariant;
 import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.experiments.VariantHandler;
+import com.mercadopago.android.px.internal.extensions.ViewExtensionsKt;
 import com.mercadopago.android.px.internal.features.disable_payment_method.DisabledPaymentMethodDetailDialog;
 import com.mercadopago.android.px.internal.features.express.add_new_card.OtherPaymentMethodFragment;
 import com.mercadopago.android.px.internal.features.express.add_new_card.sheet_options.CardFormBottomSheetFragment;
@@ -88,6 +94,7 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.Application;
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod;
 import com.mercadopago.android.px.model.internal.PaymentConfiguration;
+import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -107,6 +114,7 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
     private static final String EXTRA_VARIANT = "EXTRA_VARIANT";
     private static final String EXTRA_RENDER_MODE = "render_mode";
     private static final String EXTRA_NAVIGATION_STATE = "navigation_state";
+    private static final String URI = "uri";
 
     private static final int REQ_CODE_DISABLE_DIALOG = 105;
     private static final float PAGER_NEGATIVE_MARGIN_MULTIPLIER = -1.5f;
@@ -144,10 +152,11 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
     private PayButtonFragment payButtonFragment;
     private OfflineMethodsFragment offlineMethodsFragment;
 
-    public static Fragment getInstance(@NonNull final Variant variant) {
+    public static Fragment getInstance(@NonNull final Variant variant, @Nullable final Uri uri) {
         final ExpressPaymentFragment expressPaymentFragment = new ExpressPaymentFragment();
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_VARIANT, variant);
+        bundle.putParcelable(URI, uri);
         expressPaymentFragment.setArguments(bundle);
         return expressPaymentFragment;
     }
@@ -234,6 +243,7 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
             paymentMethodHeaderView, indicator, splitPaymentView);
 
         presenter = createPresenter();
+
         if (savedInstanceState != null) {
             renderMode = (RenderMode) savedInstanceState.getSerializable(EXTRA_RENDER_MODE);
             navigationState =
@@ -241,6 +251,7 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
             presenter.restoreState(savedInstanceState.getParcelable(BUNDLE_STATE));
         } else {
             presenter.onFreshStart();
+            resolveDeepLink();
         }
 
         presenter.attachView(this);
@@ -262,6 +273,13 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
             }
         };
         getActivity().getSupportFragmentManager().registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, false);
+    }
+
+    private void resolveDeepLink() {
+        final Bundle arguments = getArguments();
+        if (arguments != null && arguments.getParcelable(URI) != null) {
+            resolveDeepLinkResponse(arguments.getParcelable(URI));
+        }
     }
 
     @Override
@@ -302,6 +320,33 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
             new PaymentMethodHeaderAdapter(paymentMethodHeaderView),
             new ConfirmButtonAdapter(payButtonFragment)
         ));
+    }
+
+    public void resolveDeepLinkResponse(@NotNull final Uri uri) {
+        final DeepLinkHandler deepLinkHandler = new DeepLinkHandler(MapperProvider.INSTANCE.getUriToDeepLinkWrapperMapper());
+        deepLinkHandler.setDeepLinkListener(new DeepLinkListener() {
+            @Override
+            public void onDefault() {
+                presenter.handleDeepLink();
+            }
+
+            @Override
+            public void onTokenization(@NonNull final TokenizationResponse.State state) {
+                switch(state) {
+                    case SUCCESS: showSnackBar(getResources().getString(R.string.px_tokenization_snackbar_success), AndesSnackbarType.SUCCESS);
+                        break;
+                    case PENDING: showSnackBar(getResources().getString(R.string.px_tokenization_snackbar_pending), AndesSnackbarType.NEUTRAL);
+                        break;
+                    case ERROR: showSnackBar(getResources().getString(R.string.px_tokenization_snackbar_error), AndesSnackbarType.ERROR);
+                        break;
+                }
+            }
+        });
+        deepLinkHandler.resolveDeepLink(uri);
+    }
+
+    private void showSnackBar(@NotNull final String message, @NotNull final AndesSnackbarType andesSnackbarType) {
+        ViewExtensionsKt.showSnackBar(getView(), message, andesSnackbarType, AndesSnackbarDuration.LONG, null);
     }
 
     @Override
@@ -705,8 +750,8 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
     }
 
     @Override
-    public void onDeepLinkReceived() {
-        presenter.handleDeepLink();
+    public void onDeepLinkReceived(@NotNull final Uri uri) {
+        resolveDeepLinkResponse(uri);
     }
 
     @Override

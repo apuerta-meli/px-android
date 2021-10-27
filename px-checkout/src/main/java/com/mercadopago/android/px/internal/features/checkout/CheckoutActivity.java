@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.features.checkout;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -67,6 +68,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     protected void onCreated(@Nullable final Bundle savedInstanceState) {
         setContentView(R.layout.px_activity_checkout);
         progress = findViewById(R.id.mpsdkProgressLayout);
+
         if (savedInstanceState == null) {
             initPresenter();
         }
@@ -75,11 +77,12 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     @Override
     protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
-        if (intent.getData() != null) {
+        final Uri data = intent.getData();
+        if (data != null) {
             final ExpressPayment.View fragment =
                 (ExpressPayment.View) getSupportFragmentManager().findFragmentByTag(TAG_ONETAP_FRAGMENT);
             if (fragment != null) {
-                fragment.onDeepLinkReceived();
+                fragment.onDeepLinkReceived(data);
             }
         } else {
             FragmentUtil.tryRemoveNow(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT);
@@ -191,7 +194,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
             supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(R.anim.px_slide_right_to_left_in, R.anim.px_slide_right_to_left_out)
-                .replace(R.id.one_tap_fragment, ExpressPaymentFragment.getInstance(variant), TAG_ONETAP_FRAGMENT)
+                .replace(R.id.one_tap_fragment, ExpressPaymentFragment.getInstance(variant, getIntent().getData()), TAG_ONETAP_FRAGMENT)
                 .commitNowAllowingStateLoss();
         }
     }

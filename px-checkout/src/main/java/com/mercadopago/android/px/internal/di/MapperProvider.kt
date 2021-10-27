@@ -165,4 +165,7 @@ internal object MapperProvider {
 
     val remediesLinkableMapper: RemediesLinkableMapper
         get() = RemediesLinkableMapper()
+
+    val uriToDeepLinkWrapperMapper: UriToDeepLinkWrapperMapper
+        get() = UriToDeepLinkWrapperMapper(UriToFromMapper())
 }

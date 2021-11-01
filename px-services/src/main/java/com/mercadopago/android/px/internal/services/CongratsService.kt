@@ -8,7 +8,8 @@ import retrofit2.http.*
 
 interface CongratsService {
 
-    @GET("${BuildConfig.API_ENVIRONMENT}/px_mobile/congrats")
+    //@GET("${BuildConfig.API_ENVIRONMENT}/px_mobile/congrats")
+    @GET("gamma/px_mobile/congrats")
     suspend fun getCongrats(
         @Header("X-Location-Enabled") locationEnabled: Boolean,
         @Query("public_key") publicKey: String,

@@ -1,3 +1,7 @@
+## VERSION 4.95.0
+_04_11_2021_
+* FIX - Legacy flowId remaining in memory between flows
+
 ## VERSION 4.94.0
 _21_10_2021_
 * FIX - Network error

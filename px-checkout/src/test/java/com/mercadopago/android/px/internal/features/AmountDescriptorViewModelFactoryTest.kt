@@ -179,7 +179,6 @@ class AmountDescriptorViewModelFactoryTest : BasicRobolectricTest() {
             with(this.drawableColor as GenericColor) {
                 this.colorId.assertEquals(R.color.px_checkout_helper_icon)
             }
-            assertNull(this.url)
         }
         descriptorViewModel.amount.text.get(getContext()).toString().assertEquals("$ ${BigDecimal.TEN}")
     }
@@ -225,7 +224,6 @@ class AmountDescriptorViewModelFactoryTest : BasicRobolectricTest() {
             this.textDescriptor.first().text.get(getContext()).assertEquals(labelText.message)
             assertNull(this.briefTextDescriptor)
             assertNotNull(this.iconDescriptor)
-            assertNull(this.iconDescriptor!!.url)
         }
         descriptorViewModel.amount.text.get(getContext()).toString().assertEquals(amountText.message)
     }
@@ -297,28 +295,8 @@ class AmountDescriptorViewModelFactoryTest : BasicRobolectricTest() {
         assertNull(descriptorViewModel.label.briefTextDescriptor)
     }
 
-
     @Test
-    fun createFromDiscountWithUrlShouldHaveIconUrl() {
-        val labelText = getText("Descuento")
-        val amountText = getText("- $ 120")
-        whenever(experimentsRepository.experiments).thenReturn(null)
-        val discountOverview = DiscountOverview(
-            listOf(labelText),
-            amountText,
-            null,
-            "test.url.com"
-        )
-        val factory = AmountDescriptorViewModelFactory(SummaryRowTextDescriptorFactory(currency), experimentsRepository)
-        val descriptorViewModel = factory.create(discountOverview, false, View.OnClickListener { })
-        with(descriptorViewModel.label.iconDescriptor) {
-            assertNotNull(this?.url)
-            this?.url!!.assertEquals("test.url.com")
-        }
-    }
-
-    @Test
-    fun createFromDiscountWithoutUrlShouldHaveDefaultDrawableIcon() {
+    fun createFromDiscountWithoutUrlShouldHaveDrawableIcon() {
         val labelText = getText("Descuento")
         val amountText = getText("- $ 120")
         whenever(experimentsRepository.experiments).thenReturn(null)
@@ -339,7 +317,6 @@ class AmountDescriptorViewModelFactoryTest : BasicRobolectricTest() {
             with(this.drawableColor as GenericColor) {
                 this.colorId.assertEquals(R.color.px_checkout_helper_icon)
             }
-            assertNull(this.url)
         }
     }
 

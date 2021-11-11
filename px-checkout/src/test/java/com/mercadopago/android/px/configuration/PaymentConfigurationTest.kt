@@ -4,6 +4,7 @@ import com.mercadopago.android.px.assertEquals
 import com.mercadopago.android.px.core.ScheduledPaymentProcessor
 import com.mercadopago.android.px.core.SplitPaymentProcessor
 import com.mercadopago.android.px.core.internal.NoOpPaymentProcessor
+import com.mercadopago.android.px.internal.datasource.DefaultPaymentProcessor
 import com.mercadopago.android.px.model.internal.CheckoutType
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -19,6 +20,9 @@ class PaymentConfigurationTest {
 
     @Mock
     private lateinit var paymentProcessorV2: ScheduledPaymentProcessor
+
+    @Mock
+    private lateinit var defaultPaymentProcessor: DefaultPaymentProcessor
 
     @Test
     fun v1ConstructorShouldSetBothPaymentProcessors() {
@@ -38,12 +42,18 @@ class PaymentConfigurationTest {
     @Test
     fun getCheckoutTypeShouldReturnRegularWhenItIsSplitPaymentProcessor() {
         val paymentConfiguration = PaymentConfiguration.Builder(splitPaymentProcessor).build()
-        paymentConfiguration.getCheckoutType().assertEquals(CheckoutType.REGULAR)
+        paymentConfiguration.getCheckoutType().assertEquals(CheckoutType.CUSTOM_REGULAR)
     }
 
     @Test
     fun getCheckoutTypeShouldReturnScheduledWhenItIsSplitPaymentProcessor() {
         val paymentConfiguration = PaymentConfiguration.Builder(paymentProcessorV2).build()
-        paymentConfiguration.getCheckoutType().assertEquals(CheckoutType.SCHEDULED)
+        paymentConfiguration.getCheckoutType().assertEquals(CheckoutType.CUSTOM_SCHEDULED)
+    }
+
+    @Test
+    fun getCheckoutTypeShouldReturnDefaultRegularWhenItIsDefaultPaymentProcessor() {
+        val paymentConfiguration = PaymentConfiguration.Builder(defaultPaymentProcessor).build()
+        paymentConfiguration.getCheckoutType().assertEquals(CheckoutType.DEFAULT_REGULAR)
     }
 }

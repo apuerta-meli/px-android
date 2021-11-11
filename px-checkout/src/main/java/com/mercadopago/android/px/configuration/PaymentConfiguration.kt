@@ -10,6 +10,7 @@ import com.mercadopago.android.px.core.internal.CheckoutDataMapper
 import com.mercadopago.android.px.core.internal.NoOpPaymentProcessor
 import com.mercadopago.android.px.core.internal.PaymentListenerMapper
 import com.mercadopago.android.px.core.internal.PaymentProcessorMapper
+import com.mercadopago.android.px.internal.datasource.DefaultPaymentProcessor
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule
 import com.mercadopago.android.px.model.internal.CheckoutType
 import java.util.*
@@ -37,8 +38,9 @@ class PaymentConfiguration private constructor(val charges: ArrayList<PaymentTyp
 
     internal fun getCheckoutType(): CheckoutType {
         return when(paymentProcessorV2) {
-            is ScheduledPaymentProcessor -> CheckoutType.SCHEDULED
-            else -> CheckoutType.REGULAR
+            is ScheduledPaymentProcessor -> CheckoutType.CUSTOM_SCHEDULED
+            is DefaultPaymentProcessor -> CheckoutType.DEFAULT_REGULAR
+            else -> CheckoutType.CUSTOM_REGULAR
         }
     }
 

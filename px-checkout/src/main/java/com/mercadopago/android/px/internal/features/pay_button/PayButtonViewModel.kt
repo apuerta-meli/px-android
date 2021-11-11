@@ -40,6 +40,7 @@ import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.events.BiometricsFrictionTracker
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import com.mercadopago.android.px.tracking.internal.events.NoConnectionFrictionTracker
+import com.mercadopago.android.px.tracking.internal.events.PayButtonPressedEvent
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import com.mercadopago.android.px.tracking.internal.views.OneTapViewTracker
 import kotlinx.android.parcel.Parcelize
@@ -84,6 +85,15 @@ internal class PayButtonViewModel(
 
     override fun detach() {
         handler = null
+    }
+
+    override fun onButtonPressed() {
+        handler?.getViewTrackPath(object : PayButton.ViewTrackPathCallback {
+            override fun call(viewTrackPath: String) {
+                track(PayButtonPressedEvent(viewTrackPath))
+            }
+        })
+        preparePayment()
     }
 
     override fun preparePayment() {

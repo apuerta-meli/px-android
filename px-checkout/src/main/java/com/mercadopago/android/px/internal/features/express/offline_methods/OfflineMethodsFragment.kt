@@ -25,6 +25,7 @@ import com.mercadopago.android.px.internal.extensions.addOnLaidOutListener
 import com.mercadopago.android.px.internal.extensions.invisible
 import com.mercadopago.android.px.internal.extensions.setHeight
 import com.mercadopago.android.px.internal.extensions.visible
+import com.mercadopago.android.px.internal.features.pay_button.PayButton
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment
 import com.mercadopago.android.px.internal.font.PxFont
@@ -204,6 +205,10 @@ class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = Uri.parse(flowLink)
         startActivity(intent)
+    }
+
+    override fun getViewTrackPath(callback: PayButton.ViewTrackPathCallback) {
+        viewModel.onGetViewTrackPath(callback)
     }
 
     override fun prePayment(callback: OnReadyForPaymentCallback) {

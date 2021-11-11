@@ -76,7 +76,7 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
         button = view.findViewById(R.id.confirm_button)
         button.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(v: View?) {
-                viewModel.preparePayment()
+                viewModel.onButtonPressed()
             }
         })
         savedInstanceState?.let {
@@ -93,10 +93,12 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
         updateButtonState()
 
         with(viewModel) {
-            buttonTextLiveData.observe(viewLifecycleOwner,
-                Observer { buttonConfig -> button.text = buttonConfig!!.getButtonText(this@PayButtonFragment.context!!) })
-            cvvRequiredLiveData.observe(viewLifecycleOwner,
-                Observer { params -> params?.let { showSecurityCodeScreen(it) } })
+            buttonTextLiveData.observe(viewLifecycleOwner, Observer { buttonConfig ->
+                button.text = buttonConfig!!.getButtonText(this@PayButtonFragment.context!!)
+            })
+            cvvRequiredLiveData.observe(viewLifecycleOwner, Observer { params ->
+                params?.let { showSecurityCodeScreen(it) }
+            })
             stateUILiveData.observe(viewLifecycleOwner, Observer { state -> state?.let { onStateUIChanged(it) } })
         }
     }

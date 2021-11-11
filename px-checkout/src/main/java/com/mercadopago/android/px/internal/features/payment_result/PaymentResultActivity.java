@@ -285,6 +285,11 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     }
 
     @Override
+    public void getViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback) {
+        presenter.onGetViewTrackPath(callback);
+    }
+
+    @Override
     public void prePayment(@NonNull final PayButton.OnReadyForPaymentCallback callback) {
         ViewUtils.hideKeyboard(this);
         remediesFragment.onPrePayment(callback);

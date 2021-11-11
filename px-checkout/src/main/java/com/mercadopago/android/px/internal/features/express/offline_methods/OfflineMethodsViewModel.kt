@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.mercadopago.android.px.internal.base.BaseViewModel
 import com.mercadopago.android.px.internal.extensions.orIfEmpty
+import com.mercadopago.android.px.internal.features.pay_button.PayButton
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
 import com.mercadopago.android.px.internal.livedata.MutableSingleLiveData
 import com.mercadopago.android.px.internal.repository.*
@@ -61,6 +62,10 @@ internal class OfflineMethodsViewModel(
 
     override fun onMethodSelected(selectedItem: OfflineMethodItem) {
         this.selectedItem = selectedItem
+    }
+
+    override fun onGetViewTrackPath(callback: PayButton.ViewTrackPathCallback) {
+        callback.call(viewTracker.getTrack().path)
     }
 
     override fun onPrePayment(callback: OnReadyForPaymentCallback) {

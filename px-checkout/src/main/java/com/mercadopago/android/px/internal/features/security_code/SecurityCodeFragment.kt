@@ -219,6 +219,10 @@ internal class SecurityCodeFragment : BaseFragment(), PayButton.Handler, BackHan
         }
     }
 
+    override fun getViewTrackPath(callback: PayButton.ViewTrackPathCallback) {
+        securityCodeViewModel.onGetViewTrackPath(callback)
+    }
+
     override fun prePayment(callback: PayButton.OnReadyForPaymentCallback) {
         securityCodeViewModel.handlePrepayment(callback)
     }

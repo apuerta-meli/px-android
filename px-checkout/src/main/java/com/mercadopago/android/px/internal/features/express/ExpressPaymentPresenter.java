@@ -254,6 +254,11 @@ import kotlin.Unit;
         });
     }
 
+    @Override
+    public void onGetViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback) {
+        callback.call(getViewTrack().getTrack().getPath());
+    }
+
     private void trackOneTapView() {
         final OneTapViewTracker oneTapViewTracker =
             new OneTapViewTracker(

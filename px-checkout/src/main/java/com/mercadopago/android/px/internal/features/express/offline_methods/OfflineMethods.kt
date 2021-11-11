@@ -20,6 +20,7 @@ internal interface OfflineMethods {
         fun onSheetShowed()
         fun onViewLoaded(): LiveData<Model>
         fun onMethodSelected(selectedItem: OfflineMethodItem)
+        fun onGetViewTrackPath(callback: PayButton.ViewTrackPathCallback)
         fun onPrePayment(callback: PayButton.OnReadyForPaymentCallback)
         fun onBack()
         fun onPaymentExecuted(configuration: PaymentConfiguration)

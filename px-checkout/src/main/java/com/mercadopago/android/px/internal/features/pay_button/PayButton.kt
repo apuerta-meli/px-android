@@ -21,6 +21,7 @@ interface PayButton {
     interface ViewModel {
         fun attach(handler: Handler)
         fun detach()
+        fun onButtonPressed()
         fun preparePayment()
         fun handleBiometricsResult(isSuccess: Boolean, securityRequested: Boolean)
         fun startPayment()
@@ -35,6 +36,7 @@ interface PayButton {
     }
 
     interface Handler {
+        fun getViewTrackPath(callback: ViewTrackPathCallback)
         fun prePayment(callback: OnReadyForPaymentCallback)
         @JvmDefault fun enqueueOnExploding(callback: OnEnqueueResolvedCallback) = callback.success()
         @JvmDefault fun onPostPaymentAction(postPaymentAction: PostPaymentAction) = Unit
@@ -43,6 +45,10 @@ interface PayButton {
         @JvmDefault fun onPaymentFinished(paymentModel: PaymentModel, callback: OnPaymentFinishedCallback) = callback.call()
         @JvmDefault fun onPaymentError(error: MercadoPagoError) = Unit
         @JvmDefault fun onPostCongrats(resultCode: Int, data: Intent?) = Unit
+    }
+
+    interface ViewTrackPathCallback {
+        fun call(viewTrackPath: String)
     }
 
     interface OnReadyForPaymentCallback {

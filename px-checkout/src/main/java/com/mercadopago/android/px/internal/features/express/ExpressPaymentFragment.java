@@ -159,6 +159,11 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
     }
 
     @Override
+    public void getViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback) {
+        presenter.onGetViewTrackPath(callback);
+    }
+
+    @Override
     public void prePayment(@NonNull final PayButton.OnReadyForPaymentCallback callback) {
         presenter.handlePrePaymentAction(callback);
     }

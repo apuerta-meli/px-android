@@ -11,6 +11,7 @@ import com.mercadopago.android.px.internal.actions.LinkAction;
 import com.mercadopago.android.px.internal.actions.NextAction;
 import com.mercadopago.android.px.internal.actions.RecoverPaymentAction;
 import com.mercadopago.android.px.internal.base.BasePresenter;
+import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper;
 import com.mercadopago.android.px.internal.features.payment_result.mappers.PaymentResultViewModelMapper;
 import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultButton;
@@ -102,6 +103,11 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
         finishWithResult(MercadoPagoCheckout.PAYMENT_RESULT_CODE);
     }
 
+    @Override
+    public void onGetViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback) {
+        callback.call(resultViewTrack.getTrack().getPath());
+    }
+
     private void configureView() {
         if (isViewAttached()) {
             final PaymentResultViewModel viewModel = paymentResultViewModelMapper.map(paymentModel);
@@ -158,14 +164,14 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
     @Override
     public void onLinkAction(@NonNull final LinkAction action) {
         if (isViewAttached()) {
-            getView().openLink(((LinkAction) action).url);
+            getView().openLink(action.url);
         }
     }
 
     @Override
     public void onCopyAction(@NonNull final CopyAction action) {
         if (isViewAttached()) {
-            getView().copyToClipboard(((CopyAction) action).content);
+            getView().copyToClipboard(action.content);
         }
     }
 

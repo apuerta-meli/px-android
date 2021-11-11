@@ -1,3 +1,10 @@
+## VERSION 4.96.0
+_11_11_2021_
+* FIX - Fixed broken CVV animation
+* FIX - Changed discount info icon
+* ENHANCEMENT - Added checkout type specifications
+* ENHANCEMENT - Added track for pay button click
+
 ## VERSION 4.95.0
 _04_11_2021_
 * FIX - Legacy flowId remaining in memory between flows

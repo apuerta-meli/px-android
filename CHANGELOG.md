@@ -1,3 +1,7 @@
+## VERSION 4.96.1
+_18_11_2021_
+* FIX - Payment result screen fixed
+
 ## VERSION 4.96.0
 _11_11_2021_
 * FIX - Fixed broken CVV animation

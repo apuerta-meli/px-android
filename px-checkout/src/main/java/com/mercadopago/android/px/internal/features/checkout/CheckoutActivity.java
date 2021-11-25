@@ -75,6 +75,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     @Override
     protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
         if (intent.getData() != null) {
             final ExpressPayment.View fragment =
                 (ExpressPayment.View) getSupportFragmentManager().findFragmentByTag(TAG_ONETAP_FRAGMENT);

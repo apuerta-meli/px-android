@@ -1,3 +1,7 @@
+## VERSION 4.96.2
+_25_11_2021_
+* FIX - NullPointerException is fixed when the checkout is started by onNewIntent.
+
 ## VERSION 4.96.1
 _18_11_2021_
 * FIX - Payment result screen fixed

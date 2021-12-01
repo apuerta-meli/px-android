@@ -188,9 +188,9 @@
     <string name="px_connectivity_neutral_error">There was a connection error. Please, try to pay again.</string>
     <string name="px_connectivity_error">No connection. Please, try to pay later.</string>
     <string name="px_snackbar_error_action">Go back</string>
-    <string name="px_tokenization_snackbar_success">¡Listo! Ya puedes usar tu tarjeta con seguridad.</string>
-    <string name="px_tokenization_snackbar_pending">Estamos finalizando la validación de tu tarjeta. Por favor, intenta de nuevo más tarde.</string>
-    <string name="px_tokenization_snackbar_error">No es posible validar tu tarjeta.</string>
+    <string name="px_tokenization_snackbar_success">Done! You can now securely use your card.</string>
+    <string name="px_tokenization_snackbar_pending">We are finalizing your card validation. Please wait a few seconds.</string>
+    <string name="px_tokenization_snackbar_error">It is not possible to validate your card.</string>
     <plurals name="px_accreditation_time_hour">
         <item quantity="one">Will be accredited in {0} hour</item>
         <item quantity="other">Will be accredited in {0} hours</item>

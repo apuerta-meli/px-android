@@ -250,7 +250,7 @@
 
     <!-- Tokenization snackbar -->
     <string name="px_tokenization_snackbar_success">¡Listo! Ya puedes usar tu tarjeta con seguridad.</string>
-    <string name="px_tokenization_snackbar_pending">Estamos finalizando la validación de tu tarjeta. Por favor, intenta de nuevo más tarde.</string>
+    <string name="px_tokenization_snackbar_pending">Estamos finalizando la validación de tu tarjeta. Por favor, espera unos segundos.</string>
     <string name="px_tokenization_snackbar_error">No es posible validar tu tarjeta.</string>
 
 </resources>

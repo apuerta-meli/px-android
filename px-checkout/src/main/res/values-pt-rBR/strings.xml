@@ -189,7 +189,7 @@
     <string name="px_connectivity_error">Não há conexão. Por favor, tente pagar mais tarde.</string>
     <string name="px_snackbar_error_action">Voltar</string>
     <string name="px_tokenization_snackbar_success">Pronto! Você já pode usar o seu cartão com segurança.</string>
-    <string name="px_tokenization_snackbar_pending">Estamos finalizando a validação do seu cartão. Por favor, tente novamente mais tarde.</string>
+    <string name="px_tokenization_snackbar_pending">Estamos finalizando a validação do seu cartão. Por favor, aguarde alguns segundos.</string>
     <string name="px_tokenization_snackbar_error">Não é possível validar o cartão.</string>
     <plurals name="px_accreditation_time_hour">
         <item quantity="one" tools:ignore="ImpliedQuantity">Será aprovado em {0} hora</item>

@@ -43,6 +43,7 @@ import com.mercadopago.android.px.tracking.internal.events.NoConnectionFrictionT
 import com.mercadopago.android.px.tracking.internal.events.PayButtonPressedEvent
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import com.mercadopago.android.px.tracking.internal.views.OneTapViewTracker
+import java.lang.ref.WeakReference
 import kotlinx.android.parcel.Parcelize
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
@@ -67,7 +68,9 @@ internal class PayButtonViewModel(
         buttonTextLiveData.value = buttonConfig
     }
 
-    private var handler: PayButton.Handler? = null
+    private lateinit var handlerReference: WeakReference<PayButton.Handler>
+    private val handler: PayButton.Handler
+        get() = handlerReference.get()!!
 
     val cvvRequiredLiveData = MediatorSingleLiveData<SecurityCodeParams>()
     val stateUILiveData = MediatorSingleLiveData<PayButtonUiState>()
@@ -80,15 +83,15 @@ internal class PayButtonViewModel(
     }
 
     override fun attach(handler: PayButton.Handler) {
-        this.handler = handler
+        handlerReference = WeakReference(handler)
     }
 
     override fun detach() {
-        handler = null
+        handlerReference.clear()
     }
 
     override fun onButtonPressed() {
-        handler?.getViewTrackPath(object : PayButton.ViewTrackPathCallback {
+        handler.getViewTrackPath(object : PayButton.ViewTrackPathCallback {
             override fun call(viewTrackPath: String) {
                 track(PayButtonPressedEvent(viewTrackPath))
             }
@@ -99,7 +102,7 @@ internal class PayButtonViewModel(
     override fun preparePayment() {
         state.paymentConfiguration = null
         if (connectionHelper.hasConnection()) {
-            handler?.prePayment(object : OnReadyForPaymentCallback {
+            handler.prePayment(object : OnReadyForPaymentCallback {
                 override fun call(paymentConfiguration: PaymentConfiguration) {
                     if (paymentConfiguration.customOptionId.isNotNullNorEmpty()) {
                         paymentSettingRepository.clearToken()
@@ -132,13 +135,13 @@ internal class PayButtonViewModel(
         if (paymentService.isExplodingAnimationCompatible) {
             stateUILiveData.value = ButtonLoadingStarted(paymentService.paymentTimeout, buttonConfig)
         }
-        handler?.enqueueOnExploding(object : PayButton.OnEnqueueResolvedCallback {
+        handler.enqueueOnExploding(object : PayButton.OnEnqueueResolvedCallback {
             override fun success() {
                 state.paymentConfiguration?.let { configuration ->
                     paymentService.startExpressPayment(configuration)
                     paymentService.observableEvents?.let { observeService(it) }
-                    handler?.onPaymentExecuted(configuration)
-                }
+                    handler.onPaymentExecuted(configuration)
+                } ?: error("No payment configuration provided")
             }
 
             override fun failure() {
@@ -154,7 +157,7 @@ internal class PayButtonViewModel(
             transform(serviceLiveData.paymentErrorLiveData) { error ->
                 val shouldHandleError = error.isPaymentProcessing
                 if (shouldHandleError) onPaymentProcessingError() else noRecoverableError(error)
-                handler?.onPaymentError(error)
+                handler.onPaymentError(error)
                 ButtonLoadingCanceled
             }
         stateUILiveData.addSource(paymentErrorLiveData) { stateUILiveData.value = it }
@@ -176,7 +179,7 @@ internal class PayButtonViewModel(
         val cvvRequiredLiveData: LiveData<Pair<Card, Reason>?> = transform(serviceLiveData.requireCvvLiveData) { it }
         this.cvvRequiredLiveData.addSource(cvvRequiredLiveData) { value ->
             value?.let { pair ->
-                handler?.onCvvRequested()?.let {
+                handler.onCvvRequested().let {
                     this.cvvRequiredLiveData.value = SecurityCodeParams(state.paymentConfiguration!!,
                         it.fragmentContainer, renderModeMapper.map(it.renderMode), card = pair.first, reason = pair.second)
                 }
@@ -219,15 +222,15 @@ internal class PayButtonViewModel(
                 stateUILiveData.value = ButtonLoadingCanceled
             }
         })
-        handler?.onPostPaymentAction(postPaymentAction)
+        handler.onPostPaymentAction(postPaymentAction)
     }
 
     override fun handleCongratsResult(resultCode: Int, data: Intent?) {
-        handler?.onPostCongrats(resultCode, data)
+        handler.onPostCongrats(resultCode, data)
     }
 
     override fun handleSecurityCodeResult(resultCode: Int, data: Intent?) {
-        handler?.onPostCongrats(resultCode, data)
+        handler.onPostCongrats(resultCode, data)
     }
 
     override fun onRecoverPaymentEscInvalid(recovery: PaymentRecovery) = recoverPayment(recovery)
@@ -235,7 +238,7 @@ internal class PayButtonViewModel(
     override fun recoverPayment() = recoverPayment(paymentService.createPaymentRecovery())
 
     private fun recoverPayment(recovery: PaymentRecovery) {
-        handler?.onCvvRequested()?.let {
+        handler.onCvvRequested().let {
             cvvRequiredLiveData.value = SecurityCodeParams(state.paymentConfiguration!!, it.fragmentContainer, renderModeMapper.map(it.renderMode),
                 paymentRecovery = recovery)
         }
@@ -262,7 +265,7 @@ internal class PayButtonViewModel(
 
     override fun hasFinishPaymentAnimation() {
         state.paymentModel?.let { paymentModel ->
-            handler?.onPaymentFinished(paymentModel, object : PayButton.OnPaymentFinishedCallback {
+            handler.onPaymentFinished(paymentModel, object : PayButton.OnPaymentFinishedCallback {
                 override fun call() {
                     resolvePostPaymentUrls(paymentModel)?.let {
                         PostPaymentDriver.Builder(paymentModel, it).action(

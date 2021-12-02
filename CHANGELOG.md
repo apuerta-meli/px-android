@@ -1,3 +1,8 @@
+## VERSION 4.97.0
+_02_12_2021_
+* FIX - Charge zero showing on summary
+* FIX - Missing payment configuration making pay button explode infinite
+
 ## VERSION 4.96.2
 _25_11_2021_
 * FIX - NullPointerException is fixed when the checkout is started by onNewIntent.

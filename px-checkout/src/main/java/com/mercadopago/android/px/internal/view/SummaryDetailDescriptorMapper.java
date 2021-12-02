@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 import com.mercadopago.android.px.internal.features.AmountDescriptorViewModelFactory;
 import com.mercadopago.android.px.internal.mappers.Mapper;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
-import com.mercadopago.android.px.internal.util.ChargeRuleHelper;
+import com.mercadopago.android.px.internal.util.ChargeRuleExtensionsKt;
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.DiscountOverview;
@@ -75,7 +75,7 @@ public class SummaryDetailDescriptorMapper extends Mapper<
         final List<AmountDescriptorView.Model> list = new ArrayList<>();
 
         addDiscountRow(value, list);
-        if (value.chargeRule != null && !ChargeRuleHelper.isHighlightCharge(value.chargeRule)) {
+        if (value.chargeRule != null && !ChargeRuleExtensionsKt.isChargeZero(value.chargeRule)) {
             addChargesRow(value, list);
         }
         addPurchaseRow(list);

@@ -1,6 +1,6 @@
 ## VERSION 4.97.0
 _02_12_2021_
-* FIX - Charge zero showing on summary row
+* FIX - Charge zero showing on summary
 * FIX - Missing payment configuration making pay button explode infinite
 
 ## VERSION 4.96.2

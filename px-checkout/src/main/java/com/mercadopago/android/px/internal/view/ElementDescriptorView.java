@@ -3,10 +3,6 @@ package com.mercadopago.android.px.internal.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.view.animation.Animation;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -15,10 +11,12 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.extensions.ImageViewExtensionsKt;
 import com.mercadopago.android.px.internal.util.TextUtil;
-import org.apache.commons.lang3.NotImplementedException;
 
 public class ElementDescriptorView extends LinearLayout {
 

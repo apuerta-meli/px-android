@@ -84,8 +84,8 @@ class SummaryViewTest : BasicRobolectricTest() {
         }
 
         with(summaryView) {
-            getField<View>("toolbarElementDescriptor").assertVisible()
-            getField<View>("bigHeaderDescriptor").assertVisible()
+            getField<View>("horizontalHeaderDescriptor").assertVisible()
+            getField<View>("verticalHeaderDescriptor").assertVisible()
         }
     }
 }

@@ -198,17 +198,11 @@ public class SummaryView extends LinearLayout {
         if (isViewOverlapping(verticalHeaderDescriptor, detailRecyclerView)) {
             if (currentHeaderDescriptor == verticalHeaderDescriptor) {
                 // We swap from vertical to horizontal when header overlaps with details
-                currentHeaderDescriptor.animateExit();
-                currentHeaderDescriptor = horizontalHeaderDescriptor;
-                currentHeaderDescriptor.animateEnter(shouldAnimateReturnFromCardForm);
-                shouldAnimateReturnFromCardForm = false;
+                swapHeaderTo(horizontalHeaderDescriptor);
             }
         } else if (currentHeaderDescriptor != verticalHeaderDescriptor) {
             // We swap from horizontal to vertical when header overlaps with details
-            currentHeaderDescriptor.animateExit();
-            currentHeaderDescriptor = verticalHeaderDescriptor;
-            currentHeaderDescriptor.animateEnter(shouldAnimateReturnFromCardForm);
-            shouldAnimateReturnFromCardForm = false;
+            swapHeaderTo(verticalHeaderDescriptor);
         }
         if (measureListener != null) {
             final int availableSummaryHeight = itemsMaxSize.getMeasuredHeight();
@@ -216,6 +210,13 @@ public class SummaryView extends LinearLayout {
             final int expectedItemsHeight = Math.round(singleItemHeight * maxElementsToShow);
             measureListener.onSummaryMeasured(expectedItemsHeight > availableSummaryHeight);
         }
+    }
+
+    private void swapHeaderTo(ElementDescriptorView newHeader) {
+        currentHeaderDescriptor.animateExit();
+        currentHeaderDescriptor = newHeader;
+        currentHeaderDescriptor.animateEnter(shouldAnimateReturnFromCardForm);
+        shouldAnimateReturnFromCardForm = false;
     }
 
     public interface OnMeasureListener {

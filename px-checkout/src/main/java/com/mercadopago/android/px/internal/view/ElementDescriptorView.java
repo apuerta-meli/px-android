@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.view.animation.Animation;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.extensions.ImageViewExtensionsKt;
 import com.mercadopago.android.px.internal.util.TextUtil;
+import org.apache.commons.lang3.NotImplementedException;
 
 public class ElementDescriptorView extends LinearLayout {
 
@@ -121,6 +123,10 @@ public class ElementDescriptorView extends LinearLayout {
 
         ImageViewExtensionsKt.loadOrElse(icon, model.getUrlIcon(), model.getIconResourceId(), new CircleTransform());
     }
+
+    public void animateEnter(@NonNull final Boolean shouldSlide) { }
+
+    public void animateExit() { }
 
     public static class Model {
 

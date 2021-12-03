@@ -22,21 +22,17 @@ import java.util.List;
 
 public class SummaryView extends LinearLayout {
 
-    @NonNull private final ElementDescriptorView bigHeaderDescriptor;
+    @NonNull private final VerticalElementDescriptorView verticalHeaderDescriptor;
+    @NonNull private final HorizontalElementDescriptorView horizontalHeaderDescriptor;
+    @NonNull private ElementDescriptorView currentHeaderDescriptor;
     @NonNull private final AmountDescriptorView totalAmountDescriptor;
-    @NonNull private final ElementDescriptorView toolbarElementDescriptor;
     @NonNull private final View itemsMaxSize;
     /* default */ final DetailAdapter detailAdapter;
 
     /* default */ final RecyclerView detailRecyclerView;
     @Nullable private OnMeasureListener measureListener;
 
-    private final Animation toolbarAppearAnimation;
-    private final Animation toolbarDisappearAnimation;
     private final Animation listAppearAnimation;
-    private final Animation logoAppearAnimation;
-    private final Animation logoDisappearAnimation;
-    private final Animation slideDownIn;
 
     private boolean showingBigLogo = false;
     /* default */ boolean animating = false;
@@ -57,17 +53,17 @@ public class SummaryView extends LinearLayout {
         setBackgroundResource(R.color.px_checkout_summary_background);
         inflate(getContext(), R.layout.px_view_express_summary, this);
         itemsMaxSize = findViewById(R.id.itemsMaxSize);
-        bigHeaderDescriptor = findViewById(R.id.bigElementDescriptor);
-        bigHeaderDescriptor.setVisibility(INVISIBLE);
         totalAmountDescriptor = findViewById(R.id.total);
         detailRecyclerView = findViewById(R.id.recycler);
         detailRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         detailAdapter = new DetailAdapter();
         detailRecyclerView.setAdapter(detailAdapter);
-        toolbarElementDescriptor = findViewById(R.id.element_descriptor_toolbar);
 
-        toolbarAppearAnimation = AnimationUtils.loadAnimation(context, R.anim.px_toolbar_appear);
-        toolbarDisappearAnimation = AnimationUtils.loadAnimation(context, R.anim.px_toolbar_disappear);
+        verticalHeaderDescriptor = findViewById(R.id.bigElementDescriptor);
+        verticalHeaderDescriptor.setVisibility(INVISIBLE);
+        horizontalHeaderDescriptor = findViewById(R.id.element_descriptor_toolbar);
+        currentHeaderDescriptor = horizontalHeaderDescriptor;
+
         listAppearAnimation = AnimationUtils.loadAnimation(context, R.anim.px_summary_list_appear);
         listAppearAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -86,9 +82,6 @@ public class SummaryView extends LinearLayout {
 
             }
         });
-        logoAppearAnimation = AnimationUtils.loadAnimation(context, R.anim.px_summary_logo_appear);
-        logoDisappearAnimation = AnimationUtils.loadAnimation(context, R.anim.px_summary_logo_disappear);
-        slideDownIn = AnimationUtils.loadAnimation(getContext(), R.anim.px_summary_slide_down_in);
     }
 
     public void setMaxElementsToShow(final int maxElementsToShow) {
@@ -96,8 +89,8 @@ public class SummaryView extends LinearLayout {
     }
 
     public void setOnLogoClickListener(@NonNull final OnClickListener listener) {
-        bigHeaderDescriptor.setOnClickListener(listener);
-        toolbarElementDescriptor.setOnClickListener(listener);
+        verticalHeaderDescriptor.setOnClickListener(listener);
+        horizontalHeaderDescriptor.setOnClickListener(listener);
     }
 
     public void setMeasureListener(@Nullable final OnMeasureListener measureListener) {
@@ -112,8 +105,8 @@ public class SummaryView extends LinearLayout {
     }
 
     public void showToolbarElementDescriptor(@NonNull final ElementDescriptorView.Model elementDescriptorModel) {
-        toolbarElementDescriptor.update(elementDescriptorModel);
-        toolbarElementDescriptor.setVisibility(VISIBLE);
+        horizontalHeaderDescriptor.update(elementDescriptorModel);
+        horizontalHeaderDescriptor.setVisibility(VISIBLE);
     }
 
     public void animateEnter(final long duration) {
@@ -150,10 +143,10 @@ public class SummaryView extends LinearLayout {
         final Animation fadeOut = AnimationUtils.loadAnimation(getContext(), R.anim.px_fade_out);
         fadeOut.setDuration(duration);
 
-        if (showingBigLogo) {
-            bigHeaderDescriptor.startAnimation(fadeOut);
+        if (currentHeaderDescriptor == verticalHeaderDescriptor) {
+            verticalHeaderDescriptor.startAnimation(fadeOut);
         } else {
-            toolbarElementDescriptor.startAnimation(
+            horizontalHeaderDescriptor.startAnimation(
                 AnimationUtils.loadAnimation(getContext(), R.anim.px_summary_slide_up_out));
         }
 
@@ -190,9 +183,9 @@ public class SummaryView extends LinearLayout {
 
     public void update(@NonNull final Model model) {
         if (model.headerDescriptor != null) {
-            bigHeaderDescriptor.update(model.headerDescriptor);
+            verticalHeaderDescriptor.update(model.headerDescriptor);
         } else {
-            bigHeaderDescriptor.setVisibility(GONE);
+            verticalHeaderDescriptor.setVisibility(GONE);
         }
         totalAmountDescriptor.update(model.total);
         detailAdapter.updateItems(model.elements);
@@ -202,32 +195,20 @@ public class SummaryView extends LinearLayout {
     @Override
     protected void onLayout(final boolean changed, final int l, final int t, final int r, final int b) {
         super.onLayout(changed, l, t, r, b);
-        if (isViewOverlapping(bigHeaderDescriptor, detailRecyclerView)) {
-            if (showingBigLogo) {
-                showingBigLogo = false;
-
-                if (shouldAnimateReturnFromCardForm) {
-                    shouldAnimateReturnFromCardForm = false;
-                    toolbarElementDescriptor.startAnimation(slideDownIn);
-                } else {
-                    toolbarElementDescriptor.startAnimation(toolbarAppearAnimation);
-                }
-                bigHeaderDescriptor.startAnimation(logoDisappearAnimation);
-                bigHeaderDescriptor.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-                post(() -> toolbarElementDescriptor.performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null));
-            }
-        } else if (!showingBigLogo) {
-            bigHeaderDescriptor.setVisibility(VISIBLE);
-            showingBigLogo = true;
-
-            if (shouldAnimateReturnFromCardForm) {
+        if (isViewOverlapping(verticalHeaderDescriptor, detailRecyclerView)) {
+            if (currentHeaderDescriptor == verticalHeaderDescriptor) {
+                // We swap from vertical to horizontal when header overlaps with details
+                currentHeaderDescriptor.animateExit();
+                currentHeaderDescriptor = horizontalHeaderDescriptor;
+                currentHeaderDescriptor.animateEnter(shouldAnimateReturnFromCardForm);
                 shouldAnimateReturnFromCardForm = false;
-                bigHeaderDescriptor.startAnimation(slideDownIn);
-            } else {
-                bigHeaderDescriptor.startAnimation(logoAppearAnimation);
             }
-            toolbarElementDescriptor.startAnimation(toolbarDisappearAnimation);
-            toolbarElementDescriptor.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        } else if (currentHeaderDescriptor != verticalHeaderDescriptor) {
+            // We swap from horizontal to vertical when header overlaps with details
+            currentHeaderDescriptor.animateExit();
+            currentHeaderDescriptor = verticalHeaderDescriptor;
+            currentHeaderDescriptor.animateEnter(shouldAnimateReturnFromCardForm);
+            shouldAnimateReturnFromCardForm = false;
         }
         if (measureListener != null) {
             final int availableSummaryHeight = itemsMaxSize.getMeasuredHeight();

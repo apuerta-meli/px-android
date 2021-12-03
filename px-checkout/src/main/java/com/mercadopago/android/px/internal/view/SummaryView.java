@@ -34,7 +34,6 @@ public class SummaryView extends LinearLayout {
 
     private final Animation listAppearAnimation;
 
-    private boolean showingBigLogo = false;
     /* default */ boolean animating = false;
     private int maxElementsToShow;
     private boolean shouldAnimateReturnFromCardForm = false;
@@ -143,7 +142,7 @@ public class SummaryView extends LinearLayout {
         final Animation fadeOut = AnimationUtils.loadAnimation(getContext(), R.anim.px_fade_out);
         fadeOut.setDuration(duration);
 
-        if (currentHeaderDescriptor == verticalHeaderDescriptor) {
+        if (showingVerticalHeader()) {
             verticalHeaderDescriptor.startAnimation(fadeOut);
         } else {
             horizontalHeaderDescriptor.startAnimation(
@@ -196,12 +195,10 @@ public class SummaryView extends LinearLayout {
     protected void onLayout(final boolean changed, final int l, final int t, final int r, final int b) {
         super.onLayout(changed, l, t, r, b);
         if (isViewOverlapping(verticalHeaderDescriptor, detailRecyclerView)) {
-            if (currentHeaderDescriptor == verticalHeaderDescriptor) {
-                // We swap from vertical to horizontal when header overlaps with details
+            if (showingVerticalHeader()) {
                 swapHeaderTo(horizontalHeaderDescriptor);
             }
-        } else if (currentHeaderDescriptor != verticalHeaderDescriptor) {
-            // We swap from horizontal to vertical when header overlaps with details
+        } else if (!showingVerticalHeader()) {
             swapHeaderTo(verticalHeaderDescriptor);
         }
         if (measureListener != null) {
@@ -210,6 +207,10 @@ public class SummaryView extends LinearLayout {
             final int expectedItemsHeight = Math.round(singleItemHeight * maxElementsToShow);
             measureListener.onSummaryMeasured(expectedItemsHeight > availableSummaryHeight);
         }
+    }
+
+    private boolean showingVerticalHeader() {
+        return currentHeaderDescriptor == verticalHeaderDescriptor;
     }
 
     private void swapHeaderTo(ElementDescriptorView newHeader) {

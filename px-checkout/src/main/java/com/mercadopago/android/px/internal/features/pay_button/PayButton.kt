@@ -9,7 +9,7 @@ import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 
-interface PayButton {
+internal interface PayButton {
 
     interface View : ExplodingFragment.Handler {
         fun isExploding(): Boolean

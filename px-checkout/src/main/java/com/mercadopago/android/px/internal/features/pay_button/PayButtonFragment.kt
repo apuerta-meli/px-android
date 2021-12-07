@@ -48,7 +48,7 @@ private const val EXTRA_STATE = "extra_state"
 private const val EXTRA_VISIBILITY = "extra_visibility"
 private const val EXTRA_OBSERVING = "extra_observing"
 
-class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHandler {
+internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHandler {
 
     private var buttonStatus = MeliButton.State.NORMAL
     private lateinit var button: MeliButton

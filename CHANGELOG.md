@@ -1,3 +1,7 @@
+## VERSION 4.97.1
+_07_12_2021_
+* FIX - Pay button pressed track crash with destroy activities
+
 ## VERSION 4.97.0
 _02_12_2021_
 * FIX - Charge zero showing on summary

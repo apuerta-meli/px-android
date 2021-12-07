@@ -21,6 +21,7 @@ internal open class UIResult : PayButtonUiState() {
     data class PaymentResult(val model: PaymentModel) : UIResult()
     data class CongratsPaymentModel(val model: PaymentCongratsModel) : UIResult()
     data class NoCongratsResult(val model: PaymentModel) : UIResult()
+    data class PostPaymentResult(val deepLink: String) : UIResult()
 }
 
 internal open class UIError : PayButtonUiState() {

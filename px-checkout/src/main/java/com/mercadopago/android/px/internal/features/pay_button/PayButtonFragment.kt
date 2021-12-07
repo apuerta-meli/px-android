@@ -1,7 +1,9 @@
 package com.mercadopago.android.px.internal.features.pay_button
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -33,6 +35,7 @@ import com.mercadopago.android.px.internal.features.security_code.SecurityCodeAc
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeParams
 import com.mercadopago.android.px.internal.util.FragmentUtil
+import com.mercadopago.android.px.internal.util.Logger.debug
 import com.mercadopago.android.px.internal.util.ViewUtils
 import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.internal.view.OnSingleClickListener
@@ -121,7 +124,16 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
             is UIError -> resolveError(stateUI)
             is UIResult.PaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
             is UIResult.NoCongratsResult -> DummyResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
+            is UIResult.PostPaymentResult -> launchPostPaymentScreen(stateUI.deepLink)
             is UIResult.CongratsPaymentModel -> PaymentCongrats.show(stateUI.model, this, REQ_CODE_CONGRATS)
+        }
+    }
+
+    private fun launchPostPaymentScreen(deepLink: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)))
+        } catch (e: ActivityNotFoundException) {
+            debug(TAG, e)
         }
     }
 
@@ -329,5 +341,9 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
 
     fun addOnStateChange(stateChange: PayButton.StateChange) {
         this.payButtonStateChange = stateChange
+    }
+
+    companion object {
+        val TAG = PayButtonFragment::class.simpleName!!
     }
 }

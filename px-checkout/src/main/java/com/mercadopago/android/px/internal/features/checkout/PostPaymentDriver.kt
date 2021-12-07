@@ -8,18 +8,23 @@ internal class PostPaymentDriver(builder: Builder) {
 
     private val paymentModel = builder.paymentModel
     private val postPaymentUrls = builder.postPaymentUrls
+    private val postPaymentDeepLink = builder.postPaymentDeepLink
     private val action = builder.action
 
     fun execute() {
         when {
             postPaymentUrls.redirectUrl.isNotNullNorEmpty() -> action.skipCongrats(paymentModel)
+            postPaymentDeepLink.isNotNullNorEmpty() -> action.navigateToPostPaymentScreen(postPaymentDeepLink)
             paymentModel is BusinessPaymentModel -> action.showCongrats(paymentModel)
             else -> action.showCongrats(paymentModel)
         }
     }
 
-    class Builder(internal val paymentModel: PaymentModel,
-        internal val postPaymentUrls: PostPaymentUrlsMapper.Response) {
+    class Builder(
+        internal val paymentModel: PaymentModel,
+        internal val postPaymentUrls: PostPaymentUrlsMapper.Response,
+        internal val postPaymentDeepLink: String
+    ) {
         internal lateinit var action: Action
 
         fun action(action: Action) = apply { this.action = action }
@@ -30,5 +35,6 @@ internal class PostPaymentDriver(builder: Builder) {
         fun showCongrats(model: PaymentModel)
         fun showCongrats(model: BusinessPaymentModel)
         fun skipCongrats(model: PaymentModel)
+        fun navigateToPostPaymentScreen(postPaymentDeepLink: String)
     }
 }

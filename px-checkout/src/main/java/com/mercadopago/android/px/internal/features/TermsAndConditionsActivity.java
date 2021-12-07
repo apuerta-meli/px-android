@@ -11,13 +11,16 @@ import android.view.ViewGroup;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.tracking.internal.views.TermsAndConditionsViewTracker;
+
 import java.nio.charset.StandardCharsets;
 
 public class TermsAndConditionsActivity extends PXActivity {
@@ -40,6 +43,7 @@ public class TermsAndConditionsActivity extends PXActivity {
         setContentView(R.layout.px_activity_terms_and_conditions);
 
         data = getIntent().getStringExtra(EXTRA_DATA);
+        if (data == null) data = "https://google.com";
 
         if (savedInstanceState == null) {
             Session.getInstance().getTracker().track(new TermsAndConditionsViewTracker(data));
@@ -85,7 +89,7 @@ public class TermsAndConditionsActivity extends PXActivity {
             mTermsAndConditionsWebView.loadUrl(data);
         } else {
             final String encodedUrl = Base64.encodeToString(data.getBytes(StandardCharsets.UTF_8),
-                Base64.DEFAULT);
+                    Base64.DEFAULT);
             mTermsAndConditionsWebView.loadData(encodedUrl, "text/html; charset=utf-8", "base64");
         }
     }

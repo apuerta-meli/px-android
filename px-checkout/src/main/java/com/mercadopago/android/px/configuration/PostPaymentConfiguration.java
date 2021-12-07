@@ -1,45 +1,40 @@
 package com.mercadopago.android.px.configuration;
 
 import androidx.annotation.NonNull;
+
 import com.mercadopago.android.px.internal.core.ProductIdProvider;
+
 import java.io.Serializable;
 
-/**
- * Advanced configuration provides you support for custom checkout functionality/configure special behaviour when
- * checkout is running.
- */
 @SuppressWarnings("unused")
-public final class AdvancedConfiguration implements Serializable {
+public final class PostPaymentConfiguration implements Serializable {
 
-    /**
-     * Instores usage / money in usage. use case : not all bank deals apply right now to all preferences.
-     */
     private final boolean bankDealsEnabled;
     private final boolean expressEnabled;
     private final boolean amountRowEnabled;
     private final boolean acceptThirdPartyCard;
     @NonNull private final PaymentResultScreenConfiguration paymentResultScreenConfiguration;
-    @NonNull private final PostPaymentConfiguration postPaymentConfiguration;
     @NonNull private final ReviewAndConfirmConfiguration reviewAndConfirmConfiguration;
     @NonNull private final DynamicFragmentConfiguration dynamicFragmentConfiguration;
     @NonNull private final DynamicDialogConfiguration dynamicDialogConfiguration;
     @NonNull private final CustomStringConfiguration customStringConfiguration;
     @NonNull private final DiscountParamsConfiguration discountParamsConfiguration;
     @NonNull private final String productId;
+    @NonNull private final String deepLink;
 
-    /* default */ AdvancedConfiguration(final Builder builder) {
+    PostPaymentConfiguration(final Builder builder) {
         bankDealsEnabled = builder.bankDealsEnabled;
         expressEnabled = builder.expressEnabled;
         amountRowEnabled = builder.amountRowEnabled;
         acceptThirdPartyCard = builder.acceptThirdPartyCard;
         paymentResultScreenConfiguration = builder.paymentResultScreenConfiguration;
-        postPaymentConfiguration = builder.postPaymentConfiguration;
         reviewAndConfirmConfiguration = builder.reviewAndConfirmConfiguration;
         dynamicFragmentConfiguration = builder.dynamicFragmentConfiguration;
         dynamicDialogConfiguration = builder.dynamicDialogConfiguration;
         customStringConfiguration = builder.customStringConfiguration;
         discountParamsConfiguration = builder.discountParamsConfiguration;
         productId = builder.productId;
+        deepLink = builder.deepLink;
     }
 
     /**
@@ -85,11 +80,6 @@ public final class AdvancedConfiguration implements Serializable {
         return paymentResultScreenConfiguration;
     }
 
-    @NonNull
-    public PostPaymentConfiguration getPostPaymentConfiguration() {
-        return postPaymentConfiguration;
-    }
-
     /**
      * @deprecated groups will no longer be available anymore
      */
@@ -122,6 +112,11 @@ public final class AdvancedConfiguration implements Serializable {
         return productId;
     }
 
+    @NonNull
+    public String getDeepLink() {
+        return deepLink;
+    }
+
     @SuppressWarnings("unused")
     public static class Builder {
         /* default */ boolean bankDealsEnabled = true;
@@ -130,8 +125,6 @@ public final class AdvancedConfiguration implements Serializable {
         /* default */ boolean acceptThirdPartyCard = true;
         /* default */ @NonNull PaymentResultScreenConfiguration paymentResultScreenConfiguration =
             new PaymentResultScreenConfiguration.Builder().build();
-        /* default */ @NonNull PostPaymentConfiguration postPaymentConfiguration =
-                new PostPaymentConfiguration.Builder().build();
         /* default */ @NonNull ReviewAndConfirmConfiguration reviewAndConfirmConfiguration =
             new ReviewAndConfirmConfiguration.Builder().build();
         /* default */ @NonNull DynamicFragmentConfiguration dynamicFragmentConfiguration =
@@ -143,6 +136,7 @@ public final class AdvancedConfiguration implements Serializable {
         /* default */ @NonNull DiscountParamsConfiguration discountParamsConfiguration =
             new DiscountParamsConfiguration.Builder().build();
         /* default */ @NonNull String productId = ProductIdProvider.DEFAULT_PRODUCT_ID;
+        /* default */ @NonNull String deepLink = "";
 
         /**
          * Add the possibility to configure Bank's deals behaviour. If set as true, then the checkout will try to
@@ -194,12 +188,6 @@ public final class AdvancedConfiguration implements Serializable {
         public Builder setPaymentResultScreenConfiguration(
             @NonNull final PaymentResultScreenConfiguration paymentResultScreenConfiguration) {
             this.paymentResultScreenConfiguration = paymentResultScreenConfiguration;
-            return this;
-        }
-
-        public Builder setPostPaymentConfiguration(
-                @NonNull final PostPaymentConfiguration postPaymentConfiguration) {
-            this.postPaymentConfiguration = postPaymentConfiguration;
             return this;
         }
 
@@ -296,6 +284,11 @@ public final class AdvancedConfiguration implements Serializable {
             return this;
         }
 
+        public Builder setDeepLink(@NonNull final String deepLink) {
+            this.deepLink = deepLink;
+            return this;
+        }
+
         /**
          * Set if accept third party cards on new card form.
          *
@@ -307,8 +300,8 @@ public final class AdvancedConfiguration implements Serializable {
             return this;
         }
 
-        public AdvancedConfiguration build() {
-            return new AdvancedConfiguration(this);
+        public PostPaymentConfiguration build() {
+            return new PostPaymentConfiguration(this);
         }
     }
 }

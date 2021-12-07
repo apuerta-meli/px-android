@@ -37,9 +37,7 @@ import com.mercadopago.android.px.model.*
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.MPTracker
-import com.mercadopago.android.px.tracking.internal.events.BiometricsFrictionTracker
-import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
-import com.mercadopago.android.px.tracking.internal.events.NoConnectionFrictionTracker
+import com.mercadopago.android.px.tracking.internal.events.*
 import com.mercadopago.android.px.tracking.internal.events.PayButtonPressedEvent
 import com.mercadopago.android.px.tracking.internal.model.Reason
 import com.mercadopago.android.px.tracking.internal.views.OneTapViewTracker
@@ -265,7 +263,7 @@ internal class PayButtonViewModel(
             handler?.onPaymentFinished(paymentModel, object : PayButton.OnPaymentFinishedCallback {
                 override fun call() {
                     resolvePostPaymentUrls(paymentModel)?.let {
-                        PostPaymentDriver.Builder(paymentModel, it).action(
+                        PostPaymentDriver.Builder(paymentModel, it, paymentSettingRepository.advancedConfiguration.postPaymentConfiguration.deepLink).action(
                             object : PostPaymentDriver.Action {
                                 override fun showCongrats(model: PaymentModel) {
                                     stateUILiveData.value = UIResult.PaymentResult(model)
@@ -277,6 +275,10 @@ internal class PayButtonViewModel(
 
                                 override fun skipCongrats(model: PaymentModel) {
                                     stateUILiveData.value = UIResult.NoCongratsResult(model)
+                                }
+
+                                override fun navigateToPostPaymentScreen(deepLink: String) {
+                                    stateUILiveData.value = UIResult.PostPaymentResult(deepLink)
                                 }
                             }
                         ).build().execute()

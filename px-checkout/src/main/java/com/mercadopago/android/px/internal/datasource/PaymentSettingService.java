@@ -1,12 +1,15 @@
 package com.mercadopago.android.px.internal.datasource;
 
 import android.content.SharedPreferences;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.CustomStringConfiguration;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration;
 import com.mercadopago.android.px.internal.core.FileManager;
 import com.mercadopago.android.px.internal.model.SecurityType;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
@@ -17,6 +20,7 @@ import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
 import com.mercadopago.android.px.model.internal.Configuration;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+
 import java.io.File;
 import java.util.Calendar;
 import java.util.Collections;
@@ -33,6 +37,7 @@ public class PaymentSettingService implements PaymentSettingRepository {
     private static final String PREF_TOKEN = "PREF_TOKEN";
     private static final String PREF_SECURITY_TYPE = "PREF_SECURITY_TYPE";
     private static final String PREF_PRODUCT_ID = "PREF_PRODUCT_ID";
+    private static final String PREF_POST_PAYMENT_DEEP_LINK = "PREF_POST_PAYMENT_DEEP_LINK";
     private static final String PREF_LABELS = "PREF_LABELS";
     private static final String PREF_DISCOUNT_PARAMS = "PREF_DISCOUNT_PARAMS";
     private static final String PREF_ONE_TAP_ENABLED = "PREF_ONE_TAP_ENABLED";
@@ -41,16 +46,20 @@ public class PaymentSettingService implements PaymentSettingRepository {
     private static final String PREF_ACCEPT_THIRD_PARTY_CARD = "PREF_ACCEPT_THIRD_PARTY_CARD";
     private static final String FILE_PAYMENT_CONFIG = "px_payment_config";
 
-    @NonNull private final SharedPreferences sharedPreferences;
-    @NonNull private final FileManager fileManager;
+    @NonNull
+    private final SharedPreferences sharedPreferences;
+    @NonNull
+    private final FileManager fileManager;
 
-    @Nullable private CheckoutPreference pref;
+    @Nullable
+    private CheckoutPreference pref;
     private PaymentConfiguration paymentConfiguration;
     private AdvancedConfiguration advancedConfiguration;
-    @NonNull private final File paymentConfigFile;
+    @NonNull
+    private final File paymentConfigFile;
 
     public PaymentSettingService(@NonNull final SharedPreferences sharedPreferences,
-        @NonNull final FileManager fileManager) {
+                                 @NonNull final FileManager fileManager) {
         this.sharedPreferences = sharedPreferences;
         this.fileManager = fileManager;
         paymentConfigFile = fileManager.create(FILE_PAYMENT_CONFIG);
@@ -105,9 +114,10 @@ public class PaymentSettingService implements PaymentSettingRepository {
         edit.putStringSet(PREF_LABELS, advancedConfiguration.getDiscountParamsConfiguration().getLabels());
         edit.putString(PREF_CUSTOM_STRINGS, JsonUtil.toJson(advancedConfiguration.getCustomStringConfiguration()));
         edit.putString(PREF_DISCOUNT_PARAMS,
-            JsonUtil.toJson(advancedConfiguration.getDiscountParamsConfiguration().getAdditionalParams()));
+                JsonUtil.toJson(advancedConfiguration.getDiscountParamsConfiguration().getAdditionalParams()));
         edit.putBoolean(PREF_ONE_TAP_ENABLED, advancedConfiguration.isExpressPaymentEnabled()).apply();
         edit.putBoolean(PREF_ACCEPT_THIRD_PARTY_CARD, advancedConfiguration.acceptThirdPartyCard());
+        edit.putString(PREF_POST_PAYMENT_DEEP_LINK, advancedConfiguration.getPostPaymentConfiguration().getDeepLink());
 
         this.advancedConfiguration = advancedConfiguration;
     }
@@ -211,7 +221,7 @@ public class PaymentSettingService implements PaymentSettingRepository {
     @Override
     public Configuration getConfiguration() {
         final Configuration configuration =
-            JsonUtil.fromJson(sharedPreferences.getString(PREF_CONFIGURATION, null), Configuration.class);
+                JsonUtil.fromJson(sharedPreferences.getString(PREF_CONFIGURATION, null), Configuration.class);
         if (configuration == null) {
             throw new IllegalStateException("Unable to retrieve configuration from storage");
         }
@@ -246,16 +256,17 @@ public class PaymentSettingService implements PaymentSettingRepository {
     public AdvancedConfiguration getAdvancedConfiguration() {
         if (advancedConfiguration == null) {
             return new AdvancedConfiguration.Builder()
-                .setExpressPaymentEnable(sharedPreferences.getBoolean(PREF_ONE_TAP_ENABLED, false))
-                .setAcceptThirdPartyCard(sharedPreferences.getBoolean(PREF_ACCEPT_THIRD_PARTY_CARD, true))
-                .setDiscountParamsConfiguration(new DiscountParamsConfiguration.Builder()
-                    .setProductId(sharedPreferences.getString(PREF_PRODUCT_ID, ""))
-                    .addAdditionalParams(
-                        JsonUtil.getStringMapFromJson(sharedPreferences.getString(PREF_DISCOUNT_PARAMS, "")))
-                    .setLabels(sharedPreferences.getStringSet(PREF_LABELS, Collections.emptySet())).build())
-                .setCustomStringConfiguration(JsonUtil.fromJson(
-                    sharedPreferences.getString(PREF_CUSTOM_STRINGS, null), CustomStringConfiguration.class))
-                .build();
+                    .setExpressPaymentEnable(sharedPreferences.getBoolean(PREF_ONE_TAP_ENABLED, false))
+                    .setAcceptThirdPartyCard(sharedPreferences.getBoolean(PREF_ACCEPT_THIRD_PARTY_CARD, true))
+                    .setPostPaymentConfiguration(new PostPaymentConfiguration.Builder().setDeepLink(sharedPreferences.getString(PREF_POST_PAYMENT_DEEP_LINK, null)).build())
+                    .setDiscountParamsConfiguration(new DiscountParamsConfiguration.Builder()
+                            .setProductId(sharedPreferences.getString(PREF_PRODUCT_ID, ""))
+                            .addAdditionalParams(
+                                    JsonUtil.getStringMapFromJson(sharedPreferences.getString(PREF_DISCOUNT_PARAMS, "")))
+                            .setLabels(sharedPreferences.getStringSet(PREF_LABELS, Collections.emptySet())).build())
+                    .setCustomStringConfiguration(JsonUtil.fromJson(
+                            sharedPreferences.getString(PREF_CUSTOM_STRINGS, null), CustomStringConfiguration.class))
+                    .build();
         }
         return advancedConfiguration;
     }

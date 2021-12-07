@@ -113,7 +113,6 @@ import kotlin.Unit;
     @NonNull private final ElementDescriptorMapper elementDescriptorMapper;
     @NonNull private final SummaryDetailDescriptorMapper summaryDetailDescriptorMapper;
     @NonNull private final OneTapItemRepository oneTapItemRepository;
-    @NonNull private final PayerPaymentMethodRepository payerPaymentMethodRepository;
     @NonNull private final ModalRepository modalRepository;
     @NonNull private final CustomOptionIdSolver customOptionIdSolver;
     @NonNull private final CheckoutUseCase checkoutUseCase;
@@ -176,13 +175,21 @@ import kotlin.Unit;
         this.paymentMethodDescriptorMapper = paymentMethodDescriptorMapper;
         this.summaryDetailDescriptorMapper = summaryDetailDescriptorMapper;
         this.oneTapItemRepository = oneTapItemRepository;
-        this.payerPaymentMethodRepository = payerPaymentMethodRepository;
         this.modalRepository = modalRepository;
         this.customOptionIdSolver = customOptionIdSolver;
         this.amountDescriptorViewModelFactory = amountDescriptorViewModelFactory;
         this.authorizationProvider = authorizationProvider;
 
         triggerableQueue = new TriggerableQueue();
+        setViewTrack(new OneTapViewTracker(
+            fromApplicationToApplicationInfo,
+            oneTapItemRepository.getValue(),
+            paymentSettingRepository.getCheckoutPreference(),
+            discountRepository.getCurrentConfiguration(), escManagerBehaviour.getESCCardIds(),
+            payerPaymentMethodRepository.getIdsWithSplitAllowed(),
+            disabledPaymentMethodRepository.getValue().size(),
+            experimentsRepository.getExperiments(Configuration.TrackingMode.NO_CONDITIONAL)
+        ));
     }
 
     @NonNull
@@ -249,7 +256,7 @@ import kotlin.Unit;
     @Override
     public void onFreshStart() {
         triggerableQueue.enqueue(() -> {
-            trackOneTapView();
+            trackView();
             return null;
         });
     }
@@ -257,19 +264,6 @@ import kotlin.Unit;
     @Override
     public void onGetViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback) {
         callback.call(getViewTrack().getTrack().getPath());
-    }
-
-    private void trackOneTapView() {
-        final OneTapViewTracker oneTapViewTracker =
-            new OneTapViewTracker(
-                fromApplicationToApplicationInfo,
-                oneTapItemRepository.getValue(),
-                paymentSettingRepository.getCheckoutPreference(),
-                discountRepository.getCurrentConfiguration(), escManagerBehaviour.getESCCardIds(),
-                payerPaymentMethodRepository.getIdsWithSplitAllowed(),
-                disabledPaymentMethodRepository.getValue().size(),
-                experimentsRepository.getExperiments(Configuration.TrackingMode.NO_CONDITIONAL));
-        setCurrentViewTracker(oneTapViewTracker);
     }
 
     private OneTapItem getCurrentOneTapItem() {

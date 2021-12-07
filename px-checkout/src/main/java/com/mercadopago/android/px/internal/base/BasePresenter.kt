@@ -24,24 +24,19 @@ internal abstract class BasePresenter<V : MvpView>(protected val tracker: MPTrac
         }
 
     protected fun trackAbort() {
-        viewTrack?.let {
-            tracker.track(AbortEvent(it))
-        }
+        viewTrack?.let { track(AbortEvent(it)) }
     }
 
     protected fun trackBack() {
-        viewTrack?.let {
-            tracker.track(BackEvent(it))
-        }
+        viewTrack?.let { track(BackEvent(it)) }
+    }
+
+    protected fun trackView() {
+        viewTrack?.let { track(it) }
     }
 
     protected fun track(trackWrapper: TrackWrapper) {
         tracker.track(trackWrapper)
-    }
-
-    protected fun setCurrentViewTracker(viewTrack: TrackWrapper) {
-        this.viewTrack = viewTrack
-        track(viewTrack)
     }
 
     open fun attachView(view: V) {

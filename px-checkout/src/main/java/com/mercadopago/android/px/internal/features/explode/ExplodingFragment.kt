@@ -146,7 +146,7 @@ class ExplodingFragment : Fragment() {
      *
      * @param explodeDecorator information about the order result, useful for styling the view.
      */
-    fun finishLoading(explodeDecorator: ExplodeDecorator) {
+    fun finishLoading(explodeDecorator: ExplodeDecorator? = null) {
         this.explodeDecorator = explodeDecorator
         doFinishLoading()
     }

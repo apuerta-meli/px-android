@@ -1,7 +1,9 @@
 package com.mercadopago.android.px.internal.features.pay_button
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -59,6 +61,7 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
             return false
         }
     }
+    private var fromPostPayment: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.px_fragment_pay_button, container, false)
@@ -121,7 +124,17 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
             is UIError -> resolveError(stateUI)
             is UIResult.PaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
             is UIResult.NoCongratsResult -> DummyResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
+            is UIResult.PostPaymentResult -> launchPostPaymentScreen(stateUI.deepLink)
             is UIResult.CongratsPaymentModel -> PaymentCongrats.show(stateUI.model, this, REQ_CODE_CONGRATS)
+        }
+    }
+
+    private fun launchPostPaymentScreen(deepLink: String) {
+        try {
+            fromPostPayment = true
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)))
+        } catch (e: ActivityNotFoundException) {
+//            debug(TAG, e)
         }
     }
 

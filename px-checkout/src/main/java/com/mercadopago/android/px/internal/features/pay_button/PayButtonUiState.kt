@@ -19,6 +19,7 @@ internal open class UIProgress : PayButtonUiState() {
 internal open class UIResult : PayButtonUiState() {
     object VisualProcessorResult : UIResult()
     data class PaymentResult(val model: PaymentModel) : UIResult()
+    data class PostPaymentResult(val deepLink: String) : UIResult()
     data class CongratsPaymentModel(val model: PaymentCongratsModel) : UIResult()
     data class NoCongratsResult(val model: PaymentModel) : UIResult()
 }

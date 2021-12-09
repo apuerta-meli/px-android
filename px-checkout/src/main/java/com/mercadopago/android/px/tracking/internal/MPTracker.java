@@ -52,42 +52,41 @@ public final class MPTracker {
         final Track track = trackWrapper.getTrack();
         // Event friction case needs to add flow detail in a different way. We ignore this case for now.
         if (!FrictionEventTracker.PATH.equals(track.getPath())) {
-            addAdditionalFlowInfo(track.getData());
+            addAdditionalFlowInfo(track.getData(), trackWrapper.getShouldTrackExperimentsLabel());
         } else {
-            addAdditionalFlowIntoExtraInfo(track.getData());
+            addAdditionalFlowIntoExtraInfo(track.getData(), trackWrapper.getShouldTrackExperimentsLabel());
         }
         BehaviourProvider.getTrackingBehaviour().track(track);
         Logger.debug(TAG, "Type: " + track.getType().name() + " - Path: " + track.getPath());
         Logger.debug(TAG, track.getData());
     }
 
-    private void addAdditionalFlowIntoExtraInfo(@NonNull final Map<String, Object> data) {
+    private void addAdditionalFlowIntoExtraInfo(@NonNull final Map<String, Object> data, final boolean shouldTrackExperimentsLabel) {
         if (data.containsKey(ATTR_EXTRA_INFO)) {
-            final Object o = data.get(ATTR_EXTRA_INFO);
             try {
-                final Map<String, Object> value = (Map<String, Object>) o;
-                value.put(ATTR_FLOW_NAME, trackingRepository.getFlowId());
-                value.put(ATTR_SESSION_ID, trackingRepository.getSessionId());
-                value.put(ATTR_SESSION_TIME, getSecondsAfterInit());
-                value.put(ATTR_CHECKOUT_TYPE, CheckoutType.ONE_TAP);
-                value.put(ATTR_SECURITY_ENABLED, trackingRepository.getSecurityEnabled());
-                value.put(ATTR_DEVICE_SECURED, trackingRepository.getDeviceSecured());
-                value.put(ATTR_EXPERIMENTS, getExperimentsLabel());
+                final Map<String, Object> extraInfo = (Map<String, Object>) data.get(ATTR_EXTRA_INFO);
+                addCommonFlowInfo(extraInfo, shouldTrackExperimentsLabel);
             } catch (final ClassCastException e) {
                 // do nothing.
             }
         }
     }
 
-    private void addAdditionalFlowInfo(@NonNull final Map<String, Object> data) {
+    private void addAdditionalFlowInfo(@NonNull final Map<String, Object> data, final boolean shouldTrackExperimentsLabel) {
         data.put(ATTR_FLOW_DETAIL, trackingRepository.getFlowDetail());
+        addCommonFlowInfo(data, shouldTrackExperimentsLabel);
+    }
+
+    private void addCommonFlowInfo(@NonNull final Map<String, Object> data, final boolean shouldTrackExperimentsLabel) {
         data.put(ATTR_FLOW_NAME, trackingRepository.getFlowId());
         data.put(ATTR_SESSION_ID, trackingRepository.getSessionId());
         data.put(ATTR_SESSION_TIME, getSecondsAfterInit());
         data.put(ATTR_CHECKOUT_TYPE, CheckoutType.ONE_TAP);
         data.put(ATTR_SECURITY_ENABLED, trackingRepository.getSecurityEnabled());
         data.put(ATTR_DEVICE_SECURED, trackingRepository.getDeviceSecured());
-        data.put(ATTR_EXPERIMENTS, getExperimentsLabel());
+        if (shouldTrackExperimentsLabel) {
+            data.put(ATTR_EXPERIMENTS, getExperimentsLabel());
+        }
     }
 
     private String getExperimentsLabel() {

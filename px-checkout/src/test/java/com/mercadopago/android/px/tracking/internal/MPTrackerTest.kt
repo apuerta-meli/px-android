@@ -6,14 +6,14 @@ import com.mercadopago.android.px.addons.model.internal.Variant
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
 import com.mercadopago.android.px.model.CheckoutType
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
-import junit.framework.Assert.*
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 private const val FLOW = "/test_flow"
 private const val SESSION_ID = "/my_session_id"
@@ -38,14 +38,15 @@ class MPTrackerTest {
     fun setUp() {
         tracker = MPTracker(trackingRepository)
 
-        `when`(track.data).thenReturn(mutableMapOf())
-        `when`(track.path).thenReturn("/track_path")
-        `when`(track.type).thenReturn(Track.Type.EVENT)
-        `when`(trackWrapper.getTrack()).thenReturn(track)
+        whenever(track.data).thenReturn(mutableMapOf())
+        whenever(track.path).thenReturn("/track_path")
+        whenever(track.type).thenReturn(Track.Type.EVENT)
+        whenever(trackWrapper.getTrack()).thenReturn(track)
+        whenever(trackWrapper.shouldTrackExperimentsLabel).thenReturn(true)
 
-        `when`(trackingRepository.flowId).thenReturn(FLOW)
-        `when`(trackingRepository.flowDetail).thenReturn(flowDetail)
-        `when`(trackingRepository.sessionId).thenReturn(SESSION_ID)
+        whenever(trackingRepository.flowId).thenReturn(FLOW)
+        whenever(trackingRepository.flowDetail).thenReturn(flowDetail)
+        whenever(trackingRepository.sessionId).thenReturn(SESSION_ID)
     }
 
     @Test
@@ -61,8 +62,9 @@ class MPTrackerTest {
 
     @Test
     fun whenTrackFrictionThenAddFlowSessionAndExtraInfo() {
-        `when`(track.path).thenReturn(FrictionEventTracker.PATH)
-        `when`(track.data).thenReturn(mapOf(Pair("extra_info", mutableMapOf<String, Any?>())))
+        whenever(track.path).thenReturn(FrictionEventTracker.PATH)
+        whenever(track.data).thenReturn(mapOf(Pair("extra_info", mutableMapOf<String, Any?>())))
+
         tracker.track(trackWrapper)
 
         val extraInfo = track.data["extra_info"] as Map<*, *>
@@ -75,7 +77,8 @@ class MPTrackerTest {
 
     @Test
     fun whenTrackWithSecurityEnabledThenAddSecurityEnabledData() {
-        `when`(trackingRepository.securityEnabled).thenReturn(true)
+        whenever(trackingRepository.securityEnabled).thenReturn(true)
+
         tracker = MPTracker(trackingRepository)
         tracker.track(trackWrapper)
 
@@ -84,18 +87,27 @@ class MPTrackerTest {
 
     @Test
     fun whenTrackWithExperimentsThenAddExperimentsLabel() {
-        val experiment1 = mock(Experiment::class.java)
-        val experiment2 = mock(Experiment::class.java)
-        val variant = mock(Variant::class.java)
-        `when`(variant.name).thenReturn("Variant")
-        `when`(experiment1.name).thenReturn("Experiment1")
-        `when`(experiment2.name).thenReturn("Experiment2")
-        `when`(experiment1.variant).thenReturn(variant)
-        `when`(experiment2.variant).thenReturn(variant)
+        val experiment1 = mock<Experiment>()
+        val experiment2 = mock<Experiment>()
+        val variant = mock<Variant>()
+        whenever(variant.name).thenReturn("Variant")
+        whenever(experiment1.name).thenReturn("Experiment1")
+        whenever(experiment2.name).thenReturn("Experiment2")
+        whenever(experiment1.variant).thenReturn(variant)
+        whenever(experiment2.variant).thenReturn(variant)
 
         tracker.setExperiments(listOf(experiment1, experiment2))
         tracker.track(trackWrapper)
 
         assertEquals("Experiment1 - Variant,Experiment2 - Variant", track.data["experiments"])
+    }
+
+    @Test
+    fun `when experiments label flag is false then data shouldn't include it`() {
+        whenever(trackWrapper.shouldTrackExperimentsLabel).thenReturn(false)
+
+        tracker.track(trackWrapper)
+
+        assertFalse(track.data.containsKey("experiments"))
     }
 }

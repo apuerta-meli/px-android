@@ -31,6 +31,7 @@ import com.mercadopago.android.px.internal.extensions.gone
 import com.mercadopago.android.px.internal.extensions.invisible
 import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.internal.extensions.visible
+import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment
 import com.mercadopago.android.px.internal.util.ViewUtils
 import kotlin.math.hypot
 
@@ -146,7 +147,7 @@ class ExplodingFragment : Fragment() {
      *
      * @param explodeDecorator information about the order result, useful for styling the view.
      */
-    fun finishLoading(explodeDecorator: ExplodeDecorator? = null) {
+    fun finishLoading(explodeDecorator: ExplodeDecorator) {
         this.explodeDecorator = explodeDecorator
         doFinishLoading()
     }
@@ -307,8 +308,13 @@ class ExplodingFragment : Fragment() {
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     removeListener(this)
-                    explodeDecorator?.let {
-                        createResultAnim(it)
+                    if ((handler as? PayButtonFragment)?.skipRevealAnimation() != true) {
+                        explodeDecorator?.let {
+                            createResultAnim(it)
+                        }
+                    } else {
+                        handler?.onAnimationFinished()
+                        activity?.finish()
                     }
                 }
             })

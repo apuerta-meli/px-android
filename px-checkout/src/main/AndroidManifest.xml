@@ -11,19 +11,7 @@
             android:name=".internal.features.TermsAndConditionsActivity"
             android:label="@string/px_title_activity_terms_and_conditions"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/Theme.MercadoPagoTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="px"
-                    android:path="/terms-conditions"
-                    android:scheme="mercadopago" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.MercadoPagoTheme.NoActionBar" />
         <activity
             android:name=".internal.features.checkout.CheckoutActivity"
             android:label=""

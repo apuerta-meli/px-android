@@ -40,7 +40,6 @@ public class TermsAndConditionsActivity extends PXActivity {
         setContentView(R.layout.px_activity_terms_and_conditions);
 
         data = getIntent().getStringExtra(EXTRA_DATA);
-        if (data == null) data = "https://google.com";
 
         if (savedInstanceState == null) {
             Session.getInstance().getTracker().track(new TermsAndConditionsViewTracker(data));

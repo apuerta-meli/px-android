@@ -18,7 +18,10 @@ import com.mercadopago.android.px.internal.features.checkout.PostPaymentDriver
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
-import com.mercadopago.android.px.internal.features.pay_button.UIProgress.*
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingCanceled
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingFinished
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingStarted
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.FingerprintRequired
 import com.mercadopago.android.px.internal.features.pay_button.UIResult.VisualProcessorResult
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.features.security_code.RenderModeMapper
@@ -33,7 +36,11 @@ import com.mercadopago.android.px.internal.util.SecurityValidationDataFactory
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
-import com.mercadopago.android.px.model.*
+import com.mercadopago.android.px.model.Card
+import com.mercadopago.android.px.model.Currency
+import com.mercadopago.android.px.model.Payment
+import com.mercadopago.android.px.model.PaymentRecovery
+import com.mercadopago.android.px.model.PaymentResult
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.MPTracker
@@ -225,6 +232,13 @@ internal class PayButtonViewModel(
         handler.onPostPaymentAction(postPaymentAction)
     }
 
+    override fun getPostPaymentDeepLink(): String {
+        return paymentSettingRepository
+            .advancedConfiguration
+            .postPaymentConfiguration
+            .getPostPaymentDeepLink()
+    }
+
     override fun handleCongratsResult(resultCode: Int, data: Intent?) {
         handler.onPostCongrats(resultCode, data)
     }
@@ -268,25 +282,37 @@ internal class PayButtonViewModel(
             handler.onPaymentFinished(paymentModel, object : PayButton.OnPaymentFinishedCallback {
                 override fun call() {
                     resolvePostPaymentUrls(paymentModel)?.let {
-                        PostPaymentDriver.Builder(paymentModel, it, paymentSettingRepository.advancedConfiguration.postPaymentConfiguration.getPostPaymentDeepLink()).action(
-                            object : PostPaymentDriver.Action {
-                                override fun showCongrats(model: PaymentModel) {
-                                    stateUILiveData.value = UIResult.PaymentResult(model)
-                                }
+                        PostPaymentDriver.Builder(paymentModel, it)
+                            .action(
+                                object : PostPaymentDriver.Action {
+                                    override fun showCongrats(model: PaymentModel) {
+                                        stateUILiveData.value = UIResult.PaymentResult(model)
+                                    }
 
-                                override fun showCongrats(model: BusinessPaymentModel) {
-                                    stateUILiveData.value = UIResult.CongratsPaymentModel(paymentCongratsMapper.map(model))
-                                }
+                                    override fun showCongrats(model: BusinessPaymentModel) {
+                                        stateUILiveData.value = UIResult.CongratsPaymentModel(paymentCongratsMapper.map(model))
+                                    }
 
-                                override fun skipCongrats(model: PaymentModel) {
-                                    stateUILiveData.value = UIResult.NoCongratsResult(model)
-                                }
+                                    override fun skipCongrats(model: PaymentModel) {
+                                        stateUILiveData.value = UIResult.NoCongratsResult(model)
+                                    }
 
-                                override fun postPaymentScreen(postPaymentDeepLink: String, model: PaymentModel) {
-                                    stateUILiveData.value = UIResult.PostPaymentResult(postPaymentDeepLink)
+                                    override fun showPostPaymentScreen(postPaymentDeepLink: String, paymentModel: PaymentModel) {
+                                        if (paymentModel.paymentResult.isApproved) {
+                                            stateUILiveData.value = UIResult.PostPaymentResult(postPaymentDeepLink)
+                                        } else {
+                                            if (paymentModel is BusinessPaymentModel) {
+                                                stateUILiveData.value = UIResult.CongratsPaymentModel(paymentCongratsMapper.map(paymentModel))
+                                            } else {
+                                                stateUILiveData.value = UIResult.PaymentResult(paymentModel)
+                                            }
+                                        }
+                                    }
                                 }
-                            }
-                        ).build().execute()
+                            )
+                            .postPaymentDeepLink(getPostPaymentDeepLink())
+                            .build()
+                            .execute()
                     }
                 }
             })

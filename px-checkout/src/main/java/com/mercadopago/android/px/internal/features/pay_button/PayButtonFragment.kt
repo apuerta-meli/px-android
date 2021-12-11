@@ -35,6 +35,7 @@ import com.mercadopago.android.px.internal.features.security_code.SecurityCodeAc
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeParams
 import com.mercadopago.android.px.internal.util.FragmentUtil
+import com.mercadopago.android.px.internal.util.Logger.debug
 import com.mercadopago.android.px.internal.util.ViewUtils
 import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.internal.view.OnSingleClickListener
@@ -49,6 +50,7 @@ private const val REQ_CODE_SECURITY_CODE = 304
 private const val EXTRA_STATE = "extra_state"
 private const val EXTRA_VISIBILITY = "extra_visibility"
 private const val EXTRA_OBSERVING = "extra_observing"
+private const val TAG = "PayButtonFragment"
 
 class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHandler {
 
@@ -61,7 +63,6 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
             return false
         }
     }
-    private var fromPostPayment: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.px_fragment_pay_button, container, false)
@@ -131,10 +132,9 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
 
     private fun launchPostPaymentScreen(deepLink: String) {
         try {
-            fromPostPayment = true
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)))
         } catch (e: ActivityNotFoundException) {
-//            debug(TAG, e)
+            debug(TAG, e)
         }
     }
 
@@ -275,6 +275,10 @@ class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHand
                 }
             }
         }
+    }
+
+    fun skipRevealAnimation(): Boolean {
+        return viewModel.getPostPaymentDeepLink().isNotEmpty() && viewModel.state.paymentModel?.paymentResult?.isApproved ?: false
     }
 
     private fun cancelLoading() {

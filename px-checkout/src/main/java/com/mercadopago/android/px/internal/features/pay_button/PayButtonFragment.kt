@@ -52,7 +52,7 @@ private const val EXTRA_VISIBILITY = "extra_visibility"
 private const val EXTRA_OBSERVING = "extra_observing"
 private const val TAG = "PayButtonFragment"
 
-class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHandler {
+internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHandler {
 
     private var buttonStatus = MeliButton.State.NORMAL
     private lateinit var button: MeliButton

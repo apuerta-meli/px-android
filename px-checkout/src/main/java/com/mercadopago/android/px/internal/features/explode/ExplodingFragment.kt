@@ -34,8 +34,11 @@ import com.mercadopago.android.px.internal.extensions.visible
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment
 import com.mercadopago.android.px.internal.util.ViewUtils
 import kotlin.math.hypot
+import kotlin.math.min
 
-class ExplodingFragment : Fragment() {
+private const val MAX_LOADING_TIME_MILLIS = 60_000
+
+internal class ExplodingFragment : Fragment() {
 
     private var animator: ObjectAnimator? = null
 
@@ -66,7 +69,7 @@ class ExplodingFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             buttonText = it.getCharSequence(ARG_PROGRESS_TEXT)
-            maxLoadingTime = it.getInt(ARG_TIMEOUT)
+            maxLoadingTime = min(it.getInt(ARG_TIMEOUT), MAX_LOADING_TIME_MILLIS)
         } ?: error("Missing explode params")
     }
 

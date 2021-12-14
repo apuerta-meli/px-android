@@ -37,7 +37,7 @@ import com.mercadopago.android.px.internal.view.MPTextView
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 
-class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
+internal class OfflineMethodsFragment : Fragment(), OfflineMethods.View, BackHandler {
     private var fadeInAnimation: Animation? = null
     private var fadeOutAnimation: Animation? = null
 

@@ -1,3 +1,8 @@
+## VERSION 4.99.0
+_16_12_2021_
+* ENHANCEMENT - Added px-core new module
+* FIX - NPE caused from wrong parcelize of fragment state
+
 ## VERSION 4.98.0
 _09_12_2021_
 * ENHANCEMENT - Adds max pay button animation timeout for all flows

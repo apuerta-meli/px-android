@@ -5,7 +5,7 @@ import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-internal class ExpressPaymentState: BaseState {
-    var paymentMethodIndex = 0
-    var splitSelectionState = SplitSelectionState()
-}
+internal data class ExpressPaymentState @JvmOverloads constructor(
+    var paymentMethodIndex: Int = 0,
+    var splitSelectionState: SplitSelectionState = SplitSelectionState()
+) : BaseState

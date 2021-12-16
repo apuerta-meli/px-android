@@ -323,10 +323,10 @@ internal class PayButtonViewModel(
     }
 
     @Parcelize
-    class State : BaseState {
-        var paymentConfiguration: PaymentConfiguration? = null
-        var paymentModel: PaymentModel? = null
-        var retryCounter = 0
-        var observingService = false
-    }
+    data class State(
+        var paymentConfiguration: PaymentConfiguration? = null,
+        var paymentModel: PaymentModel? = null,
+        var retryCounter: Int = 0,
+        var observingService: Boolean = false
+    ) : BaseState
 }

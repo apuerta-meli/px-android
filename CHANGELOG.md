@@ -1,4 +1,4 @@
-## VERSION 4.99.0
+## VERSION 4.99.1
 _16_12_2021_
 * ENHANCEMENT - Added px-core new module
 * FIX - NPE caused from wrong parcelize of fragment state

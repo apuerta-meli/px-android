@@ -16,7 +16,7 @@ internal class CheckoutConfigurationModule(context: Context) : ConfigurationModu
     val chargeRepository: ChargeRepository
         get() {
             if (internalChargeRepository == null) {
-                internalChargeRepository = ChargeService(paymentSettings)
+                internalChargeRepository = ChargeService(sharedPreferences)
             }
             return internalChargeRepository!!
         }
@@ -56,6 +56,7 @@ internal class CheckoutConfigurationModule(context: Context) : ConfigurationModu
         payerComplianceRepository.reset()
         applicationSelectionRepository.reset()
         payerCostSelectionRepository.reset()
+        chargeRepository.reset()
         internalChargeRepository = null
         internalCustomTextsRepository = null
         internalApplicationSelectionRepository = null

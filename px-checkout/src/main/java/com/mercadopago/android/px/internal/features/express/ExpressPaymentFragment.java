@@ -129,6 +129,7 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
 
     private SummaryView summaryView;
     private View payButtonContainer;
+    private View oneTapContainer;
     private RecyclerView installmentsRecyclerView;
     /* default */ ViewPager paymentMethodPager;
     /* default */ View pagerAndConfirmButtonContainer;
@@ -164,6 +165,11 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
     @Override
     public void onSplitChanged(final boolean isChecked) {
         presenter.onSplitChanged(isChecked);
+    }
+
+    @Override
+    public void getViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback) {
+        presenter.onGetViewTrackPath(callback);
     }
 
     @Override
@@ -240,7 +246,7 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
         super.onViewCreated(view, savedInstanceState);
         configureViews(view);
         transition = new OneTapTransition(paymentMethodPager, summaryView, payButtonContainer,
-            paymentMethodHeaderView, indicator, splitPaymentView);
+            paymentMethodHeaderView, indicator, splitPaymentView, oneTapContainer);
 
         presenter = createPresenter();
 
@@ -292,6 +298,7 @@ public class ExpressPaymentFragment extends BaseFragment implements ExpressPayme
 
     private void configureViews(@NonNull final View view) {
         configurePaymentMethodHeader(view);
+        oneTapContainer = view.findViewById(R.id.one_tap_container);
         payButtonFragment = (PayButtonFragment) getChildFragmentManager().findFragmentById(R.id.pay_button);
         payButtonContainer = view.findViewById(R.id.pay_button);
         offlineMethodsFragment =

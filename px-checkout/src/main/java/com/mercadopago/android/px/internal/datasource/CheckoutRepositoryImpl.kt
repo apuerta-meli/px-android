@@ -31,6 +31,7 @@ internal open class CheckoutRepositoryImpl(
     private val payerComplianceRepository: PayerComplianceRepository,
     private val amountConfigurationRepository: AmountConfigurationRepository,
     private val discountRepository: DiscountRepository,
+    private val chargesRepository: ChargeRepository,
     private val customChargeToPaymentTypeChargeMapper: CustomChargeToPaymentTypeChargeMapper,
     private val initRequestBodyMapper: InitRequestBodyMapper,
     private val oneTapItemToDisabledPaymentMethodMapper: OneTapItemToDisabledPaymentMethodMapper
@@ -48,7 +49,7 @@ internal open class CheckoutRepositoryImpl(
 
         // TODO: Remove null check when backend has IDC ready
         checkoutResponse.customCharges?.let {
-            paymentSettingRepository.configure(
+            chargesRepository.configure(
                 customChargeToPaymentTypeChargeMapper.map(it)
             )
         }

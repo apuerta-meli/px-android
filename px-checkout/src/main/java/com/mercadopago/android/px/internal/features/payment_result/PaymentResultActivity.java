@@ -150,7 +150,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
                 footer.setVisibility(View.GONE);
             }
             PaymentResultLegacyRenderer.render(findViewById(R.id.container), listener, model.getLegacyViewModel(),
-                shouldDrawLegacyFooter, instructions == null, Session.getInstance().getPaymentResultViewModelFactory());
+                shouldDrawLegacyFooter, instructionModel == null, Session.getInstance().getPaymentResultViewModelFactory());
         }
     }
 
@@ -282,6 +282,11 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
         } catch (final ActivityNotFoundException e) {
             Logger.debug(TAG, e);
         }
+    }
+
+    @Override
+    public void getViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback) {
+        presenter.onGetViewTrackPath(callback);
     }
 
     @Override

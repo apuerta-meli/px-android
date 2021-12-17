@@ -1,3 +1,55 @@
+## VERSION 4.99.1
+_16_12_2021_
+* ENHANCEMENT - Added px-core new module
+* FIX - NPE caused from wrong parcelize of fragment state
+
+## VERSION 4.98.0
+_09_12_2021_
+* ENHANCEMENT - Adds max pay button animation timeout for all flows
+* ENHANCEMENT - Adds flag to track wrapper to avoid tracking experiments label
+
+## VERSION 4.97.1
+_07_12_2021_
+* FIX - Pay button pressed track crash with destroy activities
+
+## VERSION 4.97.0
+_02_12_2021_
+* FIX - Charge zero showing on summary
+* FIX - Missing payment configuration making pay button explode infinite
+
+## VERSION 4.96.2
+_25_11_2021_
+* FIX - NullPointerException is fixed when the checkout is started by onNewIntent.
+
+## VERSION 4.96.1
+_18_11_2021_
+* FIX - Payment result screen fixed
+
+## VERSION 4.96.0
+_11_11_2021_
+* FIX - Fixed broken CVV animation
+* FIX - Changed discount info icon
+* ENHANCEMENT - Added checkout type specifications
+* ENHANCEMENT - Added track for pay button click
+
+## VERSION 4.95.0
+_04_11_2021_
+* FIX - Legacy flowId remaining in memory between flows
+
+## VERSION 4.94.0
+_21_10_2021_
+* FIX - Network error
+* ENHANCEMENT - Feature flag for threeds sdk version
+
+## VERSION 4.93.0
+_14_10_2021_
+* FIX - Duplicated custom charges on IDC
+* ENHANCEMENT - Remedies screen adjustments
+
+## VERSION 4.92.1
+_05_10_2021_
+* FIX - Summary nav bar arrow color
+
 ## VERSION 4.92.0
 _30_09_2021_
 * FEATURE - Summary and offline methods restyling

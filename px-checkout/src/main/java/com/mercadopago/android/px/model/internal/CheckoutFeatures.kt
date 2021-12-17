@@ -18,6 +18,7 @@ internal class CheckoutFeatures(builder: Builder) {
     val pix: Boolean
     val customTaxesCharges: Boolean
     val styleVersion: String
+    val threedsSdkVersion: String
     val taxableCharges: Boolean
     val cardsCustomTaxesCharges: Boolean
 
@@ -35,6 +36,7 @@ internal class CheckoutFeatures(builder: Builder) {
         customTaxesCharges = builder.customTaxesCharges
         validationPrograms = builder.validationPrograms
         styleVersion = STYLE_VERSION
+        threedsSdkVersion = THREEDS_SDK_VERSION
         taxableCharges = builder.taxableCharges
         cardsCustomTaxesCharges = builder.cardsCustomTaxesCharges
     }
@@ -80,5 +82,6 @@ internal class CheckoutFeatures(builder: Builder) {
 
     companion object {
         const val STYLE_VERSION = "v1"
+        const val THREEDS_SDK_VERSION = "v1"
     }
 }

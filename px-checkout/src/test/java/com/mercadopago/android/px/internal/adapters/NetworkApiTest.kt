@@ -53,7 +53,6 @@ class NetworkApiTest {
 
     @Test
     fun testApiCallWithPreferenceIdResponseSuccess() {
-        whenever(connectionHelper.hasConnection()).thenReturn(true)
         runBlocking {
             val result = networkApi.apiCallForResponse(ITestService::class.java) {
                 it.apiCall(ITestService.Responses.SUCCESS)
@@ -71,7 +70,7 @@ class NetworkApiTest {
                 message = "No connection"
             })
             val result = networkApi.apiCallForResponse(ITestService::class.java) {
-                it.apiCall(ITestService.Responses.SUCCESS) // This does not matter because we simulate no connection
+                it.apiCall(ITestService.Responses.ERROR) // This does not matter because we simulate no connection
             }
             assertTrue(result is ApiResponse.Failure)
             assertTrue(ReflectionEquals(apiResponse.exception).matches((result as ApiResponse.Failure).exception))
@@ -114,7 +113,6 @@ class NetworkApiTest {
 
     @Test
     fun whenApiResponseIsSocketTimeoutThenItShouldNotRetry() {
-        whenever(connectionHelper.hasConnection()).thenReturn(true)
         runBlocking {
             val result = networkApi.apiCallForResponse(ITestService::class.java) {
                 it.apiCall(ITestService.Responses.SOCKET_EX)

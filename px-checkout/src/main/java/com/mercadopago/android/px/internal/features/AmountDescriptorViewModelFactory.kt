@@ -76,8 +76,7 @@ internal class AmountDescriptorViewModelFactory(
         val detailIcon = SummaryRowIconDescriptor(
             GenericDrawable(R.drawable.px_helper),
             GenericColor(R.color.px_checkout_helper_icon),
-            listener,
-            model.url
+            listener
         )
         val labelDescriptor = AmountDescriptorView.Model.LabelDescriptor(
             labelTexts,

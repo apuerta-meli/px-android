@@ -242,6 +242,19 @@ class ExpressPaymentPresenterTest {
     }
 
     @Test
+    fun whenOnFreshStartThenTrackView() {
+        expressPaymentPresenter.onFreshStart()
+
+        verify(tracker).track(any(OneTapViewTracker::class.java))
+        verifyNoMoreInteractions(tracker)
+    }
+
+    @Test
+    fun whenDirtyStartThenNotTrackView() {
+        verifyNoMoreInteractions(tracker)
+    }
+
+    @Test
     fun whenCanceledThenCancelAndTrack() {
         expressPaymentPresenter.onFreshStart()
         expressPaymentPresenter.cancel()

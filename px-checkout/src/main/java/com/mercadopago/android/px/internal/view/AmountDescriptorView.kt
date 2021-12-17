@@ -71,12 +71,7 @@ internal class AmountDescriptorView @JvmOverloads constructor(
     private fun updateLabelDrawable(model: Model) {
         labelIcon.visibility = if (model.label.iconDescriptor != null) VISIBLE else INVISIBLE
         model.label.iconDescriptor?.let {
-            if (it.url.isNotNullNorEmpty()) {
-                get(context).load(it.url).into(labelIcon)
-            }
-            else {
-                updateDrawable(it.drawable, it.drawableColor)
-            }
+            updateDrawable(it.drawable, it.drawableColor)
         }
     }
 

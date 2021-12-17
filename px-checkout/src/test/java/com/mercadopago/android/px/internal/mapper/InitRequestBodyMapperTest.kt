@@ -15,19 +15,16 @@ import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule
 import com.mercadopago.android.px.model.internal.CheckoutFeatures
 import com.mercadopago.android.px.model.internal.CheckoutType
 import com.mercadopago.android.px.model.internal.PaymentTypeChargeRuleDM
-import com.mercadopago.android.px.preferences.CheckoutPreference
 import com.mercadopago.android.px.utils.StubCheckoutPreferenceUtils
 import java.math.BigDecimal
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertNotNull
 import junit.framework.Assert.assertNull
 import junit.framework.Assert.assertTrue
-import kotlin.math.exp
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.whenever
 
@@ -72,7 +69,7 @@ class InitRequestBodyMapperTest {
         whenever(advancedConfiguration.discountParamsConfiguration).thenReturn(discountParamsConfiguration)
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
         whenever(paymentSettingRepository.publicKey).thenReturn("test_pk")
-        whenever(paymentConfiguration.getCheckoutType()).thenReturn(CheckoutType.REGULAR)
+        whenever(paymentConfiguration.getCheckoutType()).thenReturn(CheckoutType.CUSTOM_REGULAR)
     }
 
     @Test

@@ -1,0 +1,35 @@
+apply from: "$rootDir/gradle/base_android_lib.gradle"
+apply from: "$rootDir/gradle/jacoco.gradle"
+apply from: "$rootDir/gradle/static-analysis.gradle"
+apply from: "$rootDir/gradle/deploy_core.gradle"
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
+}
+
+dependencies {
+    testImplementation "junit:junit:$junit"
+    testImplementation "org.mockito:mockito-core:$mockito"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlin"
+    testImplementation "org.robolectric:robolectric:$robolectric"
+    testImplementation "androidx.test:core:$androidTestCore"
+
+    implementation "com.google.code.gson:gson:$gson"
+    implementation "androidx.appcompat:appcompat:$appcompat"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutines"
+
+    implementation "com.mercadolibre.android.andesui:components:$andesUi"
+    implementation "com.mercadolibre.android:picasso-disk-cache:$picassoDiskCache"
+
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle"
+    api "androidx.core:core-ktx:$coreKtx"
+}

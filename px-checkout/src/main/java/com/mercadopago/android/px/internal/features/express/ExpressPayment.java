@@ -133,6 +133,8 @@ public interface ExpressPayment {
         void onCardFormResult();
 
         void onApplicationChanged(@NonNull final String paymentTypeId);
+
+        void onGetViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback);
     }
 
     enum NavigationState {

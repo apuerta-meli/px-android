@@ -94,6 +94,9 @@ class CheckoutRepositoryImplTest {
     @Mock
     private lateinit var oneTapItemToDisabledPaymentMethodMapper: OneTapItemToDisabledPaymentMethodMapper
 
+    @Mock
+    private lateinit var chargesRepository: ChargeRepository
+
     @Before
     fun setUp() {
         whenever(paymentSettingRepository.checkoutPreferenceId).thenReturn("123456789")
@@ -120,6 +123,7 @@ class CheckoutRepositoryImplTest {
             payerComplianceRepository,
             amountConfigurationRepository,
             discountRepository,
+            chargesRepository,
             customChargeToPaymentTypeChargeMapper,
             initRequestBodyMapper,
             oneTapItemToDisabledPaymentMethodMapper
@@ -229,7 +233,7 @@ class CheckoutRepositoryImplTest {
             verify(paymentSettingRepository).configure(checkoutResponse.currency)
             verify(paymentSettingRepository).configure(checkoutResponse.configuration)
             verify(customChargeToPaymentTypeChargeMapper).map(checkoutResponse.customCharges ?: mapOf())
-            verify(paymentSettingRepository).configure(anyList())
+            verify(chargesRepository).configure(anyList())
             verify(experimentsRepository).configure(checkoutResponse.experiments)
             verify(payerPaymentMethodRepository).configure(checkoutResponse.payerPaymentMethods)
             verify(oneTapItemRepository).configure(checkoutResponse.oneTapItems)

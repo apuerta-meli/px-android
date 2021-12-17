@@ -31,7 +31,6 @@ class ConnectionHelper(context: Context) {
     private fun checkConnection(): Boolean {
         return cm.getNetworkCapabilities(cm.activeNetwork)?.let {
             it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                && it.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
         } ?: false
     }
 }

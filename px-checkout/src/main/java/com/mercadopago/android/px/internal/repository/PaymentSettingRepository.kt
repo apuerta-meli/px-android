@@ -29,7 +29,6 @@ internal interface PaymentSettingRepository : ConfigurationProvider {
     fun configure(currency: Currency)
     fun configure(checkoutPreference: CheckoutPreference?)
     fun configure(paymentConfiguration: PaymentConfiguration)
-    fun configure(charges: List<PaymentTypeChargeRule>)
     fun configure(configuration: Configuration)
     fun configure(token: Token)
     fun configure(secondFactor: SecurityType)

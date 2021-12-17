@@ -25,9 +25,7 @@ class NetworkApi(
         apiCall: suspend (api: T) -> Response<D>
     ): ApiResponseCallback<D> {
         return withContext(contextProvider.IO) {
-            if (connectionHelper.hasConnection()) {
-                apiCallWithRetries(apiServiceClass, apiCall)
-            } else Failure(ExceptionFactory.connectionError())
+            apiCallWithRetries(apiServiceClass, apiCall)
         }
     }
 
@@ -54,6 +52,9 @@ class NetworkApi(
         var currAttempt = 1
         var apiResponse = getApiResponse(apiCall, apiServiceClass)
         while (needRetry(apiResponse, currAttempt)) {
+            if (!connectionHelper.hasConnection()) {
+                return Failure(ExceptionFactory.connectionError())
+            }
             apiResponse = getApiResponse(apiCall, apiServiceClass)
             currAttempt++
         }

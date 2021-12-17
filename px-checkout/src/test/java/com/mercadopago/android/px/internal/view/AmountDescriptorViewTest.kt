@@ -166,7 +166,6 @@ class AmountDescriptorViewTest : BasicRobolectricTest() {
             getField<MPTextView>("brief").assertGone()
             with(getField<ImageView>("labelIcon")) {
                 assertVisible()
-                assertNull(drawable) // Assert drawable is null because it's loaded from url
             }
             assertTrue(hasOnClickListeners())
         }

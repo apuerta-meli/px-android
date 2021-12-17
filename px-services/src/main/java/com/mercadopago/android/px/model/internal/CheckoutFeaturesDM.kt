@@ -15,6 +15,7 @@ data class CheckoutFeaturesDM(
     val cardsCustomTaxesCharges: Boolean,
     val taxableCharges: Boolean,
     val styleVersion: String,
+    val threedsSdkVersion: String,
     @SerializedName("validations_programs")
     val validationPrograms: List<String>
 )

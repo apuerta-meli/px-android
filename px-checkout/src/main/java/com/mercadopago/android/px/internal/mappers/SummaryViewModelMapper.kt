@@ -2,8 +2,14 @@ package com.mercadopago.android.px.internal.mappers
 
 import com.mercadopago.android.px.internal.datasource.CustomOptionIdSolver
 import com.mercadopago.android.px.internal.features.AmountDescriptorViewModelFactory
-import com.mercadopago.android.px.internal.repository.*
-import com.mercadopago.android.px.internal.util.ChargeRuleHelper
+import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository
+import com.mercadopago.android.px.internal.repository.AmountRepository
+import com.mercadopago.android.px.internal.repository.ApplicationSelectionRepository
+import com.mercadopago.android.px.internal.repository.ChargeRepository
+import com.mercadopago.android.px.internal.repository.CustomTextsRepository
+import com.mercadopago.android.px.internal.repository.DiscountRepository
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodKey
+import com.mercadopago.android.px.internal.util.isHighlightCharge
 import com.mercadopago.android.px.internal.view.AmountDescriptorView
 import com.mercadopago.android.px.internal.view.ElementDescriptorView
 import com.mercadopago.android.px.internal.view.SummaryDetailDescriptorMapper
@@ -127,7 +133,7 @@ internal class SummaryViewModelMapper(
 
         init {
             this.discountConfigurationModel = discountConfigurationModel
-            this.paymentTypeChargeRule = if (ChargeRuleHelper.isHighlightCharge(paymentTypeChargeRule))
+            this.paymentTypeChargeRule = if (paymentTypeChargeRule != null && paymentTypeChargeRule.isHighlightCharge())
                 null else paymentTypeChargeRule
             this.hasSplit = hasSplit
         }

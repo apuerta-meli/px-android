@@ -134,16 +134,14 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
     }
 
     private fun launchPostPaymentFlow(deepLink: String, extraData: Parcelable?) {
-        if (deepLink.isNotEmpty()) {
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
-                extraData?.let {
-                    intent.putExtra(EXTRA_POST_PAYMENT_RESULT, it)
-                }
-                startActivityForResult(intent, REQ_CODE_POST_PAYMENT_RESULT_CODE)
-            } catch (e: ActivityNotFoundException) {
-                debug(TAG, e)
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
+            extraData?.let {
+                intent.putExtra(EXTRA_POST_PAYMENT_RESULT, it)
             }
+            startActivityForResult(intent, REQ_CODE_POST_PAYMENT_RESULT_CODE)
+        } catch (e: ActivityNotFoundException) {
+            debug(TAG, e)
         }
     }
 
@@ -236,7 +234,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
                 viewModel.handleSecurityCodeResult(resultCode, data)
             }
         } else if (requestCode == REQ_CODE_POST_PAYMENT_RESULT_CODE) {
-            //TODO: Semovi step 2
+            //TODO: Semovi step 2:  https://mercadolibre.atlassian.net/browse/PXN-2842
         }  else if (resultCode == Constants.RESULT_PAYMENT) {
             viewModel.onPostPayment(PaymentProcessorActivity.getPaymentModel(data))
         } else if (resultCode == Constants.RESULT_FAIL_ESC) {
@@ -293,9 +291,8 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         }
     }
 
-    fun skipRevealAnimation(): Boolean {
-        return viewModel.getPostPaymentDeepLinkUrl().isNotEmpty() && viewModel.state.paymentModel?.paymentResult?.isApproved == true
-    }
+    fun skipRevealAnimation() = viewModel.getPostPaymentDeepLinkUrl().isNotEmpty() &&
+            viewModel.state.paymentModel?.paymentResult?.isApproved == true
 
     private fun cancelLoading() {
         showConfirmButton()

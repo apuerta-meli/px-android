@@ -232,12 +232,10 @@ internal class PayButtonViewModel(
         handler.onPostPaymentAction(postPaymentAction)
     }
 
-    override fun getPostPaymentDeepLinkUrl(): String {
-        return paymentSettingRepository
-            .advancedConfiguration
-            .postPaymentConfiguration
-            .getPostPaymentDeepLinkUrl()
-    }
+    override fun getPostPaymentDeepLinkUrl() = paymentSettingRepository
+        .advancedConfiguration
+        .postPaymentConfiguration
+        .getPostPaymentDeepLinkUrl()
 
     override fun handleCongratsResult(resultCode: Int, data: Intent?) {
         handler.onPostCongrats(resultCode, data)

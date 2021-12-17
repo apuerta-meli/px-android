@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
@@ -47,6 +48,8 @@ private const val REQ_CODE_CONGRATS = 300
 private const val REQ_CODE_PAYMENT_PROCESSOR = 302
 private const val REQ_CODE_BIOMETRICS = 303
 private const val REQ_CODE_SECURITY_CODE = 304
+private const val REQ_CODE_POST_PAYMENT_RESULT_CODE = 305
+private const val EXTRA_POST_PAYMENT_RESULT = "extra_post_payment_result"
 private const val EXTRA_STATE = "extra_state"
 private const val EXTRA_VISIBILITY = "extra_visibility"
 private const val EXTRA_OBSERVING = "extra_observing"
@@ -125,16 +128,22 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             is UIError -> resolveError(stateUI)
             is UIResult.PaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
             is UIResult.NoCongratsResult -> DummyResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
-            is UIResult.PostPaymentResult -> launchPostPaymentScreen(stateUI.deepLink)
+            is UIResult.PostPaymentResult -> launchPostPaymentFlow(stateUI.deepLink, stateUI.extraData)
             is UIResult.CongratsPaymentModel -> PaymentCongrats.show(stateUI.model, this, REQ_CODE_CONGRATS)
         }
     }
 
-    private fun launchPostPaymentScreen(deepLink: String) {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)))
-        } catch (e: ActivityNotFoundException) {
-            debug(TAG, e)
+    private fun launchPostPaymentFlow(deepLink: String, extraData: Parcelable?) {
+        if (deepLink.isNotEmpty()) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
+                extraData?.let {
+                    intent.putExtra(EXTRA_POST_PAYMENT_RESULT, it)
+                }
+                startActivityForResult(intent, REQ_CODE_POST_PAYMENT_RESULT_CODE)
+            } catch (e: ActivityNotFoundException) {
+                debug(TAG, e)
+            }
         }
     }
 
@@ -226,7 +235,9 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             } else {
                 viewModel.handleSecurityCodeResult(resultCode, data)
             }
-        } else if (resultCode == Constants.RESULT_PAYMENT) {
+        } else if (requestCode == REQ_CODE_POST_PAYMENT_RESULT_CODE) {
+            //TODO: Semovi step 2
+        }  else if (resultCode == Constants.RESULT_PAYMENT) {
             viewModel.onPostPayment(PaymentProcessorActivity.getPaymentModel(data))
         } else if (resultCode == Constants.RESULT_FAIL_ESC) {
             viewModel.onRecoverPaymentEscInvalid(PaymentProcessorActivity.getPaymentRecovery(data)!!)
@@ -260,13 +271,18 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         context?.let {
             button.post {
                 if (!isAdded) {
-                    FrictionEventTracker.with("/px_checkout/pay_button_loading", FrictionEventTracker.Id.GENERIC,
-                        FrictionEventTracker.Style.SCREEN, emptyMap<String, String>())
+                    FrictionEventTracker.with(
+                        "/px_checkout/pay_button_loading",
+                        FrictionEventTracker.Id.GENERIC,
+                        FrictionEventTracker.Style.SCREEN,
+                        emptyMap<String, String>()
+                    )
                 } else {
                     val handleState = payButtonStateChange.overrideStateChange(PayButton.State.IN_PROGRESS)
                     if (!handleState) {
                         val explodingFragment = ExplodingFragment.newInstance(
-                            buttonConfig.getButtonProgressText(it), paymentTimeout)
+                            buttonConfig.getButtonProgressText(it), paymentTimeout
+                        )
                         childFragmentManager.beginTransaction()
                             .add(R.id.exploding_frame, explodingFragment, ExplodingFragment.TAG)
                             .commitNowAllowingStateLoss()
@@ -278,7 +294,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
     }
 
     fun skipRevealAnimation(): Boolean {
-        return viewModel.getPostPaymentDeepLink().isNotEmpty() && viewModel.state.paymentModel?.paymentResult?.isApproved ?: false
+        return viewModel.getPostPaymentDeepLinkUrl().isNotEmpty() && viewModel.state.paymentModel?.paymentResult?.isApproved == true
     }
 
     private fun cancelLoading() {

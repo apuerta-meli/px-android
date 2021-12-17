@@ -232,11 +232,11 @@ internal class PayButtonViewModel(
         handler.onPostPaymentAction(postPaymentAction)
     }
 
-    override fun getPostPaymentDeepLink(): String {
+    override fun getPostPaymentDeepLinkUrl(): String {
         return paymentSettingRepository
             .advancedConfiguration
             .postPaymentConfiguration
-            .getPostPaymentDeepLink()
+            .getPostPaymentDeepLinkUrl()
     }
 
     override fun handleCongratsResult(resultCode: Int, data: Intent?) {
@@ -297,12 +297,13 @@ internal class PayButtonViewModel(
                                         stateUILiveData.value = UIResult.NoCongratsResult(model)
                                     }
 
-                                    override fun showPostPaymentScreen(postPaymentDeepLink: String, paymentModel: PaymentModel) {
+                                    override fun launchPostPaymentFlow(postPaymentDeepLinkUrl: String, paymentModel: PaymentModel) {
                                         if (paymentModel.paymentResult.isApproved) {
-                                            stateUILiveData.value = UIResult.PostPaymentResult(postPaymentDeepLink)
+                                            stateUILiveData.value = UIResult.PostPaymentResult(postPaymentDeepLinkUrl, paymentModel)
                                         } else {
                                             if (paymentModel is BusinessPaymentModel) {
-                                                stateUILiveData.value = UIResult.CongratsPaymentModel(paymentCongratsMapper.map(paymentModel))
+                                                stateUILiveData.value =
+                                                    UIResult.CongratsPaymentModel(paymentCongratsMapper.map(paymentModel))
                                             } else {
                                                 stateUILiveData.value = UIResult.PaymentResult(paymentModel)
                                             }
@@ -310,7 +311,7 @@ internal class PayButtonViewModel(
                                     }
                                 }
                             )
-                            .postPaymentDeepLink(getPostPaymentDeepLink())
+                            .setPostPaymentDeepLinkUrl(getPostPaymentDeepLinkUrl())
                             .build()
                             .execute()
                     }

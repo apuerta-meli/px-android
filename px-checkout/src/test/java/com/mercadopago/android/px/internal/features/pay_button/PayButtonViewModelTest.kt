@@ -113,7 +113,7 @@ internal class PayButtonViewModelTest {
         whenever(paymentSettingRepository.site).thenReturn(Sites.ARGENTINA)
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
         whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
-        whenever(postPaymentConfiguration.getPostPaymentDeepLink()).thenReturn(null)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(null)
         whenever(renderModeMapper.map(any<RenderMode>())).thenReturn(mock())
 
         configurePaymentSettingServiceObservableEvents()
@@ -380,7 +380,7 @@ internal class PayButtonViewModelTest {
         }
         whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
-        whenever(postPaymentConfiguration.getPostPaymentDeepLink()).thenReturn("")
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn("")
 
         payButtonViewModel.hasFinishPaymentAnimation()
 
@@ -398,7 +398,7 @@ internal class PayButtonViewModelTest {
             on { congratsResponse }.thenReturn(mock())
         }
         whenever(state.paymentModel).thenReturn(paymentModel)
-        whenever(postPaymentConfiguration.getPostPaymentDeepLink()).thenReturn("")
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn("")
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
             .thenReturn(PostPaymentUrlsMapper.Response("redirect_url", null))
 
@@ -421,7 +421,7 @@ internal class PayButtonViewModelTest {
             on { paymentResult.isApproved }.thenReturn(true)
         }
         whenever(state.paymentModel).thenReturn(paymentModel)
-        whenever(postPaymentConfiguration.getPostPaymentDeepLink()).thenReturn(deepLink)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
             .thenReturn(PostPaymentUrlsMapper.Response("redirect_url", null))
 
@@ -445,7 +445,7 @@ internal class PayButtonViewModelTest {
             on { paymentResult.isApproved }.thenReturn(false)
         }
         whenever(state.paymentModel).thenReturn(paymentModel)
-        whenever(postPaymentConfiguration.getPostPaymentDeepLink()).thenReturn(deepLink)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
         whenever(paymentCongratsMapper.map(paymentModel)).thenReturn(congratsModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
             .thenReturn(PostPaymentUrlsMapper.Response("redirect_url", null))
@@ -469,7 +469,7 @@ internal class PayButtonViewModelTest {
             on { paymentResult.isApproved }.thenReturn(false)
         }
         whenever(state.paymentModel).thenReturn(paymentModel)
-        whenever(postPaymentConfiguration.getPostPaymentDeepLink()).thenReturn(deepLink)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
             .thenReturn(PostPaymentUrlsMapper.Response("redirect_url", null))
 
@@ -493,7 +493,7 @@ internal class PayButtonViewModelTest {
             on { paymentResult.isApproved }.thenReturn(false)
         }
         whenever(state.paymentModel).thenReturn(paymentModel)
-        whenever(postPaymentConfiguration.getPostPaymentDeepLink()).thenReturn(deepLink)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
         whenever(paymentCongratsMapper.map(paymentModel)).thenReturn(congratsModel)
 

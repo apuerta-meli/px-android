@@ -311,17 +311,22 @@ internal class ExplodingFragment : Fragment() {
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     removeListener(this)
-                    if ((handler as? PayButtonFragment)?.skipRevealAnimation() != true) {
-                        explodeDecorator?.let {
-                            createResultAnim(it)
-                        }
-                    } else {
-                        handler?.onAnimationFinished()
-                        activity?.finish()
-                    }
+                    launchResultAnimationIfNeeded()
                 }
             })
             start()
+        }
+    }
+
+    private fun launchResultAnimationIfNeeded() {
+        val payButtonFragment = (handler as? PayButtonFragment)
+
+        if (payButtonFragment?.skipRevealAnimation() == true) {
+            handler?.onAnimationFinished()
+        } else {
+            explodeDecorator?.let {
+                createResultAnim(it)
+            }
         }
     }
 

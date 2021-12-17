@@ -1,5 +1,6 @@
 package com.mercadopago.android.px.internal.features.pay_button
 
+import android.os.Parcelable
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.addons.model.SecurityValidationData
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
@@ -19,7 +20,7 @@ internal open class UIProgress : PayButtonUiState() {
 internal open class UIResult : PayButtonUiState() {
     object VisualProcessorResult : UIResult()
     data class PaymentResult(val model: PaymentModel) : UIResult()
-    data class PostPaymentResult(val deepLink: String) : UIResult()
+    data class PostPaymentResult(val deepLink: String, val extraData: Parcelable?) : UIResult()
     data class CongratsPaymentModel(val model: PaymentCongratsModel) : UIResult()
     data class NoCongratsResult(val model: PaymentModel) : UIResult()
 }

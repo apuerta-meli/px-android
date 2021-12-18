@@ -10,7 +10,7 @@ import com.mercadopago.android.px.internal.core.ProductIdProvider
 import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactory
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
-import com.mercadopago.android.px.internal.features.express.RenderMode
+import com.mercadopago.android.px.internal.features.one_tap.RenderMode
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel

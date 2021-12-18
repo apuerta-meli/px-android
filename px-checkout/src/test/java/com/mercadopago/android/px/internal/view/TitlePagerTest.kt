@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.FrameLayout
 import com.mercadopago.android.px.BasicRobolectricTest
 import com.mercadopago.android.px.assertEquals
-import com.mercadopago.android.px.internal.features.express.slider.ViewAdapter
+import com.mercadopago.android.px.internal.features.one_tap.slider.ViewAdapter
 import com.mercadopago.android.px.internal.viewmodel.GoingToModel
 import org.junit.Before
 import org.junit.Test

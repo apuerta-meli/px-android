@@ -2,7 +2,7 @@ package com.mercadopago.android.px.internal.features.pay_button
 
 import android.content.Intent
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
-import com.mercadopago.android.px.internal.features.express.RenderMode
+import com.mercadopago.android.px.internal.features.one_tap.RenderMode
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.PaymentRecovery

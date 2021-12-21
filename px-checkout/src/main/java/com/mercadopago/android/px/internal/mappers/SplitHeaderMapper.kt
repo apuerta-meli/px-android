@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.mappers
 
-import com.mercadopago.android.px.internal.features.express.slider.SplitPaymentHeaderAdapter
-import com.mercadopago.android.px.internal.features.express.slider.SplitPaymentHeaderAdapter.SplitModel
+import com.mercadopago.android.px.internal.features.one_tap.slider.SplitPaymentHeaderAdapter
+import com.mercadopago.android.px.internal.features.one_tap.slider.SplitPaymentHeaderAdapter.SplitModel
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository
 import com.mercadopago.android.px.model.Currency
 import com.mercadopago.android.px.model.internal.OneTapItem

@@ -217,7 +217,5 @@ internal class RemediesViewModel(
     }
 
     @Parcelize
-    class State(var paymentRecovery: PaymentRecovery) : BaseState {
-        var cvv = ""
-    }
+    data class State(var paymentRecovery: PaymentRecovery, var cvv: String = "") : BaseState
 }

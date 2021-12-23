@@ -18,7 +18,11 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.*
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class CheckoutUseCaseTest {
@@ -93,7 +97,7 @@ class CheckoutUseCaseTest {
             verify(checkoutRepository).checkout()
             verifyNoMoreInteractions(checkoutRepository)
         }
-        verifyZeroInteractions(success)
+        verifyNoInteractions(success)
         verify(failure).invoke(argThat { this.apiException.message == apiExceptionMsg && this.isRecoverable })
     }
 
@@ -115,7 +119,7 @@ class CheckoutUseCaseTest {
             verify(checkoutRepository).checkout()
             verifyNoMoreInteractions(checkoutRepository)
         }
-        verifyZeroInteractions(success)
+        verifyNoInteractions(success)
         verify(failure).invoke(argThat { this.apiException.message == exceptionMsg && !this.isRecoverable })
     }
 }

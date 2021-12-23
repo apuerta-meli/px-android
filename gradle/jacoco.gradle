@@ -32,14 +32,16 @@ tasks.register('jacocoTestReport', JacocoReport) {
                       '**/PaymentCongratsModel.*',
                       '**/*Builder*']
 
+    def sourceFilter = ['**/*.java', '**/*.kt']
+
     def javaClasses = fileTree(dir: "${buildDir}/intermediates/javac/debug/classes/", excludes: fileFilter)
     def kotlinClasses = fileTree(dir: "${buildDir}/tmp/kotlin-classes/debug/", excludes: fileFilter)
-    def mainSrc = "$project.projectDir/src/main/java"
+    def mainSrc = fileTree(dir: "${project.projectDir}/src/main/java", includes: sourceFilter)
 
     sourceDirectories.setFrom(files([mainSrc]))
     classDirectories.setFrom(files([
         javaClasses,
         kotlinClasses
     ]))
-    executionData.setFrom(fileTree(dir:project.buildDir, includes:['jacoco/testDebugUnitTest.exec']))
+    executionData.from = "${project.projectDir}/jacoco.exec"
 }

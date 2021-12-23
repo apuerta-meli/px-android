@@ -22,7 +22,7 @@ import org.mockito.Answers
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
@@ -106,7 +106,7 @@ class ImageViewExtTests: BasicRobolectricTest() {
     fun loadOrElseShouldNotCallTransformWhenNoTransformationProvided() {
         with(ImageView(getContext())) {
             loadOrElse(null, android.R.drawable.ic_delete)
-            verifyZeroInteractions(requestCreator.transform(any<Transformation>()))
+            verifyNoInteractions(requestCreator.transform(any<Transformation>()))
         }
     }
 

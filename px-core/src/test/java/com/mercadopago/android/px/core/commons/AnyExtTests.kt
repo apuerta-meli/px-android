@@ -4,14 +4,14 @@ import com.mercadopago.android.px.core.commons.extensions.notNull
 import com.mercadopago.android.px.core.commons.extensions.runIfNotNull
 import com.mercadopago.android.px.core.commons.extensions.runIfNull
 import com.mercadopago.android.px.core.utils.CallbackTest
+import org.junit.Assert.assertEquals
 import java.lang.IllegalStateException
-import junit.framework.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 
 @RunWith(MockitoJUnitRunner::class)
 class AnyExtTests {
@@ -42,14 +42,14 @@ class AnyExtTests {
     fun runIfNotNullShouldNotRunWhenNull() {
         val test: String? = null
         test.runIfNotNull { testFunction(it) }
-        verifyZeroInteractions(testFunction)
+        verifyNoInteractions(testFunction)
     }
 
     @Test
     fun runIfNullShouldNotRunWhenNotNull() {
         val test = "Not null run"
         test.runIfNull { testFunction(null) }
-        verifyZeroInteractions(testFunction)
+        verifyNoInteractions(testFunction)
     }
 
     @Test

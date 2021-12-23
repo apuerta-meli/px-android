@@ -27,7 +27,11 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentResultType
-import com.mercadopago.android.px.model.*
+import com.mercadopago.android.px.model.BusinessPayment
+import com.mercadopago.android.px.model.Card
+import com.mercadopago.android.px.model.PaymentData
+import com.mercadopago.android.px.model.PaymentRecovery
+import com.mercadopago.android.px.model.Sites
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.CustomTexts
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
@@ -43,7 +47,11 @@ import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as PayButtonTexts
 
 @RunWith(MockitoJUnitRunner::class)
@@ -448,7 +456,7 @@ internal class PayButtonViewModelTest {
         whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
         whenever(paymentCongratsMapper.map(paymentModel)).thenReturn(congratsModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
-            .thenReturn(PostPaymentUrlsMapper.Response("redirect_url", null))
+            .thenReturn(PostPaymentUrlsMapper.Response(null, null))
 
         payButtonViewModel.hasFinishPaymentAnimation()
 
@@ -471,7 +479,7 @@ internal class PayButtonViewModelTest {
         whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
-            .thenReturn(PostPaymentUrlsMapper.Response("redirect_url", null))
+            .thenReturn(PostPaymentUrlsMapper.Response(null, null))
 
         payButtonViewModel.hasFinishPaymentAnimation()
 

@@ -13,24 +13,27 @@ class PostPaymentConfiguration private constructor() {
         this.postPaymentDeepLinkUrl = builder.getPostPaymentDeepLinkUrl()
     }
 
-    fun getPostPaymentDeepLinkUrl(): String {
-        return postPaymentDeepLinkUrl.orEmpty()
-    }
+    fun getPostPaymentDeepLinkUrl() = postPaymentDeepLinkUrl.orEmpty()
 
     class Builder {
 
         private var postPaymentDeepLinkUrl: String? = null
 
         /***
-         * sets a DeepLink to be launched after a success payment
+         * Sets a DeepLink to be launched after a success payment
          *
          * @param url with the desired deeplink to be launched
+         * @return the builder instance
          */
-        fun setPostPaymentDeepLinkUrl(url: String): Builder {
+        fun setPostPaymentDeepLinkUrl(url: String) = apply {
             postPaymentDeepLinkUrl = url
-            return this
         }
 
+        /***
+         * Gets the DeepLink to be launched after a success payment
+         *
+         * @return the deepLink String
+         */
         fun getPostPaymentDeepLinkUrl() = postPaymentDeepLinkUrl
 
         fun build() = PostPaymentConfiguration(this)

@@ -53,7 +53,6 @@ private const val EXTRA_POST_PAYMENT_RESULT = "extra_post_payment_result"
 private const val EXTRA_STATE = "extra_state"
 private const val EXTRA_VISIBILITY = "extra_visibility"
 private const val EXTRA_OBSERVING = "extra_observing"
-private const val TAG = "PayButtonFragment"
 
 internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHandler {
 
@@ -134,14 +133,18 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
     }
 
     private fun launchPostPaymentFlow(deepLink: String, extraData: Parcelable?) {
-        try {
+        runCatching {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
-            extraData?.let {
-                intent.putExtra(EXTRA_POST_PAYMENT_RESULT, it)
+            extraData?.also { data ->
+                intent.putExtra(EXTRA_POST_PAYMENT_RESULT, data)
             }
             startActivityForResult(intent, REQ_CODE_POST_PAYMENT_RESULT_CODE)
-        } catch (e: ActivityNotFoundException) {
-            debug(TAG, e)
+        }.onFailure { exception ->
+            when (exception) {
+                is ActivityNotFoundException -> {
+                    viewModel.trackPostPaymentFlowFriction(exception)
+                }
+            }
         }
     }
 
@@ -196,8 +199,8 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             else -> {
                 val action = AndesSnackbarAction(
                     getString(R.string.px_snackbar_error_action), View.OnClickListener {
-                    activity?.onBackPressed()
-                })
+                        activity?.onBackPressed()
+                    })
                 view.showSnackBar(getString(R.string.px_error_title), andesSnackbarAction = action)
             }
         }
@@ -235,7 +238,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             }
         } else if (requestCode == REQ_CODE_POST_PAYMENT_RESULT_CODE) {
             //TODO: Semovi step 2:  https://mercadolibre.atlassian.net/browse/PXN-2842
-        }  else if (resultCode == Constants.RESULT_PAYMENT) {
+        } else if (resultCode == Constants.RESULT_PAYMENT) {
             viewModel.onPostPayment(PaymentProcessorActivity.getPaymentModel(data))
         } else if (resultCode == Constants.RESULT_FAIL_ESC) {
             viewModel.onRecoverPaymentEscInvalid(PaymentProcessorActivity.getPaymentRecovery(data)!!)
@@ -291,8 +294,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         }
     }
 
-    fun skipRevealAnimation() = viewModel.getPostPaymentDeepLinkUrl().isNotEmpty() &&
-            viewModel.state.paymentModel?.paymentResult?.isApproved == true
+    override fun shouldSkipRevealAnimation() = viewModel.skipRevealAnimation()
 
     private fun cancelLoading() {
         showConfirmButton()

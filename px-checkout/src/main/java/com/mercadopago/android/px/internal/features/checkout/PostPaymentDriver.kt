@@ -13,7 +13,8 @@ internal class PostPaymentDriver(builder: Builder) {
 
     fun execute() {
         when {
-            postPaymentDeepLinkUrl.isNotNullNorEmpty() -> action.launchPostPaymentFlow(postPaymentDeepLinkUrl, paymentModel)
+            postPaymentDeepLinkUrl.isNotNullNorEmpty() &&
+            paymentModel.paymentResult.isApproved -> action.launchPostPaymentFlow(postPaymentDeepLinkUrl, paymentModel)
             postPaymentUrls.redirectUrl.isNotNullNorEmpty() -> action.skipCongrats(paymentModel)
             paymentModel is BusinessPaymentModel -> action.showCongrats(paymentModel)
             else -> action.showCongrats(paymentModel)

@@ -44,6 +44,7 @@ import com.mercadopago.android.px.model.PaymentResult
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.MPTracker
+import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.events.BiometricsFrictionTracker
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import com.mercadopago.android.px.tracking.internal.events.NoConnectionFrictionTracker
@@ -232,6 +233,19 @@ internal class PayButtonViewModel(
         handler.onPostPaymentAction(postPaymentAction)
     }
 
+    override fun skipRevealAnimation() = getPostPaymentDeepLinkUrl().isNotEmpty() && state.paymentModel?.paymentResult?.isApproved == true
+
+    override fun trackPostPaymentFlowFriction(exception: Exception) {
+        track(
+            FrictionEventTracker.with(
+                POST_PAYMENT_TRACKER_PATH,
+                FrictionEventTracker.Id.INVALID_POST_PAYMENT_DEEP_LINK,
+                FrictionEventTracker.Style.SCREEN,
+                MercadoPagoError.createNotRecoverable(exception.message.orEmpty())
+            )
+        )
+    }
+
     override fun getPostPaymentDeepLinkUrl() = paymentSettingRepository
         .advancedConfiguration
         .postPaymentConfiguration
@@ -296,16 +310,7 @@ internal class PayButtonViewModel(
                                     }
 
                                     override fun launchPostPaymentFlow(postPaymentDeepLinkUrl: String, paymentModel: PaymentModel) {
-                                        if (paymentModel.paymentResult.isApproved) {
-                                            stateUILiveData.value = UIResult.PostPaymentResult(postPaymentDeepLinkUrl, paymentModel)
-                                        } else {
-                                            if (paymentModel is BusinessPaymentModel) {
-                                                stateUILiveData.value =
-                                                    UIResult.CongratsPaymentModel(paymentCongratsMapper.map(paymentModel))
-                                            } else {
-                                                stateUILiveData.value = UIResult.PaymentResult(paymentModel)
-                                            }
-                                        }
+                                        stateUILiveData.value = UIResult.PostPaymentResult(postPaymentDeepLinkUrl, paymentModel)
                                     }
                                 }
                             )
@@ -349,6 +354,10 @@ internal class PayButtonViewModel(
                 paymentSettingRepository.site.id
             ))
         }
+    }
+
+    companion object {
+        const val POST_PAYMENT_TRACKER_PATH = "${TrackWrapper.BASE_PATH}/postPayment"
     }
 
     @Parcelize

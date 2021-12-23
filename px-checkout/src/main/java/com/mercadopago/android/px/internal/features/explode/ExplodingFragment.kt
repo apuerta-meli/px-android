@@ -311,22 +311,17 @@ internal class ExplodingFragment : Fragment() {
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     removeListener(this)
-                    launchResultAnimationIfNeeded()
+
+                    if (handler?.shouldSkipRevealAnimation() == true) {
+                        handler?.onAnimationFinished()
+                    } else {
+                        explodeDecorator?.let {
+                            createResultAnim(it)
+                        }
+                    }
                 }
             })
             start()
-        }
-    }
-
-    private fun launchResultAnimationIfNeeded() {
-        val payButtonFragment = (handler as? PayButtonFragment)
-
-        if (payButtonFragment?.skipRevealAnimation() == true) {
-            handler?.onAnimationFinished()
-        } else {
-            explodeDecorator?.let {
-                createResultAnim(it)
-            }
         }
     }
 
@@ -377,5 +372,6 @@ internal class ExplodingFragment : Fragment() {
         fun getParentView(): View
         fun onResultIconAnimation()
         fun onAnimationFinished()
+        fun shouldSkipRevealAnimation(): Boolean
     }
 }

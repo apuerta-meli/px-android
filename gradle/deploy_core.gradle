@@ -1,0 +1,14 @@
+ext {
+    artifactLib = 'core'
+    libraryName = 'com.mercadopago.android.px.core'
+    libraryDescription = 'MercadoPago Android PX Core'
+    siteUrl = 'https://github.com/mercadopago/px-android'
+    gitUrl = 'https://github.com/mercadopago/px-android.git'
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    groupName = "com.mercadopago.android.px"
+}
+
+group = groupName
+
+apply from:"$rootDir/gradle/deploy_base.gradle"

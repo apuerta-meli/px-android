@@ -1,6 +1,9 @@
 package com.mercadopago.android.px.internal.features.payment_result.remedies
 
-import com.mercadopago.android.px.internal.features.express.slider.*
+import com.mercadopago.android.px.internal.features.one_tap.slider.PaymentMethodFragment
+import com.mercadopago.android.px.internal.features.one_tap.slider.PaymentMethodHighResDrawer
+import com.mercadopago.android.px.internal.features.one_tap.slider.PaymentMethodLowResDrawer
+import com.mercadopago.android.px.internal.features.one_tap.slider.PaymentMethodMiniDrawer
 import com.mercadopago.android.px.internal.mappers.Mapper
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem
 import com.mercadopago.android.px.model.internal.remedies.CardSize

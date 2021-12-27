@@ -289,11 +289,13 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         context?.let {
             button.post {
                 if (!isAdded) {
-                    FrictionEventTracker.with(
-                        "/px_checkout/pay_button_loading",
-                        FrictionEventTracker.Id.GENERIC,
-                        FrictionEventTracker.Style.SCREEN,
-                        emptyMap<String, String>()
+                    viewModel.track(
+                        FrictionEventTracker.with(
+                            "${TrackWrapper.BASE_PATH}/pay_button_loading",
+                            FrictionEventTracker.Id.GENERIC,
+                            FrictionEventTracker.Style.SCREEN,
+                            emptyMap<String, String>()
+                        )
                     )
                 } else {
                     val handleState = payButtonStateChange.overrideStateChange(PayButton.State.IN_PROGRESS)

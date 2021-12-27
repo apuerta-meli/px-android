@@ -62,7 +62,6 @@ internal class PayButtonViewModel(
     private val paymentSettingRepository: PaymentSettingRepository,
     customTextsRepository: CustomTextsRepository,
     payButtonViewModelMapper: PayButtonViewModelMapper,
-    private val paymentCongratsMapper: PaymentCongratsModelMapper,
     private val postPaymentUrlsMapper: PostPaymentUrlsMapper,
     private val renderModeMapper: RenderModeMapper,
     private val playSoundUseCase: PlaySoundUseCase,

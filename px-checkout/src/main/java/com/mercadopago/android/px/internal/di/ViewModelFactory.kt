@@ -32,7 +32,6 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
                     paymentSetting,
                     configurationModule.customTextsRepository,
                     PayButtonViewModelMapper(),
-                    MapperProvider.getPaymentCongratsMapper(),
                     MapperProvider.getPostPaymentUrlsMapper(),
                     MapperProvider.getRenderModeMapper(session.applicationContext),
                     useCaseModule.playSoundUseCase,

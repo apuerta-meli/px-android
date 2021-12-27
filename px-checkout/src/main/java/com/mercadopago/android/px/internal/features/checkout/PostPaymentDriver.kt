@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.features.checkout
 import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
+import com.mercadopago.android.px.model.IPaymentDescriptor
 
 internal class PostPaymentDriver(builder: Builder) {
 
@@ -13,8 +14,10 @@ internal class PostPaymentDriver(builder: Builder) {
 
     fun execute() {
         when {
-            postPaymentDeepLinkUrl.isNotNullNorEmpty() &&
-            paymentModel.paymentResult.isApproved -> action.launchPostPaymentFlow(postPaymentDeepLinkUrl, paymentModel)
+            postPaymentDeepLinkUrl.isNotNullNorEmpty() && paymentModel.paymentResult.isApproved -> action.launchPostPaymentFlow(
+                postPaymentDeepLinkUrl,
+                paymentModel.payment
+            )
             postPaymentUrls.redirectUrl.isNotNullNorEmpty() -> action.skipCongrats(paymentModel)
             paymentModel is BusinessPaymentModel -> action.showCongrats(paymentModel)
             else -> action.showCongrats(paymentModel)
@@ -37,7 +40,7 @@ internal class PostPaymentDriver(builder: Builder) {
     interface Action {
         fun showCongrats(model: PaymentModel)
         fun showCongrats(model: BusinessPaymentModel)
-        fun launchPostPaymentFlow(postPaymentDeepLinkUrl: String, paymentModel: PaymentModel)
+        fun launchPostPaymentFlow(postPaymentDeepLinkUrl: String, iPaymentDescriptor: IPaymentDescriptor?)
         fun skipCongrats(model: PaymentModel)
     }
 }

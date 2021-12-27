@@ -14,7 +14,6 @@ import com.mercadopago.android.px.internal.core.ConnectionHelper
 import com.mercadopago.android.px.internal.core.ProductIdProvider
 import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactory
-import com.mercadopago.android.px.internal.features.checkout.PostPaymentDriver
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
@@ -23,6 +22,8 @@ import com.mercadopago.android.px.internal.features.pay_button.UIProgress.Button
 import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingStarted
 import com.mercadopago.android.px.internal.features.pay_button.UIProgress.FingerprintRequired
 import com.mercadopago.android.px.internal.features.pay_button.UIResult.VisualProcessorResult
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.features.security_code.RenderModeMapper
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeParams
@@ -33,7 +34,6 @@ import com.mercadopago.android.px.internal.repository.CustomTextsRepository
 import com.mercadopago.android.px.internal.repository.PaymentRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.util.SecurityValidationDataFactory
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.Card
@@ -44,7 +44,6 @@ import com.mercadopago.android.px.model.PaymentResult
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.MPTracker
-import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.events.BiometricsFrictionTracker
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import com.mercadopago.android.px.tracking.internal.events.NoConnectionFrictionTracker
@@ -56,6 +55,7 @@ import kotlinx.android.parcel.Parcelize
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
 internal class PayButtonViewModel(
+    private val congratsResultFactory: CongratsResultFactory,
     private val paymentService: PaymentRepository,
     private val productIdProvider: ProductIdProvider,
     private val connectionHelper: ConnectionHelper,
@@ -82,6 +82,7 @@ internal class PayButtonViewModel(
 
     val cvvRequiredLiveData = MediatorSingleLiveData<SecurityCodeParams>()
     val stateUILiveData = MediatorSingleLiveData<PayButtonUiState>()
+    val congratsResultLiveData = MediatorSingleLiveData<CongratsResult>()
 
     private fun <X : Any, I> transform(liveData: LiveData<X>, block: (content: X) -> I): LiveData<I?> {
         return map(liveData) {
@@ -235,17 +236,6 @@ internal class PayButtonViewModel(
 
     override fun skipRevealAnimation() = getPostPaymentDeepLinkUrl().isNotEmpty() && state.paymentModel?.paymentResult?.isApproved == true
 
-    override fun trackPostPaymentFlowFriction(exception: Exception) {
-        track(
-            FrictionEventTracker.with(
-                POST_PAYMENT_TRACKER_PATH,
-                FrictionEventTracker.Id.INVALID_POST_PAYMENT_DEEP_LINK,
-                FrictionEventTracker.Style.SCREEN,
-                MercadoPagoError.createNotRecoverable(exception.message.orEmpty())
-            )
-        )
-    }
-
     override fun getPostPaymentDeepLinkUrl() = paymentSettingRepository
         .advancedConfiguration
         .postPaymentConfiguration
@@ -293,30 +283,8 @@ internal class PayButtonViewModel(
         state.paymentModel?.let { paymentModel ->
             handler.onPaymentFinished(paymentModel, object : PayButton.OnPaymentFinishedCallback {
                 override fun call() {
-                    resolvePostPaymentUrls(paymentModel)?.let {
-                        PostPaymentDriver.Builder(paymentModel, it)
-                            .action(
-                                object : PostPaymentDriver.Action {
-                                    override fun showCongrats(model: PaymentModel) {
-                                        stateUILiveData.value = UIResult.PaymentResult(model)
-                                    }
-
-                                    override fun showCongrats(model: BusinessPaymentModel) {
-                                        stateUILiveData.value = UIResult.CongratsPaymentModel(paymentCongratsMapper.map(model))
-                                    }
-
-                                    override fun skipCongrats(model: PaymentModel) {
-                                        stateUILiveData.value = UIResult.NoCongratsResult(model)
-                                    }
-
-                                    override fun launchPostPaymentFlow(postPaymentDeepLinkUrl: String, paymentModel: PaymentModel) {
-                                        stateUILiveData.value = UIResult.PostPaymentResult(postPaymentDeepLinkUrl, paymentModel)
-                                    }
-                                }
-                            )
-                            .setPostPaymentDeepLinkUrl(getPostPaymentDeepLinkUrl())
-                            .build()
-                            .execute()
+                    resolvePostPaymentUrls(paymentModel)?.redirectUrl.let {
+                        congratsResultLiveData.value = congratsResultFactory.create(paymentModel, it)
                     }
                 }
             })
@@ -354,10 +322,6 @@ internal class PayButtonViewModel(
                 paymentSettingRepository.site.id
             ))
         }
-    }
-
-    companion object {
-        const val POST_PAYMENT_TRACKER_PATH = "${TrackWrapper.BASE_PATH}/postPayment"
     }
 
     @Parcelize

@@ -1,11 +1,9 @@
 package com.mercadopago.android.px.internal.features.pay_button
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
@@ -29,6 +27,7 @@ import com.mercadopago.android.px.internal.features.Constants
 import com.mercadopago.android.px.internal.features.dummy_result.DummyResultActivity
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
 import com.mercadopago.android.px.internal.features.payment_congrats.PaymentCongrats
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
 import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActivity
@@ -36,12 +35,14 @@ import com.mercadopago.android.px.internal.features.security_code.SecurityCodeAc
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeParams
 import com.mercadopago.android.px.internal.util.FragmentUtil
-import com.mercadopago.android.px.internal.util.Logger.debug
 import com.mercadopago.android.px.internal.util.ViewUtils
 import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.internal.view.OnSingleClickListener
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
+import com.mercadopago.android.px.model.exceptions.MercadoPagoError
+import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
+import java.io.Serializable
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
 private const val REQ_CODE_CONGRATS = 300
@@ -106,6 +107,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
                 params?.let { showSecurityCodeScreen(it) }
             })
             stateUILiveData.observe(viewLifecycleOwner, Observer { state -> state?.let { onStateUIChanged(it) } })
+            congratsResultLiveData.observe(viewLifecycleOwner, Observer { state -> state?.let { onCongratsResult(it) } })
         }
     }
 
@@ -132,19 +134,38 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         }
     }
 
-    private fun launchPostPaymentFlow(deepLink: String, extraData: Parcelable?) {
+    private fun onCongratsResult(congratsResult: CongratsResult) {
+        when (congratsResult) {
+            is CongratsResult.CongratsPaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
+            is CongratsResult.CongratsBusinessPaymentResult -> PaymentCongrats.show(
+                congratsResult.paymentCongratsModel,
+                this,
+                REQ_CODE_CONGRATS
+            )
+            is CongratsResult.SkipCongratsResult -> DummyResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
+            is CongratsResult.CongratsPostPaymentResult -> launchPostPaymentFlow(
+                congratsResult.postPaymentConfiguration.getPostPaymentDeepLinkUrl(),
+                congratsResult.paymentModel.payment
+            )
+        }
+    }
+
+    private fun launchPostPaymentFlow(deepLink: String, extraData: Serializable?) {
         runCatching {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
-            extraData?.also { data ->
+            extraData?.let { data ->
                 intent.putExtra(EXTRA_POST_PAYMENT_RESULT, data)
             }
             startActivityForResult(intent, REQ_CODE_POST_PAYMENT_RESULT_CODE)
         }.onFailure { exception ->
-            when (exception) {
-                is ActivityNotFoundException -> {
-                    viewModel.trackPostPaymentFlowFriction(exception)
-                }
-            }
+            viewModel.track(
+                FrictionEventTracker.with(
+                    "${TrackWrapper.BASE_PATH}/post_payment_deep_link",
+                    FrictionEventTracker.Id.INVALID_POST_PAYMENT_DEEP_LINK,
+                    FrictionEventTracker.Style.SCREEN,
+                    MercadoPagoError.createNotRecoverable(exception.message.orEmpty())
+                )
+            )
         }
     }
 

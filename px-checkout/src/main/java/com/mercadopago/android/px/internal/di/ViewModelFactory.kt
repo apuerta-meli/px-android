@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.mercadopago.android.px.internal.base.FragmentCommunicationViewModel
 import com.mercadopago.android.px.internal.features.one_tap.offline_methods.OfflineMethodsViewModel
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonViewModel
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeViewModel
 import com.mercadopago.android.px.internal.features.security_code.mapper.TrackingParamModelMapper
 import com.mercadopago.android.px.internal.mappers.CardUiMapper
@@ -20,7 +21,12 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
 
         return when {
             modelClass.isAssignableFrom(PayButtonViewModel::class.java) -> {
-                PayButtonViewModel(session.paymentRepository,
+                PayButtonViewModel(
+                    CongratsResultFactory(
+                        paymentSetting.advancedConfiguration.postPaymentConfiguration,
+                        MapperProvider.getPaymentCongratsMapper()
+                    ),
+                    session.paymentRepository,
                     configurationModule.productIdProvider,
                     session.networkModule.connectionHelper,
                     paymentSetting,

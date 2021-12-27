@@ -32,7 +32,6 @@ internal interface PayButton {
         fun onPostPaymentAction(postPaymentAction: PostPaymentAction)
         fun getPostPaymentDeepLinkUrl(): String
         fun skipRevealAnimation(): Boolean
-        fun trackPostPaymentFlowFriction(exception: Exception)
         fun handleCongratsResult(resultCode: Int, data: Intent?)
         fun handleSecurityCodeResult(resultCode: Int, data: Intent?)
         fun onResultIconAnimation()

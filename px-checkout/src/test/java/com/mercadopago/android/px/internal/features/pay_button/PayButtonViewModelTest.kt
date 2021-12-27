@@ -516,7 +516,7 @@ internal class PayButtonViewModelTest {
     fun onPostPaymentDeepLinkUrlIsNotEmptyAndResultIsApprovedThenSkipRevealAnimation() {
         val deepLink = "mercadopago://px/post-payment_url"
         val advancedConfiguration = mock<AdvancedConfiguration>()
-        val postPaymentConfiguration = mock<PostPaymentConfiguration>()
+        val postPaymentConfiguration = PostPaymentConfiguration.Builder().setPostPaymentDeepLinkUrl(deepLink).build()
 
         val paymentModel = mock<PaymentModel> {
             on { paymentResult }.thenReturn(mock())
@@ -526,7 +526,6 @@ internal class PayButtonViewModelTest {
 
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
         whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
-        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
 
         assertTrue(payButtonViewModel.skipRevealAnimation())
     }

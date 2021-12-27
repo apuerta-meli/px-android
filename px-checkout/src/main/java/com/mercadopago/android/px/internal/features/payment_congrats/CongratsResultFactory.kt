@@ -2,16 +2,13 @@ package com.mercadopago.android.px.internal.features.payment_congrats
 
 import com.mercadopago.android.px.configuration.PostPaymentConfiguration
 import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
-import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 
 internal class CongratsResultFactory(
     private val postPaymentConfiguration: PostPaymentConfiguration,
-    private val paymentCongratsModelMapper: PaymentCongratsModelMapper,
-    private val postPaymentUrlsMapper: PostPaymentUrlsMapper? = null,
-    private val siteId: String? = null
+    private val paymentCongratsModelMapper: PaymentCongratsModelMapper
 ) {
 
     fun create(paymentModel: PaymentModel, redirectUrl: String?): CongratsResult = when {

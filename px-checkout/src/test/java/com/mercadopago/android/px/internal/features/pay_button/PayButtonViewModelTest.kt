@@ -3,6 +3,8 @@ package com.mercadopago.android.px.internal.features.pay_button
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.mercadopago.android.px.assertEquals
+import com.mercadopago.android.px.configuration.AdvancedConfiguration
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration
 import com.mercadopago.android.px.internal.audio.AudioPlayer
 import com.mercadopago.android.px.internal.audio.PlaySoundUseCase
 import com.mercadopago.android.px.internal.core.ConnectionHelper
@@ -35,6 +37,7 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.CustomTexts
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.model.Reason
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -507,6 +510,68 @@ internal class PayButtonViewModelTest {
         verify(congratsStateObserver).onChanged(any<CongratsResult.CongratsBusinessPaymentResult>())
         val actual = payButtonViewModel.congratsResultLiveData.value as CongratsResult.CongratsBusinessPaymentResult
         actual.paymentCongratsModel.assertEquals(congratsModel)
+    }
+
+    @Test
+    fun onPostPaymentDeepLinkUrlIsNotEmptyAndResultIsApprovedThenSkipRevealAnimation() {
+        val deepLink = "mercadopago://px/post-payment_url"
+        val advancedConfiguration = mock<AdvancedConfiguration>()
+        val postPaymentConfiguration = mock<PostPaymentConfiguration>()
+
+        val paymentModel = mock<PaymentModel> {
+            on { paymentResult }.thenReturn(mock())
+            on { paymentResult.isApproved }.thenReturn(true)
+        }
+        whenever(state.paymentModel).thenReturn(paymentModel)
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
+
+        assertTrue(payButtonViewModel.skipRevealAnimation())
+    }
+
+    @Test
+    fun onPostPaymentDeepLinkUrlIsNotEmptyAndResultIsNotApprovedThenDoNotSkipRevealAnimation() {
+        val deepLink = "mercadopago://px/post-payment_url"
+        val advancedConfiguration = mock<AdvancedConfiguration>()
+        val postPaymentConfiguration = mock<PostPaymentConfiguration>()
+
+        val paymentModel = mock<PaymentModel> {
+            on { paymentResult }.thenReturn(mock())
+            on { paymentResult.isApproved }.thenReturn(false)
+        }
+        whenever(state.paymentModel).thenReturn(paymentModel)
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
+
+        assertFalse(payButtonViewModel.skipRevealAnimation())
+    }
+
+    @Test
+    fun onPostPaymentDeepLinkUrlIsEmptyAndResultIsNotApprovedThenDoNotSkipRevealAnimation() {
+        val advancedConfiguration = mock<AdvancedConfiguration>()
+        val postPaymentConfiguration = mock<PostPaymentConfiguration>()
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn("")
+
+        assertFalse(payButtonViewModel.skipRevealAnimation())
+    }
+
+    @Test
+    fun onPostPaymentDeepLinkUrlIsEmptyAndResultIsApprovedThenDoNotSkipRevealAnimation() {
+        val advancedConfiguration = mock<AdvancedConfiguration>()
+        val postPaymentConfiguration = mock<PostPaymentConfiguration>()
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn("")
+
+        assertFalse(payButtonViewModel.skipRevealAnimation())
     }
 
     private fun configurePaymentSettingServiceObservableEvents() {

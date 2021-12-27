@@ -127,10 +127,6 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             is UIProgress.ButtonLoadingCanceled -> cancelLoading()
             is UIResult.VisualProcessorResult -> PaymentProcessorActivity.start(this, REQ_CODE_PAYMENT_PROCESSOR)
             is UIError -> resolveError(stateUI)
-            is UIResult.PaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
-            is UIResult.NoCongratsResult -> DummyResultActivity.start(this, REQ_CODE_CONGRATS, stateUI.model)
-            is UIResult.PostPaymentResult -> launchPostPaymentFlow(stateUI.deepLink, stateUI.extraData)
-            is UIResult.CongratsPaymentModel -> PaymentCongrats.show(stateUI.model, this, REQ_CODE_CONGRATS)
         }
     }
 
@@ -144,7 +140,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             )
             is CongratsResult.SkipCongratsResult -> DummyResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
             is CongratsResult.CongratsPostPaymentResult -> launchPostPaymentFlow(
-                congratsResult.postPaymentConfiguration.getPostPaymentDeepLinkUrl(),
+                congratsResult.postPaymentDeepLinkUrl,
                 congratsResult.paymentModel.payment
             )
         }

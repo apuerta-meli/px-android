@@ -30,7 +30,6 @@ internal interface PayButton {
         fun onRecoverPaymentEscInvalid(recovery: PaymentRecovery)
         fun onPostPayment(paymentModel: PaymentModel)
         fun onPostPaymentAction(postPaymentAction: PostPaymentAction)
-        fun getPostPaymentDeepLinkUrl(): String
         fun skipRevealAnimation(): Boolean
         fun handleCongratsResult(resultCode: Int, data: Intent?)
         fun handleSecurityCodeResult(resultCode: Int, data: Intent?)

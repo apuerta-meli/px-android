@@ -16,7 +16,7 @@ internal class CongratsResultFactory(
 
     fun create(paymentModel: PaymentModel, redirectUrl: String?): CongratsResult = when {
         postPaymentConfiguration.getPostPaymentDeepLinkUrl().isNotNullNorEmpty() && paymentModel.paymentResult.isApproved ->
-            CongratsResult.CongratsPostPaymentResult(paymentModel, postPaymentConfiguration)
+            CongratsResult.CongratsPostPaymentResult(paymentModel, postPaymentConfiguration.getPostPaymentDeepLinkUrl())
         redirectUrl.isNotNullNorEmpty() -> CongratsResult.SkipCongratsResult(paymentModel)
         paymentModel is BusinessPaymentModel -> CongratsResult.CongratsBusinessPaymentResult(paymentCongratsModelMapper.map(paymentModel))
         else -> CongratsResult.CongratsPaymentResult(paymentModel)

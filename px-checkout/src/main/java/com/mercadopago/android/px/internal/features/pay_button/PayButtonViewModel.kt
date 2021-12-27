@@ -236,7 +236,7 @@ internal class PayButtonViewModel(
 
     override fun skipRevealAnimation() = getPostPaymentDeepLinkUrl().isNotEmpty() && state.paymentModel?.paymentResult?.isApproved == true
 
-    override fun getPostPaymentDeepLinkUrl() = paymentSettingRepository
+    private fun getPostPaymentDeepLinkUrl() = paymentSettingRepository
         .advancedConfiguration
         .postPaymentConfiguration
         .getPostPaymentDeepLinkUrl()
@@ -283,9 +283,10 @@ internal class PayButtonViewModel(
         state.paymentModel?.let { paymentModel ->
             handler.onPaymentFinished(paymentModel, object : PayButton.OnPaymentFinishedCallback {
                 override fun call() {
-                    resolvePostPaymentUrls(paymentModel)?.redirectUrl.let {
-                        congratsResultLiveData.value = congratsResultFactory.create(paymentModel, it)
-                    }
+                    congratsResultLiveData.value = congratsResultFactory.create(
+                        paymentModel,
+                        resolvePostPaymentUrls(paymentModel)?.redirectUrl
+                    )
                 }
             })
         }

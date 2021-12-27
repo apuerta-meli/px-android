@@ -31,6 +31,7 @@ import com.mercadopago.android.px.internal.extensions.gone
 import com.mercadopago.android.px.internal.extensions.invisible
 import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.internal.extensions.visible
+import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment
 import com.mercadopago.android.px.internal.util.ViewUtils
 import kotlin.math.hypot
 import kotlin.math.min
@@ -310,8 +311,13 @@ internal class ExplodingFragment : Fragment() {
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     removeListener(this)
-                    explodeDecorator?.let {
-                        createResultAnim(it)
+
+                    if (handler?.shouldSkipRevealAnimation() == true) {
+                        handler?.onAnimationFinished()
+                    } else {
+                        explodeDecorator?.let {
+                            createResultAnim(it)
+                        }
                     }
                 }
             })
@@ -366,5 +372,6 @@ internal class ExplodingFragment : Fragment() {
         fun getParentView(): View
         fun onResultIconAnimation()
         fun onAnimationFinished()
+        fun shouldSkipRevealAnimation(): Boolean
     }
 }

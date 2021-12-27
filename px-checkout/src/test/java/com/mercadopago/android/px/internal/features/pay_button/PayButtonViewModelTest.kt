@@ -3,6 +3,8 @@ package com.mercadopago.android.px.internal.features.pay_button
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.mercadopago.android.px.assertEquals
+import com.mercadopago.android.px.configuration.AdvancedConfiguration
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration
 import com.mercadopago.android.px.internal.audio.AudioPlayer
 import com.mercadopago.android.px.internal.audio.PlaySoundUseCase
 import com.mercadopago.android.px.internal.core.ConnectionHelper
@@ -11,8 +13,9 @@ import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactor
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.one_tap.RenderMode
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
-import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel
 import com.mercadopago.android.px.internal.features.security_code.RenderModeMapper
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeParams
@@ -25,11 +28,16 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentResultType
-import com.mercadopago.android.px.model.*
+import com.mercadopago.android.px.model.BusinessPayment
+import com.mercadopago.android.px.model.Card
+import com.mercadopago.android.px.model.PaymentData
+import com.mercadopago.android.px.model.PaymentRecovery
+import com.mercadopago.android.px.model.Sites
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.CustomTexts
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.model.Reason
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -41,7 +49,11 @@ import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as PayButtonTexts
 
 @RunWith(MockitoJUnitRunner::class)
@@ -49,6 +61,8 @@ internal class PayButtonViewModelTest {
 
     private lateinit var payButtonViewModel: PayButtonViewModel
 
+    @Mock
+    private lateinit var congratsResultFactory: CongratsResultFactory
     @Mock
     private lateinit var paymentService: PaymentRepository
     @Mock
@@ -62,8 +76,6 @@ internal class PayButtonViewModelTest {
     @Mock
     private lateinit var payButtonViewModelMapper: PayButtonViewModelMapper
     @Mock
-    private lateinit var paymentCongratsMapper: PaymentCongratsModelMapper
-    @Mock
     private lateinit var customTexts: CustomTexts
     @Mock
     private lateinit var payButtonTexts: PayButtonTexts
@@ -73,6 +85,8 @@ internal class PayButtonViewModelTest {
     private lateinit var buttonTextObserver: Observer<PayButtonTexts>
     @Mock
     private lateinit var uiStateObserver: Observer<PayButtonUiState>
+    @Mock
+    private lateinit var congratsStateObserver: Observer<CongratsResult>
     @Mock
     private lateinit var cvvRequiredObserver: Observer<SecurityCodeParams>
     @Mock
@@ -110,13 +124,13 @@ internal class PayButtonViewModelTest {
         configurePaymentSettingServiceObservableEvents()
 
         payButtonViewModel = PayButtonViewModel(
+            congratsResultFactory,
             paymentService,
             productIdProvider,
             connectionHelper,
             paymentSettingRepository,
             customTextsRepository,
             payButtonViewModelMapper,
-            paymentCongratsMapper,
             postPaymentUrlsMapper,
             renderModeMapper,
             playSoundUseCase,
@@ -124,6 +138,7 @@ internal class PayButtonViewModelTest {
             mock())
 
         payButtonViewModel.stateUILiveData.observeForever(uiStateObserver)
+        payButtonViewModel.congratsResultLiveData.observeForever(congratsStateObserver)
         payButtonViewModel.buttonTextLiveData.observeForever(buttonTextObserver)
         payButtonViewModel.cvvRequiredLiveData.observeForever(cvvRequiredObserver)
         payButtonViewModel.attach(handler)
@@ -371,14 +386,15 @@ internal class PayButtonViewModelTest {
         }
         whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
+        whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(CongratsResult.CongratsPaymentResult(paymentModel))
 
         payButtonViewModel.hasFinishPaymentAnimation()
 
         verify(handler).onPaymentFinished(eq(paymentModel), callback.capture())
         callback.firstValue.call()
-        verify(uiStateObserver).onChanged(any<UIResult.PaymentResult>())
-        val actual = payButtonViewModel.stateUILiveData.value as UIResult.PaymentResult
-        actual.model.assertEquals(paymentModel)
+        verify(congratsStateObserver).onChanged(any<CongratsResult.CongratsPaymentResult>())
+        val actual = payButtonViewModel.congratsResultLiveData.value as CongratsResult.CongratsPaymentResult
+        actual.paymentModel.assertEquals(paymentModel)
     }
 
     @Test
@@ -387,17 +403,90 @@ internal class PayButtonViewModelTest {
         val paymentModel = mock<PaymentModel> {
             on { congratsResponse }.thenReturn(mock())
         }
-        whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
             .thenReturn(PostPaymentUrlsMapper.Response("redirect_url", null))
+        whenever(congratsResultFactory.create(paymentModel, "redirect_url")).thenReturn(CongratsResult.SkipCongratsResult(paymentModel))
+        whenever(state.paymentModel).thenReturn(paymentModel)
 
         payButtonViewModel.hasFinishPaymentAnimation()
 
         verify(handler).onPaymentFinished(eq(paymentModel), callback.capture())
         callback.firstValue.call()
-        verify(uiStateObserver).onChanged(any<UIResult.NoCongratsResult>())
-        val actual = payButtonViewModel.stateUILiveData.value as UIResult.NoCongratsResult
-        actual.model.assertEquals(paymentModel)
+        verify(congratsStateObserver).onChanged(any<CongratsResult.SkipCongratsResult>())
+        val actual = payButtonViewModel.congratsResultLiveData.value as CongratsResult.SkipCongratsResult
+        actual.paymentModel.assertEquals(paymentModel)
+    }
+
+    @Test
+    fun onFinishPaymentAnimationWithPostPaymentConfigurationThenLaunchDeepLink() {
+        val deepLink = "mercadopago://px/post-payment_url"
+        val callback = argumentCaptor<PayButton.OnPaymentFinishedCallback>()
+        val paymentModel = mock<PaymentModel> {
+            on { congratsResponse }.thenReturn(mock())
+        }
+        whenever(state.paymentModel).thenReturn(paymentModel)
+        whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(
+            CongratsResult.CongratsPostPaymentResult(
+                paymentModel,
+                deepLink
+            )
+        )
+        whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
+
+        payButtonViewModel.hasFinishPaymentAnimation()
+
+        verify(handler).onPaymentFinished(eq(paymentModel), callback.capture())
+        callback.firstValue.call()
+        verify(congratsStateObserver).onChanged(any<CongratsResult.CongratsPostPaymentResult>())
+        val actual = payButtonViewModel.congratsResultLiveData.value as CongratsResult.CongratsPostPaymentResult
+        actual.postPaymentDeepLinkUrl.assertEquals(deepLink)
+    }
+
+    @Test
+    fun onFinishPaymentAnimationWithPostPaymentConfigurationWithoutSuccessBusinessPaymentThenShowCongrats() {
+        val deepLink = "mercadopago://px/post-payment_url"
+        val callback = argumentCaptor<PayButton.OnPaymentFinishedCallback>()
+        val congratsModel = mock<PaymentCongratsModel>()
+        val paymentModel = mock<BusinessPaymentModel> {
+            on { congratsResponse }.thenReturn(mock())
+        }
+
+        whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(
+            CongratsResult.CongratsBusinessPaymentResult(congratsModel)
+        )
+        whenever(state.paymentModel).thenReturn(paymentModel)
+        whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
+            .thenReturn(mock())
+
+        payButtonViewModel.hasFinishPaymentAnimation()
+
+        verify(handler).onPaymentFinished(eq(paymentModel), callback.capture())
+        callback.firstValue.call()
+        verify(congratsStateObserver).onChanged(any<CongratsResult.CongratsBusinessPaymentResult>())
+        val actual = payButtonViewModel.congratsResultLiveData.value as CongratsResult.CongratsBusinessPaymentResult
+        actual.paymentCongratsModel.assertEquals(congratsModel)
+    }
+
+    @Test
+    fun onFinishPaymentAnimationWithPostPaymentConfigurationWithoutSuccessPaymentResultThenShowCongrats() {
+        val callback = argumentCaptor<PayButton.OnPaymentFinishedCallback>()
+        val paymentModel = mock<PaymentModel> {
+            on { congratsResponse }.thenReturn(mock())
+        }
+
+        whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(
+            CongratsResult.CongratsPaymentResult(paymentModel)
+        )
+        whenever(state.paymentModel).thenReturn(paymentModel)
+        whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
+
+        payButtonViewModel.hasFinishPaymentAnimation()
+
+        verify(handler).onPaymentFinished(eq(paymentModel), callback.capture())
+        callback.firstValue.call()
+        verify(congratsStateObserver).onChanged(any<CongratsResult.CongratsPaymentResult>())
+        val actual = payButtonViewModel.congratsResultLiveData.value as CongratsResult.CongratsPaymentResult
+        actual.paymentModel.assertEquals(paymentModel)
     }
 
     @Test
@@ -407,17 +496,81 @@ internal class PayButtonViewModelTest {
         val paymentModel = mock<BusinessPaymentModel> {
             on { congratsResponse }.thenReturn(mock())
         }
+
+        whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(
+            CongratsResult.CongratsBusinessPaymentResult(congratsModel)
+        )
         whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
-        whenever(paymentCongratsMapper.map(paymentModel)).thenReturn(congratsModel)
 
         payButtonViewModel.hasFinishPaymentAnimation()
 
         verify(handler).onPaymentFinished(eq(paymentModel), callback.capture())
         callback.firstValue.call()
-        verify(uiStateObserver).onChanged(any<UIResult.CongratsPaymentModel>())
-        val actual = payButtonViewModel.stateUILiveData.value as UIResult.CongratsPaymentModel
-        actual.model.assertEquals(congratsModel)
+        verify(congratsStateObserver).onChanged(any<CongratsResult.CongratsBusinessPaymentResult>())
+        val actual = payButtonViewModel.congratsResultLiveData.value as CongratsResult.CongratsBusinessPaymentResult
+        actual.paymentCongratsModel.assertEquals(congratsModel)
+    }
+
+    @Test
+    fun onPostPaymentDeepLinkUrlIsNotEmptyAndResultIsApprovedThenSkipRevealAnimation() {
+        val deepLink = "mercadopago://px/post-payment_url"
+        val advancedConfiguration = mock<AdvancedConfiguration>()
+        val postPaymentConfiguration = PostPaymentConfiguration.Builder().setPostPaymentDeepLinkUrl(deepLink).build()
+
+        val paymentModel = mock<PaymentModel> {
+            on { paymentResult }.thenReturn(mock())
+            on { paymentResult.isApproved }.thenReturn(true)
+        }
+        whenever(state.paymentModel).thenReturn(paymentModel)
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
+
+        assertTrue(payButtonViewModel.skipRevealAnimation())
+    }
+
+    @Test
+    fun onPostPaymentDeepLinkUrlIsNotEmptyAndResultIsNotApprovedThenDoNotSkipRevealAnimation() {
+        val deepLink = "mercadopago://px/post-payment_url"
+        val advancedConfiguration = mock<AdvancedConfiguration>()
+        val postPaymentConfiguration = mock<PostPaymentConfiguration>()
+
+        val paymentModel = mock<PaymentModel> {
+            on { paymentResult }.thenReturn(mock())
+            on { paymentResult.isApproved }.thenReturn(false)
+        }
+        whenever(state.paymentModel).thenReturn(paymentModel)
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
+
+        assertFalse(payButtonViewModel.skipRevealAnimation())
+    }
+
+    @Test
+    fun onPostPaymentDeepLinkUrlIsEmptyAndResultIsNotApprovedThenDoNotSkipRevealAnimation() {
+        val advancedConfiguration = mock<AdvancedConfiguration>()
+        val postPaymentConfiguration = mock<PostPaymentConfiguration>()
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn("")
+
+        assertFalse(payButtonViewModel.skipRevealAnimation())
+    }
+
+    @Test
+    fun onPostPaymentDeepLinkUrlIsEmptyAndResultIsApprovedThenDoNotSkipRevealAnimation() {
+        val advancedConfiguration = mock<AdvancedConfiguration>()
+        val postPaymentConfiguration = mock<PostPaymentConfiguration>()
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn("")
+
+        assertFalse(payButtonViewModel.skipRevealAnimation())
     }
 
     private fun configurePaymentSettingServiceObservableEvents() {

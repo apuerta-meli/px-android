@@ -3,8 +3,6 @@ package com.mercadopago.android.px.internal.features.pay_button
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.addons.model.SecurityValidationData
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
-import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
 internal sealed class PayButtonUiState
@@ -18,9 +16,6 @@ internal open class UIProgress : PayButtonUiState() {
 
 internal open class UIResult : PayButtonUiState() {
     object VisualProcessorResult : UIResult()
-    data class PaymentResult(val model: PaymentModel) : UIResult()
-    data class CongratsPaymentModel(val model: PaymentCongratsModel) : UIResult()
-    data class NoCongratsResult(val model: PaymentModel) : UIResult()
 }
 
 internal open class UIError : PayButtonUiState() {

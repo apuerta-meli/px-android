@@ -2,11 +2,10 @@
 <manifest package="com.mercadopago.android.px"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <queries>
-        <package android:name="com.mercadopago.wallet" />
-    </queries>
-
     <application>
+        <activity
+            android:name=".internal.features.payment_congrats.CongratsActivity"
+            android:exported="true" />
         <activity
             android:name=".internal.features.TermsAndConditionsActivity"
             android:label="@string/px_title_activity_terms_and_conditions"
@@ -65,24 +64,28 @@
             android:name=".internal.features.business_result.BusinessPaymentResultActivity"
             android:label=""
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"/>
-        <activity android:name=".internal.features.dummy_result.DummyResultActivity"/>
+            android:theme="@style/Theme.MercadoPagoTheme.NoActionBar" />
+        <activity android:name=".internal.features.dummy_result.DummyResultActivity" />
 
         <provider
             android:name=".internal.di.PxCheckoutInitProvider"
             android:authorities="${applicationId}.px.provider"
             android:exported="false" />
     </application>
+
+    <queries>
+        <package android:name="com.mercadopago.wallet" />
+    </queries>
+
     <uses-feature
         android:name="android.hardware.location.gps"
         android:required="false" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission
         android:name="android.permission.VIBRATE"
         android:required="false" />
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>

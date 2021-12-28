@@ -1,14 +1,17 @@
 package com.mercadopago.android.px.internal.features.payment_congrats
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
 import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
+import com.mercadopago.android.px.model.IPaymentDescriptor
 
 object PaymentCongrats {
     private const val PAYMENT_CONGRATS = "payment_congrats"
+    private const val PAYMENT_DESCRIPTOR = "payment_descriptor"
 
     /**
      * Allows to execute a congrats activity
@@ -30,6 +33,15 @@ object PaymentCongrats {
         Intent(fragment.context, BusinessPaymentResultActivity::class.java).also {
             it.putExtra(PAYMENT_CONGRATS, paymentCongratsModel)
             fragment.startActivityForResult(it, requestCode)
+        }
+    }
+
+    internal fun show(iPaymentDescriptor: IPaymentDescriptor?, activity: Activity?) {
+        Intent(activity, CongratsActivity::class.java).also { intent ->
+            iPaymentDescriptor?.let {
+                intent.putExtra(PAYMENT_DESCRIPTOR, it)
+            }
+            activity?.startActivity(intent)
         }
     }
 }

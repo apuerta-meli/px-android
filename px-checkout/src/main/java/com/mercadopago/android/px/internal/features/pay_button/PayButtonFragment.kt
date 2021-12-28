@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.features.pay_button
 
 import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -39,6 +40,7 @@ import com.mercadopago.android.px.internal.util.ViewUtils
 import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.internal.view.OnSingleClickListener
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
+import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
@@ -51,9 +53,11 @@ private const val REQ_CODE_BIOMETRICS = 303
 private const val REQ_CODE_SECURITY_CODE = 304
 private const val REQ_CODE_POST_PAYMENT_RESULT_CODE = 305
 private const val EXTRA_POST_PAYMENT_RESULT = "extra_post_payment_result"
+private const val EXTRA_POST_PAYMENT_CONGRATS_RESULT = "extra_post_payment_congrats_result"
 private const val EXTRA_STATE = "extra_state"
 private const val EXTRA_VISIBILITY = "extra_visibility"
 private const val EXTRA_OBSERVING = "extra_observing"
+const val EXTRA_PAYMENT = "extra_payment"
 
 internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValidationHandler {
 
@@ -169,6 +173,10 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         }
     }
 
+    private fun launchPostPaymentResultCongrats(iPaymentDescriptor: IPaymentDescriptor?) {
+        PaymentCongrats.show(iPaymentDescriptor, activity)
+    }
+
     override fun stimulate() {
         viewModel.preparePayment()
     }
@@ -258,7 +266,10 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
                 viewModel.handleSecurityCodeResult(resultCode, data)
             }
         } else if (requestCode == REQ_CODE_POST_PAYMENT_RESULT_CODE) {
-            //TODO: Semovi step 2:  https://mercadolibre.atlassian.net/browse/PXN-2842
+            val iPaymentDescriptor = data?.getSerializableExtra(EXTRA_PAYMENT) as? IPaymentDescriptor
+            viewModel.state.iPaymentDescriptor = iPaymentDescriptor
+            launchPostPaymentResultCongrats(iPaymentDescriptor)
+            activity?.finish()
         } else if (resultCode == Constants.RESULT_PAYMENT) {
             viewModel.onPostPayment(PaymentProcessorActivity.getPaymentModel(data))
         } else if (resultCode == Constants.RESULT_FAIL_ESC) {

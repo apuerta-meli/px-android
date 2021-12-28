@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.callbacks;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
@@ -36,6 +37,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     @NonNull private final Queue<Message> messages;
     @NonNull /* default */ final PaymentRepository paymentRepository;
     @NonNull /* default */ final DisabledPaymentMethodRepository disabledPaymentMethodRepository;
+    @NonNull /* default */ final CongratsResultFactory congratsResultFactory;
 
     @NonNull private final IPaymentDescriptorHandler paymentHandler = new IPaymentDescriptorHandler() {
         @Override
@@ -46,10 +48,17 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
                 onRecoverPaymentEscInvalid(paymentRepository.createRecoveryForInvalidESC());
             } else {
                 paymentRepository.storePayment(payment);
-                //Must be after store
-                final PaymentResult paymentResult = paymentRepository.createPaymentResult(payment);
-                disabledPaymentMethodRepository.handleRejectedPayment(paymentResult);
-                onPostPayment(payment, paymentResult);
+                if (congratsResultFactory.isValidPostPaymentFlow(payment)) {
+                    onPostPayment(
+                        payment,
+                        congratsResultFactory.getPostPaymentConfiguration().getPostPaymentDeepLinkUrl()
+                    );
+                } else {
+                    //Must be after store
+                    final PaymentResult paymentResult = paymentRepository.createPaymentResult(payment);
+                    disabledPaymentMethodRepository.handleRejectedPayment(paymentResult);
+                    onPostPayment(payment, paymentResult);
+                }
             }
         }
 
@@ -57,9 +66,16 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         public void visit(@NonNull final BusinessPayment businessPayment) {
             verifyAndHandleEsc(businessPayment);
             paymentRepository.storePayment(businessPayment);
-            final PaymentResult paymentResult = paymentRepository.createPaymentResult(businessPayment);
-            disabledPaymentMethodRepository.handleRejectedPayment(paymentResult);
-            onPostPayment(businessPayment, paymentResult);
+            if (congratsResultFactory.isValidPostPaymentFlow(businessPayment)) {
+                onPostPayment(
+                    businessPayment,
+                    congratsResultFactory.getPostPaymentConfiguration().getPostPaymentDeepLinkUrl()
+                );
+            } else {
+                final PaymentResult paymentResult = paymentRepository.createPaymentResult(businessPayment);
+                disabledPaymentMethodRepository.handleRejectedPayment(paymentResult);
+                onPostPayment(businessPayment, paymentResult);
+            }
         }
     };
 
@@ -68,12 +84,14 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
         @NonNull final EscPaymentManager escPaymentManager,
         @NonNull final CongratsRepository congratsRepository,
-        @NonNull final UserSelectionRepository userSelectionRepository) {
+        @NonNull final UserSelectionRepository userSelectionRepository,
+        @NonNull final CongratsResultFactory congratsResultFactory) {
         this.paymentRepository = paymentRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
         this.escPaymentManager = escPaymentManager;
         this.congratsRepository = congratsRepository;
         this.userSelectionRepository = userSelectionRepository;
+        this.congratsResultFactory = congratsResultFactory;
         messages = new LinkedList<>();
     }
 
@@ -131,9 +149,18 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         congratsRepository.getPostPaymentData(payment, paymentResult, this::onPostPayment);
     }
 
+    private void onPostPayment(@NonNull final IPaymentDescriptor payment, @NonNull final String deeplink) {
+        congratsRepository.getPostPaymentFlowData(payment, deeplink, this::onPostPaymentFlow);
+    }
+
     @Override
     public void onPostPayment(@NonNull final PaymentModel paymentModel) {
         addAndProcess(new PostPaymentMessage(paymentModel));
+    }
+
+    @Override
+    public void onPostPaymentFlow(@NonNull final IPaymentDescriptor iPaymentDescriptor, @NonNull final String deeplink) {
+        addAndProcess(new PostPaymentFlowMessage(iPaymentDescriptor, deeplink));
     }
 
     /* default */
@@ -199,7 +226,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
             if (handler != null) {
                 handler.onCvvRequired(card, reason);
             }
-            if(eventHandler != null) {
+            if (eventHandler != null) {
                 eventHandler.getRequireCvvLiveData().setValue(new Pair(card, reason));
             }
         }
@@ -219,7 +246,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
             if (handler != null) {
                 handler.onRecoverPaymentEscInvalid(recovery);
             }
-            if(eventHandler != null) {
+            if (eventHandler != null) {
                 eventHandler.getRecoverInvalidEscLiveData().setValue(recovery);
             }
         }
@@ -245,6 +272,32 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         }
     }
 
+    private static class PostPaymentFlowMessage implements Message {
+
+        @NonNull private final IPaymentDescriptor iPaymentDescriptor;
+        @NonNull private final String deeplink;
+
+        /* default */ PostPaymentFlowMessage(
+            @NonNull final IPaymentDescriptor iPaymentDescriptor,
+            @NonNull final String deeplink
+        ) {
+            this.iPaymentDescriptor = iPaymentDescriptor;
+            this.deeplink = deeplink;
+        }
+
+        @Override
+        public void processMessage(@Nullable final PaymentServiceHandler handler,
+            @Nullable final PaymentServiceEventHandler eventHandler) {
+            if (handler != null) {
+                handler.onPostPaymentFlow(iPaymentDescriptor, deeplink);
+            }
+
+            if (eventHandler != null) {
+                eventHandler.getPostPaymentStartedLiveData().setValue(new Pair(iPaymentDescriptor, deeplink));
+            }
+        }
+    }
+
     private static class ErrorMessage implements Message {
 
         @NonNull private final MercadoPagoError error;
@@ -259,7 +312,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
             if (handler != null) {
                 handler.onPaymentError(error);
             }
-            if(eventHandler != null) {
+            if (eventHandler != null) {
                 eventHandler.getPaymentErrorLiveData().setValue((error));
             }
         }
@@ -272,7 +325,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
             if (handler != null) {
                 handler.onVisualPayment();
             }
-            if(eventHandler != null) {
+            if (eventHandler != null) {
                 eventHandler.getVisualPaymentLiveData().setValue(Unit.INSTANCE);
             }
         }

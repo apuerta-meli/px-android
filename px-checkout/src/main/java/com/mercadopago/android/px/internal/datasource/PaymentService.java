@@ -4,7 +4,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
-import com.mercadopago.android.px.core.SplitPaymentProcessor;
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration;
 import com.mercadopago.android.px.core.internal.CheckoutData;
 import com.mercadopago.android.px.core.internal.PaymentWrapper;
 import com.mercadopago.android.px.core.v2.PaymentProcessor;
@@ -12,6 +12,7 @@ import com.mercadopago.android.px.internal.callbacks.PaymentServiceEventHandler;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandlerWrapper;
 import com.mercadopago.android.px.internal.core.FileManager;
 import com.mercadopago.android.px.internal.datasource.mapper.FromPayerPaymentMethodToCardMapper;
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory;
 import com.mercadopago.android.px.internal.features.validation_program.ValidationProgramUseCase;
 import com.mercadopago.android.px.internal.mappers.PaymentMethodMapper;
 import com.mercadopago.android.px.internal.model.EscStatus;
@@ -69,6 +70,7 @@ public class PaymentService implements PaymentRepository {
     @NonNull private final FileManager fileManager;
     @NonNull private final EscPaymentManager escPaymentManager;
     @NonNull private final ESCManagerBehaviour escManagerBehaviour;
+    @NonNull private final CongratsResultFactory congratsResultFactory;
 
     @NonNull /* default */ final PaymentServiceHandlerWrapper handlerWrapper;
     @NonNull /* default */ final AmountConfigurationRepository amountConfigurationRepository;
@@ -96,7 +98,8 @@ public class PaymentService implements PaymentRepository {
         @NonNull final FromPayerPaymentMethodToCardMapper fromPayerPaymentMethodToCardMapper,
         @NonNull final PaymentMethodMapper paymentMethodMapper,
         @NonNull final PaymentMethodRepository paymentMethodRepository,
-        @NonNull final ValidationProgramUseCase validationProgramUseCase) {
+        @NonNull final ValidationProgramUseCase validationProgramUseCase,
+        @NonNull final CongratsResultFactory congratsResultFactory) {
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.escPaymentManager = escPaymentManager;
         this.escManagerBehaviour = escManagerBehaviour;
@@ -108,6 +111,7 @@ public class PaymentService implements PaymentRepository {
         this.tokenRepository = tokenRepository;
         this.fileManager = fileManager;
         this.validationProgramUseCase = validationProgramUseCase;
+        this.congratsResultFactory = congratsResultFactory;
 
         paymentFile = fileManager.create(FILE_PAYMENT);
         this.fromPayerPaymentMethodToCardMapper = fromPayerPaymentMethodToCardMapper;
@@ -116,7 +120,7 @@ public class PaymentService implements PaymentRepository {
 
         handlerWrapper =
             new PaymentServiceHandlerWrapper(this, disabledPaymentMethodRepository, escPaymentManager,
-                congratsRepository, userSelectionRepository);
+                congratsRepository, userSelectionRepository, congratsResultFactory);
     }
 
     @Nullable

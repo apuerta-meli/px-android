@@ -31,6 +31,7 @@ import com.mercadopago.android.px.internal.datasource.PaymentService;
 import com.mercadopago.android.px.internal.datasource.PrefetchInitService;
 import com.mercadopago.android.px.internal.datasource.TokenizeService;
 import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactory;
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PXPaymentCongratsTracking;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
@@ -82,6 +83,7 @@ public final class Session extends ApplicationModule {
     private EscPaymentManagerImp escPaymentManager;
     private MPTracker tracker;
     private PaymentResultViewModelFactory paymentResultViewModelFactory;
+    private CongratsResultFactory congratsResultFactory;
     private ViewModelModule viewModelModule;
     private PayerPaymentMethodRepository payerPaymentMethodRepository;
     private OneTapItemRepository oneTapItemRepository;
@@ -135,6 +137,11 @@ public final class Session extends ApplicationModule {
         paymentSetting.configure(paymentConfiguration);
         resolvePreference(mercadoPagoCheckout, paymentSetting);
         // end Store persistent paymentSetting
+
+        congratsResultFactory = new CongratsResultFactory(
+            configurationModule.getPaymentSettings().getAdvancedConfiguration().getPostPaymentConfiguration(),
+            MapperProvider.INSTANCE.getPaymentCongratsMapper()
+        );
     }
 
     public void init(@NonNull final PaymentCongratsModel paymentCongratsModel) {
@@ -198,6 +205,7 @@ public final class Session extends ApplicationModule {
         cardHolderAuthenticatorRepository = null;
         customOptionIdSolver = null;
         audioPlayer = null;
+        congratsResultFactory = null;
     }
 
     @NonNull
@@ -288,7 +296,8 @@ public final class Session extends ApplicationModule {
     @NonNull
     public PaymentRepository getPaymentRepository() {
         if (paymentRepository == null) {
-            paymentRepository = new PaymentService(configurationModule.getUserSelectionRepository(),
+            paymentRepository = new PaymentService(
+                configurationModule.getUserSelectionRepository(),
                 configurationModule.getPaymentSettings(),
                 configurationModule.getDisabledPaymentMethodRepository(),
                 getDiscountRepository(),
@@ -303,7 +312,9 @@ public final class Session extends ApplicationModule {
                 MapperProvider.INSTANCE.getFromPayerPaymentMethodToCardMapper(),
                 MapperProvider.INSTANCE.getPaymentMethodMapper(),
                 getPaymentMethodRepository(),
-                getUseCaseModule().getValidationProgramUseCase());
+                getUseCaseModule().getValidationProgramUseCase(),
+                getCongratsResultFactory()
+            );
         }
 
         return paymentRepository;
@@ -441,6 +452,17 @@ public final class Session extends ApplicationModule {
             paymentResultViewModelFactory = new PaymentResultViewModelFactory(getTracker());
         }
         return paymentResultViewModelFactory;
+    }
+
+    @NonNull
+    public CongratsResultFactory getCongratsResultFactory() {
+        if (congratsResultFactory == null) {
+            congratsResultFactory = new CongratsResultFactory(
+                configurationModule.getPaymentSettings().getAdvancedConfiguration().getPostPaymentConfiguration(),
+                MapperProvider.INSTANCE.getPaymentCongratsMapper()
+            );
+        }
+        return congratsResultFactory;
     }
 
     @NonNull

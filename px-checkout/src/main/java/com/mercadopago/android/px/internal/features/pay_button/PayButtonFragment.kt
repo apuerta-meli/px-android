@@ -125,6 +125,10 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             is UIProgress.ButtonLoadingStarted -> startLoadingButton(stateUI.timeOut, stateUI.buttonConfig)
             is UIProgress.ButtonLoadingFinished -> finishLoading(stateUI.explodeDecorator)
             is UIProgress.ButtonLoadingCanceled -> cancelLoading()
+            is UIProgress.PostPaymentFlowStarted -> launchPostPaymentFlow(
+                extraData = stateUI.iPaymentDescriptor,
+                deepLink = stateUI.postPaymentDeepLinkUrl
+            )
             is UIResult.VisualProcessorResult -> PaymentProcessorActivity.start(this, REQ_CODE_PAYMENT_PROCESSOR)
             is UIError -> resolveError(stateUI)
         }

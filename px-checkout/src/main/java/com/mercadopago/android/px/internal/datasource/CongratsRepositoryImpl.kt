@@ -5,28 +5,16 @@ import com.mercadopago.android.px.internal.core.AuthorizationProvider
 import com.mercadopago.android.px.internal.core.PermissionHelper
 import com.mercadopago.android.px.internal.features.payment_result.remedies.AlternativePayerPaymentMethodsMapper
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesBodyMapper
-import com.mercadopago.android.px.internal.repository.AmountRepository
-import com.mercadopago.android.px.internal.repository.CongratsRepository
+import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentCallback
-import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository
-import com.mercadopago.android.px.internal.repository.OneTapItemRepository
-import com.mercadopago.android.px.internal.repository.PayerComplianceRepository
-import com.mercadopago.android.px.internal.repository.PayerPaymentMethodKey
-import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
-import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
-import com.mercadopago.android.px.internal.repository.UserSelectionRepository
+import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentFlowCallback
 import com.mercadopago.android.px.internal.services.CongratsService
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
 import com.mercadopago.android.px.internal.util.StatusHelper
 import com.mercadopago.android.px.internal.util.TextUtil
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
-import com.mercadopago.android.px.model.BusinessPayment
-import com.mercadopago.android.px.model.Currency
-import com.mercadopago.android.px.model.IPaymentDescriptor
-import com.mercadopago.android.px.model.IPaymentDescriptorHandler
-import com.mercadopago.android.px.model.PaymentData
-import com.mercadopago.android.px.model.PaymentResult
+import com.mercadopago.android.px.model.*
 import com.mercadopago.android.px.model.internal.CongratsResponse
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse
 import kotlinx.coroutines.CoroutineScope
@@ -52,8 +40,11 @@ internal class CongratsRepositoryImpl(
     private val paymentRewardCache = HashMap<String, CongratsResponse>()
     private val remediesCache = HashMap<String, RemediesResponse>()
 
-    override fun getPostPaymentData(payment: IPaymentDescriptor, paymentResult: PaymentResult,
-        callback: PostPaymentCallback) {
+    override fun getPostPaymentData(
+        payment: IPaymentDescriptor,
+        paymentResult: PaymentResult,
+        callback: PostPaymentCallback
+    ) {
         val whiteLabel = TextUtil.isEmpty(authorizationProvider.privateKey)
         val isSuccess = StatusHelper.isSuccess(payment)
         CoroutineScope(Dispatchers.IO).launch {
@@ -74,6 +65,14 @@ internal class CongratsRepositoryImpl(
                 handleResult(payment, paymentResult, congrats, remedies, paymentSettingRepository.currency, callback)
             }
         }
+    }
+
+    override fun getPostPaymentFlowData(
+        payment: IPaymentDescriptor,
+        deeplink: String,
+        callback: PostPaymentFlowCallback
+    ) {
+        callback.handlePostPaymentResult(payment, deeplink)
     }
 
     private suspend fun getCongratsResponse(payment: IPaymentDescriptor, paymentResult: PaymentResult) =

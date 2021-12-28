@@ -22,10 +22,7 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
         return when {
             modelClass.isAssignableFrom(PayButtonViewModel::class.java) -> {
                 PayButtonViewModel(
-                    CongratsResultFactory(
-                        paymentSetting.advancedConfiguration.postPaymentConfiguration,
-                        MapperProvider.getPaymentCongratsMapper()
-                    ),
+                    session.congratsResultFactory,
                     session.paymentRepository,
                     configurationModule.productIdProvider,
                     session.networkModule.connectionHelper,

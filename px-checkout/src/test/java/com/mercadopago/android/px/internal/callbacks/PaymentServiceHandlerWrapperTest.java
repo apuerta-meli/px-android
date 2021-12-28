@@ -2,6 +2,7 @@ package com.mercadopago.android.px.internal.callbacks;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
@@ -48,6 +49,7 @@ public class PaymentServiceHandlerWrapperTest {
     @Mock private CongratsRepository congratsRepository;
     @Mock private EscPaymentManager escPaymentManager;
     @Mock private UserSelectionRepository userSelectionRepository;
+    @Mock private CongratsResultFactory congratsResultFactory;
 
     private PaymentServiceHandlerWrapper paymentServiceHandlerWrapper;
 
@@ -55,7 +57,7 @@ public class PaymentServiceHandlerWrapperTest {
     public void setUp() {
         paymentServiceHandlerWrapper =
             new PaymentServiceHandlerWrapper(paymentRepository, disabledPaymentMethodRepository, escPaymentManager,
-                congratsRepository, userSelectionRepository);
+                congratsRepository, userSelectionRepository, congratsResultFactory);
         paymentServiceHandlerWrapper.setHandler(wrapped);
         when(paymentRepository.createRecoveryForInvalidESC()).thenReturn(paymentRecovery);
         when(paymentRepository.getPaymentDataList()).thenReturn(Collections.singletonList(mock(PaymentData.class)));

@@ -11,20 +11,35 @@ import com.mercadopago.android.px.internal.datasource.CustomOptionIdSolver
 import com.mercadopago.android.px.internal.domain.CheckoutUseCase
 import com.mercadopago.android.px.internal.domain.CheckoutWithNewCardUseCase
 import com.mercadopago.android.px.internal.features.AmountDescriptorViewModelFactory
-import com.mercadopago.android.px.internal.features.one_tap.slider.HubAdapter
 import com.mercadopago.android.px.internal.mappers.ElementDescriptorMapper
-import com.mercadopago.android.px.internal.mappers.PaymentMethodDescriptorMapper
 import com.mercadopago.android.px.internal.mappers.SummaryInfoMapper
-import com.mercadopago.android.px.internal.repository.*
+import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository
+import com.mercadopago.android.px.internal.repository.AmountRepository
+import com.mercadopago.android.px.internal.repository.ApplicationSelectionRepository
+import com.mercadopago.android.px.internal.repository.ChargeRepository
+import com.mercadopago.android.px.internal.repository.CheckoutRepository
+import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository
+import com.mercadopago.android.px.internal.repository.DiscountRepository
+import com.mercadopago.android.px.internal.repository.ExperimentsRepository
+import com.mercadopago.android.px.internal.repository.ModalRepository
+import com.mercadopago.android.px.internal.repository.OneTapItemRepository
+import com.mercadopago.android.px.internal.repository.PayerComplianceRepository
+import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
+import com.mercadopago.android.px.internal.repository.PaymentRepository
+import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
-import com.mercadopago.android.px.internal.view.ElementDescriptorView
 import com.mercadopago.android.px.internal.view.SummaryDetailDescriptorMapper
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState
-import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem
 import com.mercadopago.android.px.internal.viewmodel.drawables.PaymentMethodDrawableItemMapper
 import com.mercadopago.android.px.mocks.CurrencyStub
 import com.mercadopago.android.px.mocks.SiteStub
-import com.mercadopago.android.px.model.*
+import com.mercadopago.android.px.model.AmountConfiguration
+import com.mercadopago.android.px.model.CardMetadata
+import com.mercadopago.android.px.model.DiscountConfigurationModel
+import com.mercadopago.android.px.model.Item
+import com.mercadopago.android.px.model.PayerCost
+import com.mercadopago.android.px.model.StatusMetadata
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.Application
 import com.mercadopago.android.px.model.internal.DisabledPaymentMethod
@@ -34,121 +49,88 @@ import com.mercadopago.android.px.preferences.CheckoutPreference
 import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.events.AbortEvent
 import com.mercadopago.android.px.tracking.internal.events.BackEvent
-import com.mercadopago.android.px.tracking.internal.events.InstallmentsEventTrack
-import com.mercadopago.android.px.tracking.internal.mapper.FromApplicationToApplicationInfo
 import com.mercadopago.android.px.tracking.internal.views.OneTapViewTracker
-import kotlinx.coroutines.runBlocking
+import io.mockk.called
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.any
-import org.mockito.kotlin.whenever
+import java.math.BigDecimal
 
-@RunWith(MockitoJUnitRunner::class)
 class OneTapPresenterTest {
 
-    @Mock
-    private lateinit var view: OneTap.View
+    private val view = mockk<OneTap.View>(relaxed = true)
 
-    @Mock
-    private lateinit var paymentRepository: PaymentRepository
+    private val paymentRepository = mockk<PaymentRepository>()
 
-    @Mock
-    private lateinit var paymentSettingRepository: PaymentSettingRepository
+    private val paymentSettingRepository = mockk<PaymentSettingRepository>()
 
-    @Mock
-    private lateinit var disabledPaymentMethodRepository: DisabledPaymentMethodRepository
+    private val disabledPaymentMethodRepository = mockk<DisabledPaymentMethodRepository>(relaxed = true)
 
-    @Mock
-    private lateinit var payerCostSelectionRepository: PayerCostSelectionRepository
+    private val payerCostSelectionRepository = mockk<PayerCostSelectionRepository>(relaxed = true)
 
-    @Mock
-    private lateinit var checkoutRepository: CheckoutRepository
+    private val checkoutRepository = mockk<CheckoutRepository>()
 
-    @Mock
-    private lateinit var discountRepository: DiscountRepository
+    private val discountRepository = mockk<DiscountRepository>()
 
-    @Mock
-    private lateinit var amountConfigurationRepository: AmountConfigurationRepository
+    private val amountConfigurationRepository = mockk<AmountConfigurationRepository>()
 
-    @Mock
-    private lateinit var amountRepository: AmountRepository
+    private val amountRepository = mockk<AmountRepository>()
 
-    @Mock
-    private lateinit var oneTapItem: OneTapItem
+    private val oneTapItem = mockk<OneTapItem>(relaxed = true)
 
-    @Mock
-    private lateinit var amountConfiguration: AmountConfiguration
+    private val amountConfiguration = mockk<AmountConfiguration>(relaxed = true)
 
-    @Mock
-    private lateinit var discountConfigurationModel: DiscountConfigurationModel
+    private val discountConfigurationModel = mockk<DiscountConfigurationModel>(relaxed = true) {
+        every { discount } returns null
+        every { campaign } returns null
+    }
 
-    @Mock
-    private lateinit var advancedConfiguration: AdvancedConfiguration
+    private val advancedConfiguration = mockk<AdvancedConfiguration>()
 
-    @Mock
-    private lateinit var dynamicDialogConfiguration: DynamicDialogConfiguration
+    private val dynamicDialogConfiguration = mockk<DynamicDialogConfiguration>(relaxed = true)
 
-    @Mock
-    private lateinit var chargeRepository: ChargeRepository
+    private val chargeRepository = mockk<ChargeRepository>()
 
-    @Mock
-    private lateinit var escManagerBehaviour: ESCManagerBehaviour
+    private val escManagerBehaviour = mockk<ESCManagerBehaviour>(relaxed = true)
 
-    @Mock
-    private lateinit var paymentMethodDrawableItemMapper: PaymentMethodDrawableItemMapper
+    private val paymentMethodDrawableItemMapper = mockk<PaymentMethodDrawableItemMapper>(relaxed = true)
 
-    @Mock
-    private lateinit var experimentsRepository: ExperimentsRepository
+    private val experimentsRepository = mockk<ExperimentsRepository>(relaxed = true)
 
-    @Mock
-    private lateinit var payerComplianceRepository: PayerComplianceRepository
+    private val payerComplianceRepository = mockk<PayerComplianceRepository>()
 
-    @Mock
-    private lateinit var applicationSelectionRepository: ApplicationSelectionRepository
+    private val applicationSelectionRepository = mockk<ApplicationSelectionRepository>(relaxed = true)
 
-    @Mock
-    private lateinit var trackingRepository: TrackingRepository
+    private val trackingRepository = mockk<TrackingRepository>()
 
-    @Mock
-    private lateinit var cardMetadata: CardMetadata
+    private val cardMetadata = mockk<CardMetadata>()
 
-    @Mock
-    private lateinit var tracker: MPTracker
+    private val tracker = mockk<MPTracker>(relaxed = true)
 
-    @Mock
-    private lateinit var oneTapItemRepository: OneTapItemRepository
+    private val oneTapItemRepository = mockk<OneTapItemRepository>()
 
-    @Mock
-    private lateinit var payerPaymentMethodRepository: PayerPaymentMethodRepository
+    private val payerPaymentMethodRepository = mockk<PayerPaymentMethodRepository>(relaxed = true)
 
-    @Mock
-    private lateinit var modalRepository: ModalRepository
+    private val modalRepository = mockk<ModalRepository>()
 
-    @Mock
-    private lateinit var summaryDetailDescriptorMapper: SummaryDetailDescriptorMapper
+    private val summaryDetailDescriptorMapper = mockk<SummaryDetailDescriptorMapper>()
 
-    @Mock
-    private lateinit var summaryInfoMapper: SummaryInfoMapper
+    private val summaryInfoMapper = mockk<SummaryInfoMapper>()
 
-    @Mock
-    private lateinit var elementDescriptorMapper: ElementDescriptorMapper
+    private val elementDescriptorMapper = mockk<ElementDescriptorMapper>()
 
-    @Mock
-    private lateinit var application: Application
+    private val application = mockk<Application>()
 
-    @Mock
-    private lateinit var customOptionIdSolver: CustomOptionIdSolver
+    private val customOptionIdSolver = mockk<CustomOptionIdSolver>()
 
-    @Mock
-    private lateinit var amountDescriptorViewModelFactory: AmountDescriptorViewModelFactory
+    private val amountDescriptorViewModelFactory = mockk<AmountDescriptorViewModelFactory>()
 
-    @Mock
-    private lateinit var authorizationProvider: AuthorizationProvider
+    private val authorizationProvider = mockk<AuthorizationProvider>()
 
     private lateinit var checkoutUseCase: CheckoutUseCase
     private lateinit var checkoutWithNewCardUseCase: CheckoutWithNewCardUseCase
@@ -157,35 +139,41 @@ class OneTapPresenterTest {
 
     @Before
     fun setUp() {
-        //This is needed for the presenter constructor
-        val preference = mock(CheckoutPreference::class.java)
-        val applicationPaymentMethod = mock(Application.PaymentMethod::class.java)
-        val item = mock(Item::class.java)
+        val customOptionId = "123"
+        val item = mockk<Item>(relaxed = true) {
+            every { unitPrice } returns BigDecimal.TEN
+        }
+        val preference = mockk<CheckoutPreference>(relaxed = true) {
+            every { totalAmount } returns BigDecimal.TEN
+            every { items } returns listOf(item)
+        }
+        val applicationPaymentMethod = mockk<Application.PaymentMethod> {
+            every { type } returns "credit_card"
+        }
+
         checkoutUseCase = CheckoutUseCase(checkoutRepository, tracker, TestContextProvider())
         checkoutWithNewCardUseCase = CheckoutWithNewCardUseCase(checkoutRepository, tracker, TestContextProvider())
-        `when`(application.paymentMethod).thenReturn(Application.PaymentMethod("id", "type"))
-        `when`(preference.items).thenReturn(listOf(item))
-        `when`(paymentSettingRepository.site).thenReturn(SiteStub.MLA.get())
-        `when`(paymentSettingRepository.currency).thenReturn(CurrencyStub.MLA.get())
-        `when`(paymentSettingRepository.checkoutPreference).thenReturn(preference)
-        `when`(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
-        `when`(advancedConfiguration.dynamicDialogConfiguration).thenReturn(dynamicDialogConfiguration)
-        `when`(oneTapItem.isCard).thenReturn(true)
-        `when`(oneTapItem.card).thenReturn(cardMetadata)
-        `when`(cardMetadata.displayInfo).thenReturn(mock(CardDisplayInfo::class.java))
-        `when`(cardMetadata.id).thenReturn("123")
-        `when`(customOptionIdSolver[oneTapItem]).thenReturn("123")
-        `when`(oneTapItem.status).thenReturn(mock(StatusMetadata::class.java))
-        `when`(discountRepository.getCurrentConfiguration()).thenReturn(discountConfigurationModel)
-        `when`(amountConfigurationRepository.getConfigurationSelectedFor("123")).thenReturn(amountConfiguration)
-        `when`(oneTapItemRepository.value).thenReturn(listOf(oneTapItem))
-        `when`(disabledPaymentMethodRepository.value).thenReturn(hashMapOf())
-        `when`(applicationPaymentMethod.type).thenReturn("credit_card")
-        `when`(application.paymentMethod).thenReturn(applicationPaymentMethod)
-        `when`(applicationSelectionRepository[oneTapItem]).thenReturn(application)
-        `when`(applicationSelectionRepository[CustomOptionIdSolver.defaultCustomOptionId(oneTapItem)]).thenReturn(application)
-        `when`(summaryInfoMapper.map(preference)).thenReturn(mock(SummaryInfo::class.java))
-        `when`(elementDescriptorMapper.map(any(SummaryInfo::class.java))).thenReturn(mock(ElementDescriptorView.Model::class.java))
+
+        every { paymentSettingRepository.site } returns SiteStub.MLA.get()
+        every { paymentSettingRepository.currency } returns CurrencyStub.MLA.get()
+        every { paymentSettingRepository.checkoutPreference } returns preference
+        every { paymentSettingRepository.advancedConfiguration } returns advancedConfiguration
+        every { advancedConfiguration.dynamicDialogConfiguration } returns dynamicDialogConfiguration
+        every { oneTapItem.isCard } returns true
+        every { oneTapItem.card } returns cardMetadata
+        every { cardMetadata.displayInfo } returns mockk(relaxed = true)
+        every { cardMetadata.id } returns customOptionId
+        every { customOptionIdSolver[oneTapItem] } returns customOptionId
+        every { oneTapItem.status } returns mockk(relaxed = true)
+        every { discountRepository.getCurrentConfiguration() } returns discountConfigurationModel
+        every { amountConfigurationRepository.getConfigurationSelectedFor(customOptionId) } returns amountConfiguration
+        every { oneTapItemRepository.value } returns listOf(oneTapItem)
+        every { disabledPaymentMethodRepository.value } returns hashMapOf()
+        every { application.paymentMethod } returns applicationPaymentMethod
+        every { applicationSelectionRepository[oneTapItem] } returns application
+        every { applicationSelectionRepository[customOptionId] } returns application
+        every { summaryInfoMapper.map(preference) } returns mockk()
+        every { elementDescriptorMapper.map(any<SummaryInfo>()) } returns mockk()
         oneTapPresenter = OneTapPresenter(
             paymentSettingRepository,
             disabledPaymentMethodRepository,
@@ -201,17 +189,17 @@ class OneTapPresenterTest {
             experimentsRepository,
             payerComplianceRepository,
             trackingRepository,
-            mock(CustomTextsRepository::class.java),
+            mockk(),
             oneTapItemRepository,
             payerPaymentMethodRepository,
             modalRepository,
             customOptionIdSolver,
             paymentMethodDrawableItemMapper,
-            mock(PaymentMethodDescriptorMapper::class.java),
+            mockk(relaxed = true),
             summaryDetailDescriptorMapper,
             summaryInfoMapper,
             elementDescriptorMapper,
-            mock(FromApplicationToApplicationInfo::class.java),
+            mockk(relaxed = true),
             authorizationProvider,
             amountDescriptorViewModelFactory,
             tracker
@@ -221,14 +209,15 @@ class OneTapPresenterTest {
 
     @Test
     fun whenFailToRetrieveCheckoutThenShowError() {
-        runBlocking {
-            whenever(checkoutRepository.checkout()).thenReturn(Response.Failure(mock(MercadoPagoError::class.java)))
+        val mercadoPagoError = mockk<MercadoPagoError> {
+            every { apiException } returns mockk()
         }
+        coEvery { checkoutRepository.checkout() } returns Response.Failure(mercadoPagoError)
+
         oneTapPresenter.handleDeepLink()
-        runBlocking {
-            verify(checkoutRepository).checkout()
-        }
-        verify(view).showError(any(MercadoPagoError::class.java))
+
+        coVerify { checkoutRepository.checkout() }
+        verify { view.showError(any()) }
     }
 
     @Test
@@ -236,22 +225,22 @@ class OneTapPresenterTest {
         oneTapPresenter.onFreshStart()
         oneTapPresenter.onBack()
 
-        verify(tracker).track(any(OneTapViewTracker::class.java))
-        verify(tracker).track(any(AbortEvent::class.java))
-        verifyNoMoreInteractions(tracker)
+        verify { tracker.track(any<OneTapViewTracker>()) }
+        verify { tracker.track(any<AbortEvent>()) }
+        confirmVerified(tracker)
     }
 
     @Test
     fun whenOnFreshStartThenTrackView() {
         oneTapPresenter.onFreshStart()
 
-        verify(tracker).track(any(OneTapViewTracker::class.java))
-        verifyNoMoreInteractions(tracker)
+        verify { tracker.track(any<OneTapViewTracker>()) }
+        confirmVerified(tracker)
     }
 
     @Test
     fun whenDirtyStartThenNotTrackView() {
-        verifyNoMoreInteractions(tracker)
+        verify { tracker wasNot called }
     }
 
     @Test
@@ -259,99 +248,97 @@ class OneTapPresenterTest {
         oneTapPresenter.onFreshStart()
         oneTapPresenter.cancel()
 
-        verify(view).cancel()
-        verifyNoMoreInteractions(view)
-        verify(tracker).track(any(OneTapViewTracker::class.java))
-        verify(tracker).track(any(BackEvent::class.java))
-        verifyNoMoreInteractions(tracker)
+        verify { view.cancel() }
+        confirmVerified(view)
+        verify { tracker.track(any<OneTapViewTracker>()) }
+        verify { tracker.track(any<BackEvent>()) }
+        confirmVerified(tracker)
     }
 
     @Test
     fun whenInstallmentsRowPressedShowInstallments() {
         val selectedPayerCostIndex = 2
-        `when`(amountConfiguration.getCurrentPayerCostIndex(anyBoolean(), anyInt())).thenReturn(selectedPayerCostIndex)
+        every { amountConfiguration.getCurrentPayerCostIndex(any(), any()) } returns selectedPayerCostIndex
 
         oneTapPresenter.onInstallmentsRowPressed()
 
-        verify(view).updateInstallmentsList(eq(selectedPayerCostIndex), anyList())
-        verify(view).animateInstallmentsList()
-        verify(tracker).track(any(InstallmentsEventTrack::class.java))
-        verifyNoMoreInteractions(tracker)
-        verifyNoMoreInteractions(view)
+        verify { view.updateInstallmentsList(selectedPayerCostIndex, any()) }
+        verify { view.animateInstallmentsList() }
+        verify { tracker.track(any()) }
+        confirmVerified(tracker)
+        confirmVerified(view)
     }
 
     @Test
     fun whenInstallmentsSelectionCancelledThenCollapseInstallments() {
         val paymentMethodIndex = 0
-        val splitSelectionState = mock(SplitSelectionState::class.java)
-        val state = mock(OneTapState::class.java)
-        `when`(state.paymentMethodIndex).thenReturn(paymentMethodIndex)
-        `when`(state.splitSelectionState).thenReturn(splitSelectionState)
+        val splitSelectionState = mockk<SplitSelectionState>()
+        val state = mockk<OneTapState>()
+        every { state.paymentMethodIndex } returns paymentMethodIndex
+        every { state.splitSelectionState } returns splitSelectionState
         val payerCostIndex = 2
-        `when`(payerCostSelectionRepository.get(customOptionIdSolver[oneTapItem])).thenReturn(payerCostIndex)
+        val customOptionId = customOptionIdSolver[oneTapItem]
+        every { payerCostSelectionRepository.get(customOptionId) } returns payerCostIndex
 
         oneTapPresenter.restoreState(state)
         oneTapPresenter.onInstallmentSelectionCanceled()
 
-        verify(view).updateViewForPosition(paymentMethodIndex, payerCostIndex, splitSelectionState, application)
-        verify(view).collapseInstallmentsSelection()
+        verify { view.updateViewForPosition(paymentMethodIndex, payerCostIndex, splitSelectionState, application) }
+        verify { view.collapseInstallmentsSelection() }
     }
 
     @Test
     fun whenViewIsResumedThenPaymentRepositoryIsAttached() {
-        verifyNoMoreInteractions(paymentRepository)
-        verifyNoMoreInteractions(view)
-        verifyNoMoreInteractions(dynamicDialogConfiguration)
+        confirmVerified(paymentRepository)
+        confirmVerified(view)
+        confirmVerified(dynamicDialogConfiguration)
     }
 
     @Test
     fun whenElementDescriptorViewClickedAndHasCreatorThenShowDynamicDialog() {
-        val dynamicDialogCreatorMock = mock(DynamicDialogCreator::class.java)
-        `when`(dynamicDialogConfiguration.hasCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER))
-            .thenReturn(true)
-        `when`(dynamicDialogConfiguration.getCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER))
-            .thenReturn(dynamicDialogCreatorMock)
+        val dynamicDialogCreatorMock = mockk<DynamicDialogCreator>()
+        every { dynamicDialogConfiguration.hasCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER) } returns true
+        every { dynamicDialogConfiguration.getCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER) } returns dynamicDialogCreatorMock
 
         oneTapPresenter.onHeaderClicked()
 
-        verify(dynamicDialogConfiguration).hasCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER)
-        verify(dynamicDialogConfiguration).getCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER)
-        verify(view).showDynamicDialog(eq(dynamicDialogCreatorMock), any(DynamicDialogCreator.CheckoutData::class.java))
-        verifyNoMoreInteractions(view)
-        verifyNoMoreInteractions(dynamicDialogConfiguration)
+        verify { dynamicDialogConfiguration.hasCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER) }
+        verify { dynamicDialogConfiguration.getCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER) }
+        verify { view.showDynamicDialog(dynamicDialogCreatorMock, any()) }
+        confirmVerified(view)
+        confirmVerified(dynamicDialogConfiguration)
     }
 
     @Test
     fun whenElementDescriptorViewClickedAndHasNotCreatorThenDoNotShowDynamicDialog() {
         oneTapPresenter.onHeaderClicked()
 
-        verify(dynamicDialogConfiguration).hasCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER)
-        verifyNoMoreInteractions(view)
-        verifyNoMoreInteractions(dynamicDialogConfiguration)
+        verify { dynamicDialogConfiguration.hasCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER) }
+        confirmVerified(view)
+        confirmVerified(dynamicDialogConfiguration)
     }
 
     @Test
     fun whenDisabledDescriptorViewClickThenShowDisabledDialog() {
-        val disabledPaymentMethod = mock(DisabledPaymentMethod::class.java)
-        val statusMetadata = mock(StatusMetadata::class.java)
-        `when`(disabledPaymentMethodRepository[any()]).thenReturn(disabledPaymentMethod)
-        `when`(applicationSelectionRepository[any<String>()]).thenReturn(application)
-        `when`(application.status).thenReturn(statusMetadata)
+        val disabledPaymentMethod = mockk<DisabledPaymentMethod>()
+        val statusMetadata = mockk<StatusMetadata>()
+        every { disabledPaymentMethodRepository[any()] } returns disabledPaymentMethod
+        every { application.status } returns statusMetadata
 
         oneTapPresenter.onDisabledDescriptorViewClick()
 
-        verify(view).showDisabledPaymentMethodDetailDialog(disabledPaymentMethod, statusMetadata)
+        verify { view.showDisabledPaymentMethodDetailDialog(disabledPaymentMethod, statusMetadata) }
     }
 
     @Test
     fun whenSliderOptionSelectedThenShowInstallmentsRow() {
-        `when`(payerCostSelectionRepository[anyString()]).thenReturn(PayerCost.NO_SELECTED)
+        every { payerCostSelectionRepository[any()] } returns PayerCost.NO_SELECTED
         val currentElementPosition = 0
 
         oneTapPresenter.onSliderOptionSelected(currentElementPosition)
 
-        verify(view).updateViewForPosition(eq(currentElementPosition), eq(PayerCost.NO_SELECTED), any(), any())
-        verifyNoMoreInteractions(view)
+        verify { view.updateViewForPosition(currentElementPosition, PayerCost.NO_SELECTED, any(), any()) }
+        confirmVerified(view)
     }
 
     @Test
@@ -362,30 +349,28 @@ class OneTapPresenterTest {
 
         oneTapPresenter.onPayerCostSelected(payerCostList[selectedPayerCostIndex])
 
-        verify(view).updateViewForPosition(eq(paymentMethodIndex), eq(selectedPayerCostIndex), any(), any())
-        verify(view).collapseInstallmentsSelection()
-        verifyNoMoreInteractions(view)
+        verify { view.updateViewForPosition(paymentMethodIndex, selectedPayerCostIndex, any(), any()) }
+        verify { view.collapseInstallmentsSelection() }
+        confirmVerified(view)
     }
 
     private fun mockPayerCosts(selectedPayerCostIndex: Int): List<PayerCost> {
-        `when`(payerCostSelectionRepository[anyString()]).thenReturn(selectedPayerCostIndex)
-        val firstPayerCost = mock(PayerCost::class.java)
-        val payerCostList = listOf(mock(PayerCost::class.java), firstPayerCost, mock(PayerCost::class.java))
-        `when`(amountConfiguration.getAppliedPayerCost(false)).thenReturn(payerCostList)
+        every { payerCostSelectionRepository[any()] } returns selectedPayerCostIndex
+        val firstPayerCost = mockk<PayerCost>()
+        val payerCostList = listOf(mockk(), firstPayerCost, mockk())
+        every { amountConfiguration.getAppliedPayerCost(false) } returns payerCostList
         return payerCostList
     }
 
     private fun verifyAttachView() {
         oneTapPresenter.attachView(view)
-        verify(view).configurePayButton(any())
-        verify(view).configurePaymentMethodHeader(anyList())
-        verify(view).showToolbarElementDescriptor(any(ElementDescriptorView.Model::class.java))
-        verify(view).updateAdapters(any(HubAdapter.Model::class.java))
-        verify(view).updateViewForPosition(
-            anyInt(), anyInt(), any(SplitSelectionState::class.java), any(Application::class.java)
-        )
-        verify(view).configureRenderMode(any())
-        verify(view).configureAdapters(any(Site::class.java), any(Currency::class.java))
-        verify(view).updatePaymentMethods(anyListOf(DrawableFragmentItem::class.java))
+        verify { view.configurePayButton(any()) }
+        verify { view.configurePaymentMethodHeader(any()) }
+        verify { view.showToolbarElementDescriptor(any()) }
+        verify { view.updateAdapters(any()) }
+        verify { view.updateViewForPosition(any(), any(), any(), any()) }
+        verify { view.configureRenderMode(any()) }
+        verify { view.configureAdapters(any(), any()) }
+        verify { view.updatePaymentMethods(any()) }
     }
 }

@@ -6,15 +6,15 @@ import com.mercadopago.android.px.core.commons.extensions.ifNotEmpty
 import com.mercadopago.android.px.core.commons.extensions.isEmpty
 import com.mercadopago.android.px.core.commons.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.core.commons.extensions.orIfEmpty
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertFalse
-import junit.framework.Assert.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 
 @RunWith(MockitoJUnitRunner::class)
 class StringExtTests {
@@ -63,7 +63,7 @@ class StringExtTests {
     fun ifNotEmptyShouldNotExecuteFunctionWhenEmpty() {
         val testString = EMPTY
         testString.ifNotEmpty { callbackMock("123") }
-        verifyZeroInteractions(callbackMock)
+        verifyNoInteractions(callbackMock)
     }
 
     @Test

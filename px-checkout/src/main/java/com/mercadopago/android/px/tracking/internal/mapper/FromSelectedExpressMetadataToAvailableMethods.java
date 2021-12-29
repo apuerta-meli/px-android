@@ -2,7 +2,6 @@ package com.mercadopago.android.px.tracking.internal.mapper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.mercadopago.android.px.internal.datasource.CustomOptionIdSolver;
 import com.mercadopago.android.px.internal.mappers.Mapper;
 import com.mercadopago.android.px.internal.repository.ApplicationSelectionRepository;
 import com.mercadopago.android.px.model.AccountMoneyMetadata;

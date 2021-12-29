@@ -2,7 +2,6 @@ package com.mercadopago.android.px.internal.features.payment_congrats
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.ImageView
 import androidx.lifecycle.Observer
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.internal.di.Session
@@ -32,13 +31,15 @@ class CongratsActivity : AppCompatActivity() {
 
     private fun onCongratsResult(congratsResult: CongratsResult) {
         when (congratsResult) {
-            is CongratsResult.CongratsPaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
+            is CongratsResult.CongratsPaymentResult ->
+                PaymentResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
             is CongratsResult.CongratsBusinessPaymentResult -> PaymentCongrats.show(
                 congratsResult.paymentCongratsModel,
                 this,
                 REQ_CODE_CONGRATS
             )
-            is CongratsResult.SkipCongratsResult -> DummyResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
+            is CongratsResult.SkipCongratsResult ->
+                DummyResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
         }
         finish()
     }

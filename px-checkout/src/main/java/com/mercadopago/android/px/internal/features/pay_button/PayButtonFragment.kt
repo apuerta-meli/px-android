@@ -1,7 +1,6 @@
 package com.mercadopago.android.px.internal.features.pay_button
 
 import android.app.Activity
-import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -53,7 +52,6 @@ private const val REQ_CODE_BIOMETRICS = 303
 private const val REQ_CODE_SECURITY_CODE = 304
 private const val REQ_CODE_POST_PAYMENT_RESULT_CODE = 305
 private const val EXTRA_POST_PAYMENT_RESULT = "extra_post_payment_result"
-private const val EXTRA_POST_PAYMENT_CONGRATS_RESULT = "extra_post_payment_congrats_result"
 private const val EXTRA_STATE = "extra_state"
 private const val EXTRA_VISIBILITY = "extra_visibility"
 private const val EXTRA_OBSERVING = "extra_observing"

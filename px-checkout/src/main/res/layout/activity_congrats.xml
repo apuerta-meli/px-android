@@ -6,10 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".internal.features.payment_congrats.CongratsActivity">
 
-    <ImageView
-        android:id="@+id/image_view_semovi"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+    <com.mercadolibre.android.ui.widgets.MeliSpinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:size="large"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

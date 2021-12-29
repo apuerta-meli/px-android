@@ -1,6 +1,6 @@
 package com.mercadopago.android.px.internal.features.payment_congrats
 
-import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.mercadopago.android.px.internal.base.BaseState
 import com.mercadopago.android.px.internal.base.BaseViewModelWithState
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
@@ -13,6 +13,8 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.tracking.internal.MPTracker
 import kotlinx.android.parcel.Parcelize
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 internal class CongratsViewModel(
     private val congratsRepository: CongratsRepository,
@@ -35,9 +37,12 @@ internal class CongratsViewModel(
     fun createCongratsResult(
         iPaymentDescriptor: IPaymentDescriptor
     ) {
-        val paymentResult = paymentRepository.createPaymentResult(iPaymentDescriptor)
-        disabledPaymentMethodRepository.handleRejectedPayment(paymentResult)
-        congratsRepository.getPostPaymentData(iPaymentDescriptor, paymentResult, this)
+        viewModelScope.launch {
+            delay(3000)
+            val paymentResult = paymentRepository.createPaymentResult(iPaymentDescriptor)
+            disabledPaymentMethodRepository.handleRejectedPayment(paymentResult)
+            congratsRepository.getPostPaymentData(iPaymentDescriptor, paymentResult, this@CongratsViewModel)
+        }
     }
 
     override fun handleResult(paymentModel: PaymentModel) {

@@ -13,6 +13,7 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.tracking.internal.MPTracker
 import kotlinx.android.parcel.Parcelize
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -37,7 +38,7 @@ internal class CongratsViewModel(
     fun createCongratsResult(
         iPaymentDescriptor: IPaymentDescriptor
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             delay(3000)
             val paymentResult = paymentRepository.createPaymentResult(iPaymentDescriptor)
             disabledPaymentMethodRepository.handleRejectedPayment(paymentResult)

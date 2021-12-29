@@ -44,4 +44,10 @@ class CongratsActivity : AppCompatActivity() {
         finish()
     }
 
+    override fun onBackPressed() {
+        if (congratsViewModel.congratsResultLiveData.value != null) {
+            super.onBackPressed()
+        }
+    }
+
 }

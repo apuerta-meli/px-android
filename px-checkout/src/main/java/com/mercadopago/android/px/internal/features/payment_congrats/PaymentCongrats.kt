@@ -11,7 +11,7 @@ import com.mercadopago.android.px.model.IPaymentDescriptor
 
 object PaymentCongrats {
     private const val PAYMENT_CONGRATS = "payment_congrats"
-    private const val PAYMENT_DESCRIPTOR = "payment_descriptor"
+    const val PAYMENT_DESCRIPTOR = "payment_descriptor"
 
     /**
      * Allows to execute a congrats activity

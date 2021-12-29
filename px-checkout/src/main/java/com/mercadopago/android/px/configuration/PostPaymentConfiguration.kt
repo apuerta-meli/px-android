@@ -15,6 +15,10 @@ class PostPaymentConfiguration private constructor() {
 
     fun getPostPaymentDeepLinkUrl() = postPaymentDeepLinkUrl.orEmpty()
 
+    fun cleanPostPaymentDeepLinkUrl(){
+        postPaymentDeepLinkUrl = null
+    }
+
     class Builder {
 
         private var postPaymentDeepLinkUrl: String? = null

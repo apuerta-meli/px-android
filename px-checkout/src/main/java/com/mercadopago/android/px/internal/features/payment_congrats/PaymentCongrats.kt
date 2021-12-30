@@ -36,11 +36,9 @@ object PaymentCongrats {
         }
     }
 
-    internal fun show(iPaymentDescriptor: IPaymentDescriptor?, activity: Activity?) {
+    internal fun show(iPaymentDescriptor: IPaymentDescriptor, activity: Activity?) {
         Intent(activity, CongratsActivity::class.java).also { intent ->
-            iPaymentDescriptor?.let {
-                intent.putExtra(PAYMENT_DESCRIPTOR, it)
-            }
+            intent.putExtra(PAYMENT_DESCRIPTOR, iPaymentDescriptor)
             activity?.startActivity(intent)
         }
     }

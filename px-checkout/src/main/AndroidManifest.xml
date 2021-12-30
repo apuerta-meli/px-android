@@ -5,7 +5,22 @@
     <application>
         <activity
             android:name=".internal.features.payment_congrats.CongratsActivity"
-            android:exported="true" />
+            android:launchMode="singleTask"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="px"
+                    android:path="/congrats"
+                    android:scheme="mercadopago" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".internal.features.TermsAndConditionsActivity"
             android:label="@string/px_title_activity_terms_and_conditions"

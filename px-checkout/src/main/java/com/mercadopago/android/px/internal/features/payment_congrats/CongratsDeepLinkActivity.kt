@@ -19,7 +19,7 @@ class CongratsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_congrats)
+        setContentView(R.layout.activity_congrats_deep_link)
 
         val iPaymentDescriptor = intent.getSerializableExtra(PaymentCongrats.PAYMENT_DESCRIPTOR) as? IPaymentDescriptor
         iPaymentDescriptor?.let {

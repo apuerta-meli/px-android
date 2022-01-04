@@ -4,7 +4,7 @@
 
     <application>
         <activity
-            android:name=".internal.features.payment_congrats.CongratsActivity"
+            android:name=".internal.features.payment_congrats.CongratsDeepLinkActivity"
             android:launchMode="singleTask"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"

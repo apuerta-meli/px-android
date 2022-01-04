@@ -1,7 +1,6 @@
 package com.mercadopago.android.px.internal.features.payment_congrats
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
 import com.mercadopago.android.px.internal.di.Session
@@ -37,9 +36,17 @@ object PaymentCongrats {
     }
 
     internal fun show(iPaymentDescriptor: IPaymentDescriptor, activity: Activity?) {
-        Intent(activity, CongratsActivity::class.java).also { intent ->
+        Intent(activity, CongratsDeepLinkActivity::class.java).also { intent ->
             intent.putExtra(PAYMENT_DESCRIPTOR, iPaymentDescriptor)
             activity?.startActivity(intent)
         }
+    }
+
+    fun launchCongratsWithPayment(iPaymentDescriptor: IPaymentDescriptor, activity: Activity) {
+        val intent = Intent(activity, CongratsDeepLinkActivity::class.java).apply {
+            putExtra(PAYMENT_DESCRIPTOR, iPaymentDescriptor)
+        }
+        activity.startActivity(intent)
+        activity.finish()
     }
 }

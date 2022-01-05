@@ -1,19 +1,11 @@
 package com.mercadopago.android.px.internal.features.payment_congrats
 
-import com.mercadopago.android.px.assertEquals
 import com.mercadopago.android.px.configuration.PostPaymentConfiguration
-import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
-import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
-import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import org.junit.Before
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 internal class CongratsResultFactoryTest {

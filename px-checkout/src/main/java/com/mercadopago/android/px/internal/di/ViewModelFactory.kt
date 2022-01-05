@@ -62,9 +62,8 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
                     session.congratsRepository,
                     session.paymentRepository,
                     session.congratsResultFactory,
-                    paymentSetting,
-                    MapperProvider.getPostPaymentUrlsMapper(),
                     session.networkModule.connectionHelper,
+                    paymentSetting,
                     session.tracker
                 )
             }

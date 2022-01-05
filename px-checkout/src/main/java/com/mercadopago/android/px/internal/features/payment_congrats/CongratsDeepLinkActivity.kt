@@ -35,11 +35,11 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
 
     private fun onCongratsResult(congratsResult: CongratsResult) {
         when (congratsResult) {
-            is CongratsResult.CongratsPaymentResult -> {
+            is BaseCongratsResult.PaymentResult -> {
                 PaymentResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
                 finish()
             }
-            is CongratsResult.CongratsBusinessPaymentResult -> {
+            is BaseCongratsResult.BusinessPaymentResult -> {
                 PaymentCongrats.show(
                     congratsResult.paymentCongratsModel,
                     this,
@@ -47,17 +47,16 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
                 )
                 finish()
             }
-            is CongratsResult.SkipCongratsResult -> TODO("this is never going to happen, refactor")
-            is CongratsResult.Loading -> if (congratsResult.isLoading) {
+            is CongratsPostPaymentResult.Loading -> if (congratsResult.isLoading) {
                 findViewById<MeliSpinner>(R.id.loading_view).visibility = View.VISIBLE
             } else {
                 findViewById<MeliSpinner>(R.id.loading_view).visibility = View.GONE
             }
-            is CongratsResult.ConnectionError -> handleError(
-                message = getString(congratsResult.message),
+            is CongratsPostPaymentResult.ConnectionError -> handleError(
+                message = getString(R.string.px_no_connection_message),
                 recoverable = true
             )
-            is CongratsResult.BusinessError -> handleError(recoverable = false)
+            is CongratsPostPaymentResult.BusinessError -> handleError(recoverable = false)
         }
     }
 

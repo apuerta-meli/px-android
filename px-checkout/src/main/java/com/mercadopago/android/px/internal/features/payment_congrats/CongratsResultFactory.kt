@@ -19,10 +19,13 @@ internal class CongratsResultFactory(
                 && Payment.StatusCodes.STATUS_APPROVED == iPaymentDescriptor.paymentStatus
 
     fun create(paymentModel: PaymentModel, redirectUrl: String?): CongratsResult = when {
-        postPaymentConfiguration.getPostPaymentDeepLinkUrl().isNotNullNorEmpty() && paymentModel.paymentResult.isApproved ->
-            CongratsResult.CongratsPostPaymentResult(paymentModel, postPaymentConfiguration.getPostPaymentDeepLinkUrl())
-        redirectUrl.isNotNullNorEmpty() -> CongratsResult.SkipCongratsResult(paymentModel)
-        paymentModel is BusinessPaymentModel -> CongratsResult.CongratsBusinessPaymentResult(paymentCongratsModelMapper.map(paymentModel))
-        else -> CongratsResult.CongratsPaymentResult(paymentModel)
+        redirectUrl.isNotNullNorEmpty() -> CongratsPaymentResult.SkipCongratsResult(paymentModel)
+        paymentModel is BusinessPaymentModel -> BaseCongratsResult.BusinessPaymentResult(paymentCongratsModelMapper.map(paymentModel))
+        else -> BaseCongratsResult.PaymentResult(paymentModel)
+    }
+
+    fun create(paymentModel: PaymentModel) : CongratsResult = when (paymentModel) {
+        is BusinessPaymentModel -> BaseCongratsResult.BusinessPaymentResult(paymentCongratsModelMapper.map(paymentModel))
+        else -> BaseCongratsResult.PaymentResult(paymentModel)
     }
 }

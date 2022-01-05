@@ -3,11 +3,13 @@ package com.mercadopago.android.px.internal.callbacks;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration;
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
+import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.BusinessPayment;
@@ -15,6 +17,7 @@ import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.IPayment;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.IPaymentDescriptorHandler;
+import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.PaymentTypes;
@@ -37,7 +40,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     @NonNull private final Queue<Message> messages;
     @NonNull /* default */ final PaymentRepository paymentRepository;
     @NonNull /* default */ final DisabledPaymentMethodRepository disabledPaymentMethodRepository;
-    @NonNull /* default */ final CongratsResultFactory congratsResultFactory;
+    @NonNull /* default */ final PaymentSettingRepository paymentSettingRepository;
 
     @NonNull private final IPaymentDescriptorHandler paymentHandler = new IPaymentDescriptorHandler() {
         @Override
@@ -48,10 +51,11 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
                 onRecoverPaymentEscInvalid(paymentRepository.createRecoveryForInvalidESC());
             } else {
                 paymentRepository.storePayment(payment);
-                if (congratsResultFactory.isValidPostPaymentFlow(payment)) {
+                if (isPostPaymentFlow(payment)) {
                     onPostPayment(
                         payment,
-                        congratsResultFactory.getPostPaymentConfiguration().getPostPaymentDeepLinkUrl()
+                        paymentSettingRepository.getAdvancedConfiguration().getPostPaymentConfiguration()
+                            .getPostPaymentDeepLinkUrl()
                     );
                 } else {
                     //Must be after store
@@ -66,10 +70,11 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         public void visit(@NonNull final BusinessPayment businessPayment) {
             verifyAndHandleEsc(businessPayment);
             paymentRepository.storePayment(businessPayment);
-            if (congratsResultFactory.isValidPostPaymentFlow(businessPayment)) {
+            if (isPostPaymentFlow(businessPayment)) {
                 onPostPayment(
                     businessPayment,
-                    congratsResultFactory.getPostPaymentConfiguration().getPostPaymentDeepLinkUrl()
+                    paymentSettingRepository.getAdvancedConfiguration().getPostPaymentConfiguration()
+                        .getPostPaymentDeepLinkUrl()
                 );
             } else {
                 final PaymentResult paymentResult = paymentRepository.createPaymentResult(businessPayment);
@@ -79,19 +84,25 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         }
     };
 
+    private boolean isPostPaymentFlow(final IPaymentDescriptor iPaymentDescriptor) {
+        return !paymentSettingRepository.getAdvancedConfiguration().getPostPaymentConfiguration()
+            .getPostPaymentDeepLinkUrl().isEmpty()
+            && Payment.StatusCodes.STATUS_APPROVED.equals(iPaymentDescriptor.getPaymentStatus());
+    }
+
     public PaymentServiceHandlerWrapper(
         @NonNull final PaymentRepository paymentRepository,
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
         @NonNull final EscPaymentManager escPaymentManager,
         @NonNull final CongratsRepository congratsRepository,
         @NonNull final UserSelectionRepository userSelectionRepository,
-        @NonNull final CongratsResultFactory congratsResultFactory) {
+        @NonNull final PaymentSettingRepository paymentSettingRepository) {
         this.paymentRepository = paymentRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
         this.escPaymentManager = escPaymentManager;
         this.congratsRepository = congratsRepository;
         this.userSelectionRepository = userSelectionRepository;
-        this.congratsResultFactory = congratsResultFactory;
+        this.paymentSettingRepository = paymentSettingRepository;
         messages = new LinkedList<>();
     }
 

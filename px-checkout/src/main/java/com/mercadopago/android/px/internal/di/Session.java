@@ -137,11 +137,6 @@ public final class Session extends ApplicationModule {
         paymentSetting.configure(paymentConfiguration);
         resolvePreference(mercadoPagoCheckout, paymentSetting);
         // end Store persistent paymentSetting
-
-        congratsResultFactory = new CongratsResultFactory(
-            configurationModule.getPaymentSettings().getAdvancedConfiguration().getPostPaymentConfiguration(),
-            MapperProvider.INSTANCE.getPaymentCongratsMapper()
-        );
     }
 
     public void init(@NonNull final PaymentCongratsModel paymentCongratsModel) {
@@ -312,8 +307,7 @@ public final class Session extends ApplicationModule {
                 MapperProvider.INSTANCE.getFromPayerPaymentMethodToCardMapper(),
                 MapperProvider.INSTANCE.getPaymentMethodMapper(),
                 getPaymentMethodRepository(),
-                getUseCaseModule().getValidationProgramUseCase(),
-                getCongratsResultFactory()
+                getUseCaseModule().getValidationProgramUseCase()
             );
         }
 

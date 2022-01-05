@@ -138,8 +138,7 @@ public class PaymentServiceTest {
             fromPayerPaymentMethodToCardMapper,
             paymentMethodMapper,
             paymentMethodRepository,
-            validationProgramUseCase,
-            congratsResultFactory
+            validationProgramUseCase
         );
 
         application = mock(Application.class);

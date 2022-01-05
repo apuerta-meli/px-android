@@ -70,7 +70,6 @@ public class PaymentService implements PaymentRepository {
     @NonNull private final FileManager fileManager;
     @NonNull private final EscPaymentManager escPaymentManager;
     @NonNull private final ESCManagerBehaviour escManagerBehaviour;
-    @NonNull private final CongratsResultFactory congratsResultFactory;
 
     @NonNull /* default */ final PaymentServiceHandlerWrapper handlerWrapper;
     @NonNull /* default */ final AmountConfigurationRepository amountConfigurationRepository;
@@ -98,8 +97,7 @@ public class PaymentService implements PaymentRepository {
         @NonNull final FromPayerPaymentMethodToCardMapper fromPayerPaymentMethodToCardMapper,
         @NonNull final PaymentMethodMapper paymentMethodMapper,
         @NonNull final PaymentMethodRepository paymentMethodRepository,
-        @NonNull final ValidationProgramUseCase validationProgramUseCase,
-        @NonNull final CongratsResultFactory congratsResultFactory) {
+        @NonNull final ValidationProgramUseCase validationProgramUseCase) {
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.escPaymentManager = escPaymentManager;
         this.escManagerBehaviour = escManagerBehaviour;
@@ -111,7 +109,6 @@ public class PaymentService implements PaymentRepository {
         this.tokenRepository = tokenRepository;
         this.fileManager = fileManager;
         this.validationProgramUseCase = validationProgramUseCase;
-        this.congratsResultFactory = congratsResultFactory;
 
         paymentFile = fileManager.create(FILE_PAYMENT);
         this.fromPayerPaymentMethodToCardMapper = fromPayerPaymentMethodToCardMapper;
@@ -120,7 +117,7 @@ public class PaymentService implements PaymentRepository {
 
         handlerWrapper =
             new PaymentServiceHandlerWrapper(this, disabledPaymentMethodRepository, escPaymentManager,
-                congratsRepository, userSelectionRepository, congratsResultFactory);
+                congratsRepository, userSelectionRepository, paymentSettingRepository);
     }
 
     @Nullable

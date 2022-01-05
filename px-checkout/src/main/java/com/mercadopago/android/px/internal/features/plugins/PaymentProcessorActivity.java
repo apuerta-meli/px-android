@@ -97,7 +97,7 @@ public final class PaymentProcessorActivity extends PXActivity
             session.getConfigurationModule().getDisabledPaymentMethodRepository(),
             session.getEscPaymentManager(), session.getCongratsRepository(),
             session.getConfigurationModule().getUserSelectionRepository(),
-            session.getCongratsResultFactory());
+            session.getConfigurationModule().getPaymentSettings());
 
         if (getFragmentByTag() == null) { // if fragment is not added, then create it.
             addPaymentProcessorFragment(session);

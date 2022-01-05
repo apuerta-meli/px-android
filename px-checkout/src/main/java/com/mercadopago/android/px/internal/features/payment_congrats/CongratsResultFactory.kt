@@ -13,6 +13,7 @@ internal class CongratsResultFactory(
     private val paymentCongratsModelMapper: PaymentCongratsModelMapper
 ) {
 
+    // TODO: Mover esta funcion de aquí
     fun isValidPostPaymentFlow(iPaymentDescriptor: IPaymentDescriptor) =
         postPaymentConfiguration.getPostPaymentDeepLinkUrl().isNotNullNorEmpty()
                 && Payment.StatusCodes.STATUS_APPROVED == iPaymentDescriptor.paymentStatus

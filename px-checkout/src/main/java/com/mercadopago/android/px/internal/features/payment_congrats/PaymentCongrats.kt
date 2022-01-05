@@ -35,14 +35,15 @@ object PaymentCongrats {
         }
     }
 
-    internal fun show(iPaymentDescriptor: IPaymentDescriptor, activity: Activity?) {
-        Intent(activity, CongratsDeepLinkActivity::class.java).also { intent ->
-            intent.putExtra(PAYMENT_DESCRIPTOR, iPaymentDescriptor)
-            activity?.startActivity(intent)
-        }
-    }
-
+    /**
+     * Allows to execute a congrats activity
+     *
+     * @param iPaymentDescriptor model with the needed data to show a Congrats
+     * @param activity caller activity
+     */
+    @JvmStatic
     fun launchCongratsWithPayment(iPaymentDescriptor: IPaymentDescriptor, activity: Activity) {
+        // TODO: lanzar con deeplink
         val intent = Intent(activity, CongratsDeepLinkActivity::class.java).apply {
             putExtra(PAYMENT_DESCRIPTOR, iPaymentDescriptor)
         }

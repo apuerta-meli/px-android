@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.mercadopago.android.px.internal.base.FragmentCommunicationViewModel
 import com.mercadopago.android.px.internal.features.one_tap.offline_methods.OfflineMethodsViewModel
 import com.mercadopago.android.px.internal.features.pay_button.PayButtonViewModel
-import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsViewModel
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeViewModel
 import com.mercadopago.android.px.internal.features.security_code.mapper.TrackingParamModelMapper
@@ -62,7 +61,6 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
                 CongratsViewModel(
                     session.congratsRepository,
                     session.paymentRepository,
-                    session.configurationModule.disabledPaymentMethodRepository,
                     session.congratsResultFactory,
                     paymentSetting,
                     MapperProvider.getPostPaymentUrlsMapper(),

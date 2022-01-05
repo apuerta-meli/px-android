@@ -252,6 +252,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         }
     }
 
+    // TODO: cambiar nombre
     private static class PostPaymentMessage implements Message {
 
         @NonNull private final PaymentModel paymentModel;
@@ -272,6 +273,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         }
     }
 
+    // TODO: cambiar nombre
     private static class PostPaymentFlowMessage implements Message {
 
         @NonNull private final IPaymentDescriptor iPaymentDescriptor;

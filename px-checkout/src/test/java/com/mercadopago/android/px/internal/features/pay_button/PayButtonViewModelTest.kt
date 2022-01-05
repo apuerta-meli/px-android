@@ -267,7 +267,7 @@ internal class PayButtonViewModelTest {
             on { paymentResult }.thenReturn(mock())
             on { paymentResult.isApproved }.thenReturn(true)
         }
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
 
         payButtonViewModel.onResultIconAnimation()
         verify(playSoundUseCase).execute(AudioPlayer.Sound.SUCCESS)
@@ -279,7 +279,7 @@ internal class PayButtonViewModelTest {
             on { paymentResult }.thenReturn(mock())
             on { paymentResult.isRejected }.thenReturn(true)
         }
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
 
         payButtonViewModel.onResultIconAnimation()
 
@@ -384,7 +384,7 @@ internal class PayButtonViewModelTest {
         val paymentModel = mock<PaymentModel> {
             on { congratsResponse }.thenReturn(mock())
         }
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
         whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(CongratsResult.CongratsPaymentResult(paymentModel))
 
@@ -406,7 +406,7 @@ internal class PayButtonViewModelTest {
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
             .thenReturn(PostPaymentUrlsMapper.Response("redirect_url", null))
         whenever(congratsResultFactory.create(paymentModel, "redirect_url")).thenReturn(CongratsResult.SkipCongratsResult(paymentModel))
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
 
         payButtonViewModel.hasFinishPaymentAnimation()
 
@@ -424,7 +424,7 @@ internal class PayButtonViewModelTest {
         val paymentModel = mock<PaymentModel> {
             on { congratsResponse }.thenReturn(mock())
         }
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(
             CongratsResult.CongratsPostPaymentResult(
                 paymentModel,
@@ -454,7 +454,7 @@ internal class PayButtonViewModelTest {
         whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(
             CongratsResult.CongratsBusinessPaymentResult(congratsModel)
         )
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
             .thenReturn(mock())
 
@@ -477,7 +477,7 @@ internal class PayButtonViewModelTest {
         whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(
             CongratsResult.CongratsPaymentResult(paymentModel)
         )
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
 
         payButtonViewModel.hasFinishPaymentAnimation()
@@ -500,7 +500,7 @@ internal class PayButtonViewModelTest {
         whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(
             CongratsResult.CongratsBusinessPaymentResult(congratsModel)
         )
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
 
         payButtonViewModel.hasFinishPaymentAnimation()
@@ -522,7 +522,7 @@ internal class PayButtonViewModelTest {
             on { paymentResult }.thenReturn(mock())
             on { paymentResult.isApproved }.thenReturn(true)
         }
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
 
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
         whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
@@ -540,7 +540,7 @@ internal class PayButtonViewModelTest {
             on { paymentResult }.thenReturn(mock())
             on { paymentResult.isApproved }.thenReturn(false)
         }
-        whenever(state.iPaymentDescriptor).thenReturn(paymentModel)
+        whenever(state.paymentModel).thenReturn(paymentModel)
 
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
         whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)

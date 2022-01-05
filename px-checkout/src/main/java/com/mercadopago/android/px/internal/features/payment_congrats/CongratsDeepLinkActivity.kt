@@ -1,26 +1,23 @@
 package com.mercadopago.android.px.internal.features.payment_congrats
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Observer
-import com.mercadolibre.android.andesui.snackbar.action.AndesSnackbarAction
-import com.mercadolibre.android.ui.widgets.ErrorView
 import com.mercadolibre.android.ui.widgets.MeliSpinner
 import com.mercadopago.android.px.R
-import com.mercadopago.android.px.internal.di.Session
-import com.mercadopago.android.px.internal.extensions.showSnackBar
+import com.mercadopago.android.px.internal.di.viewModel
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
+import com.mercadopago.android.px.internal.util.ErrorUtil
 import com.mercadopago.android.px.model.IPaymentDescriptor
-
+import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 
 private const val REQ_CODE_CONGRATS = 300
 
-class CongratsDeepLinkActivity : AppCompatActivity() {
+internal class CongratsDeepLinkActivity : AppCompatActivity() {
 
-    private val congratsViewModel: CongratsViewModel by lazy {
-        Session.getInstance().viewModelModule.get(this, CongratsViewModel::class.java)
-    }
+    private val congratsViewModel by viewModel<CongratsViewModel>()
 
     private var iPaymentDescriptor: IPaymentDescriptor? = null
 
@@ -56,26 +53,26 @@ class CongratsDeepLinkActivity : AppCompatActivity() {
             } else {
                 findViewById<MeliSpinner>(R.id.loading_view).visibility = View.GONE
             }
-            is CongratsResult.ConnectionError -> resolveConnectionError(congratsResult)
-            is CongratsResult.BusinessError -> {
-                val action = AndesSnackbarAction(
-                    getString(R.string.px_snackbar_error_action), View.OnClickListener {
-                        onBackPressed()
-                    })
-                findViewById<View>(android.R.id.content).showSnackBar(
-                    getString(R.string.px_error_title),
-                    andesSnackbarAction = action
-                )
-            }
+            is CongratsResult.ConnectionError -> handleError(
+                message = getString(congratsResult.message),
+                recoverable = true
+            )
+            is CongratsResult.BusinessError -> handleError(recoverable = false)
         }
     }
 
-    private fun resolveConnectionError(congratsResult: CongratsResult.ConnectionError) {
-        findViewById<ErrorView>(R.id.error_view).apply {
-            visibility = View.VISIBLE
-            setTitle(congratsResult.message)
-            setButton(congratsResult.actionMessage) {
+    private fun handleError(message: String = "", recoverable: Boolean) {
+        ErrorUtil.startErrorActivity(this, MercadoPagoError(message, recoverable))
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == ErrorUtil.ERROR_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
                 congratsViewModel.createCongratsResult(iPaymentDescriptor)
+            } else {
+                finish()
             }
         }
     }

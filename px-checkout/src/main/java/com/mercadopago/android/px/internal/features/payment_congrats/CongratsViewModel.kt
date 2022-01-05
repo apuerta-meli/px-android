@@ -7,7 +7,6 @@ import com.mercadopago.android.px.internal.core.ConnectionHelper
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.livedata.MediatorSingleLiveData
 import com.mercadopago.android.px.internal.repository.CongratsRepository
-import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.PaymentRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
@@ -21,7 +20,6 @@ import kotlinx.coroutines.launch
 internal class CongratsViewModel(
     private val congratsRepository: CongratsRepository,
     private val paymentRepository: PaymentRepository,
-    private val disabledPaymentMethodRepository: DisabledPaymentMethodRepository,
     private val congratsResultFactory: CongratsResultFactory,
     private val paymentSettingRepository: PaymentSettingRepository,
     private val postPaymentUrlsMapper: PostPaymentUrlsMapper,
@@ -44,7 +42,6 @@ internal class CongratsViewModel(
             val descriptor = iPaymentDescriptor ?: paymentRepository.payment
             if (descriptor != null) {
                 val paymentResult = paymentRepository.createPaymentResult(descriptor)
-                disabledPaymentMethodRepository.handleRejectedPayment(paymentResult)
                 congratsRepository.getPostPaymentData(descriptor, paymentResult, this@CongratsViewModel)
             } else {
                 congratsResultLiveData.value = CongratsResult.Loading(false)

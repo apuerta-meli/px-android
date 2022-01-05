@@ -3,8 +3,6 @@ package com.mercadopago.android.px.internal.callbacks;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import com.mercadopago.android.px.configuration.PostPaymentConfiguration;
-import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
@@ -161,17 +159,17 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     }
 
     private void onPostPayment(@NonNull final IPaymentDescriptor payment, @NonNull final String deeplink) {
-        congratsRepository.getPostPaymentFlowData(payment, deeplink, this::onPostPaymentFlow);
+        onPostPaymentFlowStarted(payment, deeplink);
     }
 
     @Override
     public void onPostPayment(@NonNull final PaymentModel paymentModel) {
-        addAndProcess(new PostPaymentMessage(paymentModel));
+        addAndProcess(new PaymentFinishedMessage(paymentModel));
     }
 
     @Override
-    public void onPostPaymentFlow(@NonNull final IPaymentDescriptor iPaymentDescriptor, @NonNull final String deeplink) {
-        addAndProcess(new PostPaymentFlowMessage(iPaymentDescriptor, deeplink));
+    public void onPostPaymentFlowStarted(@NonNull final IPaymentDescriptor iPaymentDescriptor, @NonNull final String deeplink) {
+        addAndProcess(new PostPaymentFlowStartedMessage(iPaymentDescriptor, deeplink));
     }
 
     /* default */
@@ -263,12 +261,11 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         }
     }
 
-    // TODO: cambiar nombre
-    private static class PostPaymentMessage implements Message {
+    private static class PaymentFinishedMessage implements Message {
 
         @NonNull private final PaymentModel paymentModel;
 
-        /* default */ PostPaymentMessage(@NonNull final PaymentModel paymentModel) {
+        /* default */ PaymentFinishedMessage(@NonNull final PaymentModel paymentModel) {
             this.paymentModel = paymentModel;
         }
 
@@ -284,13 +281,12 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         }
     }
 
-    // TODO: cambiar nombre
-    private static class PostPaymentFlowMessage implements Message {
+    private static class PostPaymentFlowStartedMessage implements Message {
 
         @NonNull private final IPaymentDescriptor iPaymentDescriptor;
         @NonNull private final String deeplink;
 
-        /* default */ PostPaymentFlowMessage(
+        /* default */ PostPaymentFlowStartedMessage(
             @NonNull final IPaymentDescriptor iPaymentDescriptor,
             @NonNull final String deeplink
         ) {
@@ -302,7 +298,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         public void processMessage(@Nullable final PaymentServiceHandler handler,
             @Nullable final PaymentServiceEventHandler eventHandler) {
             if (handler != null) {
-                handler.onPostPaymentFlow(iPaymentDescriptor, deeplink);
+                handler.onPostPaymentFlowStarted(iPaymentDescriptor, deeplink);
             }
 
             if (eventHandler != null) {

@@ -43,7 +43,7 @@ object PaymentCongrats {
      */
     @JvmStatic
     fun launchCongratsWithPayment(iPaymentDescriptor: IPaymentDescriptor, activity: Activity) {
-        // TODO: lanzar con deeplink
+        // SEMOVI: lanzar con deeplink
         val intent = Intent(activity, CongratsDeepLinkActivity::class.java).apply {
             putExtra(PAYMENT_DESCRIPTOR, iPaymentDescriptor)
         }

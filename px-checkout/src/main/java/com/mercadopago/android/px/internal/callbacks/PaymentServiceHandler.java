@@ -32,5 +32,5 @@ public interface PaymentServiceHandler extends OnPaymentListener {
 
     void onPostPayment(@NonNull final PaymentModel paymentModel);
 
-    void onPostPaymentFlow(@NonNull final IPaymentDescriptor iPaymentDescriptor, @NonNull final String deeplink);
+    void onPostPaymentFlowStarted(@NonNull final IPaymentDescriptor iPaymentDescriptor, @NonNull final String deeplink);
 }

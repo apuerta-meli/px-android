@@ -7,7 +7,6 @@ import com.mercadopago.android.px.internal.features.payment_result.remedies.Alte
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesBodyMapper
 import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentCallback
-import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentFlowCallback
 import com.mercadopago.android.px.internal.services.CongratsService
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
 import com.mercadopago.android.px.internal.util.StatusHelper
@@ -65,15 +64,6 @@ internal class CongratsRepositoryImpl(
                 handleResult(payment, paymentResult, congrats, remedies, paymentSettingRepository.currency, callback)
             }
         }
-    }
-
-    // TODO esta funcion que agregamos, la podemos eliminar y llamar el codigo directamente.
-    override fun getPostPaymentFlowData(
-        payment: IPaymentDescriptor,
-        deeplink: String,
-        callback: PostPaymentFlowCallback
-    ) {
-        callback.handlePostPaymentResult(payment, deeplink)
     }
 
     private suspend fun getCongratsResponse(payment: IPaymentDescriptor, paymentResult: PaymentResult) =

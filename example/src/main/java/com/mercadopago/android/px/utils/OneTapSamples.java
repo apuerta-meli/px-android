@@ -42,6 +42,7 @@ public final class OneTapSamples {
 
     public static void addAll(final Collection<Pair<String, MercadoPagoCheckout.Builder>> options) {
         int i = 1;
+        options.add(new Pair<>(i++ + " - Visa Tokenization Sample",startTokenization()));
         options.add(new Pair<>("Saved cards with default installments", startSavedCardsDefaultInstallments()));
         options.add(new Pair<>(i++ + " - One tap - Should suggest account money (no cards)",
             startOneTapWithAccountMoneyNoCards()));
@@ -96,6 +97,49 @@ public final class OneTapSamples {
             startOneTapWithOfflineMethods()));
         options.add(new Pair<>(i++ + " - One tap - Should suggest one tap with debit card in chile",
             startOneTapWithDebitCardInChile()));
+    }
+
+    private static MercadoPagoCheckout.Builder startTokenization() {
+
+        final CheckoutPreference preference =
+                getCheckoutPreferenceWithPayerEmailInBrazil(new ArrayList<>(), 12000);
+        final PaymentConfiguration paymentConfiguration =
+                new PaymentConfiguration.Builder(new SamplePaymentProcessor(
+                        PaymentUtils.getGenericPaymentRejected(),
+                        PaymentUtils.getGenericPaymentApproved()))
+                        .addChargeRules(
+                                Collections.singletonList(PaymentTypeChargeRule.createChargeFreeRule(
+                                        PaymentTypes.CREDIT_CARD, "Mensaje de prueba")))
+                        .build();
+
+        final TrackingConfiguration trackingConfiguration =
+                new TrackingConfiguration.Builder().flowId("example_app").build();
+
+        final DynamicDialogConfiguration dynamicDialogConfiguration = new DynamicDialogConfiguration.Builder()
+                .addDynamicCreator(DynamicDialogConfiguration.DialogLocation.ENTER_REVIEW_AND_CONFIRM,
+                        DialogSamples.INSTANCE.getDynamicDialog())
+                .addDynamicCreator(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER,
+                        DialogSamples.INSTANCE.getDynamicDialog())
+                .build();
+
+        final PaymentResultScreenConfiguration resultScreenConfig = new PaymentResultScreenConfiguration.Builder()
+                .setTopFragment(SampleTopFragment.class,
+                        DialogSamples.getSampleFragmentArgs("Your custom top fragment"))
+                .setBottomFragment(SampleTopFragment.class,
+                        DialogSamples.getSampleFragmentArgs("Your custom bottom fragment"))
+                .build();
+
+        final AdvancedConfiguration advancedConfiguration = new AdvancedConfiguration.Builder()
+                .setPaymentResultScreenConfiguration(resultScreenConfig)
+                .setDynamicDialogConfiguration(dynamicDialogConfiguration)
+                .setExpressPaymentEnable(true)
+                .build();
+
+        return new MercadoPagoCheckout.Builder("TEST-bcadc75b-2e5b-4350-9393-c686d376475a", preference,
+                paymentConfiguration)
+                .setPrivateKey("TEST-8876427118310999-010519-9291ff8892e901984e2ec807a587764a-1051624167")
+                .setAdvancedConfiguration(advancedConfiguration)
+                .setTrackingConfiguration(trackingConfiguration);
     }
 
     // It should suggest one tap with credit card, call for authorize

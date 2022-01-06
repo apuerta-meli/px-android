@@ -67,6 +67,11 @@ dependencies {
     implementation "com.google.code.gson:gson:$gson"
     implementation "com.facebook.stetho:stetho:$stetho"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho"
+    
+    implementation 'com.facebook.flipper:flipper-network-plugin:0.127.0'
+    implementation 'com.facebook.flipper:flipper:0.127.0'
+    implementation 'com.facebook.soloader:soloader:0.10.1'
+
     implementation "androidx.appcompat:appcompat:$appcompat"
     implementation "androidx.recyclerview:recyclerview:$recyclerView"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin"

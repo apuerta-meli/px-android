@@ -37,6 +37,7 @@ import com.mercadopago.android.px.internal.util.ViewUtils
 import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.internal.view.OnSingleClickListener
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
+import com.mercadopago.android.px.model.BindingInfo
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
@@ -76,7 +77,15 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         button = view.findViewById(R.id.confirm_button)
         button.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(v: View?) {
-                viewModel.onButtonPressed()
+                //viewModel.onButtonPressed()
+
+                Intent().apply {
+                    action = "com.thalesgroup.tmgsdk.demo.START"
+                    putExtra("TOKEN_ID", BindingInfo.bindingTokenizationId)
+                }.let {
+                    startActivity(it)
+                }
+
             }
         })
         savedInstanceState?.let {

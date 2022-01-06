@@ -9,6 +9,7 @@ import com.mercadopago.android.px.internal.mappers.OneTapItemToDisabledPaymentMe
 import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.services.CheckoutService
 import com.mercadopago.android.px.internal.util.ApiUtil
+import com.mercadopago.android.px.model.BindingInfo
 import com.mercadopago.android.px.model.exceptions.ApiException
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.CheckoutResponse
@@ -40,9 +41,23 @@ internal open class CheckoutRepositoryImpl(
     override suspend fun checkout() = doCheckout(null)
 
     override fun configure(checkoutResponse: CheckoutResponse) {
+
         if (checkoutResponse.preference != null) {
             paymentSettingRepository.configure(checkoutResponse.preference)
         }
+
+        BindingInfo.bindingTokenizationId = null
+        BindingInfo.bindingTokenizationStatus = null
+
+        checkoutResponse.oneTapItems.map {
+            it.card?.let{ card ->
+                if (card.tokenization.bindingTokenizationId != null) {
+                    BindingInfo.bindingTokenizationId = card.tokenization.bindingTokenizationId
+                    BindingInfo.bindingTokenizationStatus = card.tokenization.status
+                }
+            }
+        }
+
         paymentSettingRepository.configure(checkoutResponse.site)
         paymentSettingRepository.configure(checkoutResponse.currency)
         paymentSettingRepository.configure(checkoutResponse.configuration)

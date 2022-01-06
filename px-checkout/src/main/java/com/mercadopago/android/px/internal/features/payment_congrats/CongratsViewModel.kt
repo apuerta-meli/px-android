@@ -35,7 +35,8 @@ internal class CongratsViewModel(
 
     fun createCongratsResult(iPaymentDescriptor: IPaymentDescriptor?) = viewModelScope.launch {
         congratsResultLiveData.value = CongratsPostPaymentResult.Loading(true)
-        delay(3000)
+        // SEMOVI: El delay molesta con los test, se debería eliminar
+        //delay(3000)
         if (connectionHelper.hasConnection()) {
             val descriptor = iPaymentDescriptor ?: paymentRepository.payment
             if (descriptor != null) {

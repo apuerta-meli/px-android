@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
-import com.mercadopago.android.px.model.IPaymentDescriptor
 
 object PaymentCongrats {
     private const val PAYMENT_CONGRATS = "payment_congrats"
@@ -33,21 +32,5 @@ object PaymentCongrats {
             it.putExtra(PAYMENT_CONGRATS, paymentCongratsModel)
             fragment.startActivityForResult(it, requestCode)
         }
-    }
-
-    /**
-     * Allows to execute a congrats activity
-     *
-     * @param iPaymentDescriptor model with the needed data to show a Congrats
-     * @param activity caller activity
-     */
-    @JvmStatic
-    fun launchCongratsWithPayment(iPaymentDescriptor: IPaymentDescriptor, activity: Activity) {
-        // SEMOVI: lanzar con deeplink
-        val intent = Intent(activity, CongratsDeepLinkActivity::class.java).apply {
-            putExtra(PAYMENT_DESCRIPTOR, iPaymentDescriptor)
-        }
-        activity.startActivity(intent)
-        activity.finish()
     }
 }

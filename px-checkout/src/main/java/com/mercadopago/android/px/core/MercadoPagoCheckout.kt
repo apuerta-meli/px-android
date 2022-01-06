@@ -11,6 +11,9 @@ import com.mercadopago.android.px.core.internal.PrefetchService.Companion.onChec
 import com.mercadopago.android.px.internal.datasource.MercadoPagoPaymentConfiguration
 import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsDeepLinkActivity
+import com.mercadopago.android.px.internal.features.payment_congrats.PaymentCongrats
+import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.preferences.CheckoutPreference
 import com.mercadopago.android.px.tracking.internal.events.InitEvent
 
@@ -170,5 +173,21 @@ class MercadoPagoCheckout internal constructor(builder: Builder) {
         const val SESSION_EXPIRED_RESULT_CODE = 666
         const val EXTRA_PAYMENT_RESULT = "EXTRA_PAYMENT_RESULT"
         const val EXTRA_ERROR = "EXTRA_ERROR"
+
+        /**
+         * Allows to execute a congrats activity
+         *
+         * @param iPaymentDescriptor model with the needed data to show a Congrats
+         * @param activity caller activity
+         */
+        @JvmStatic
+        fun launchCongratsWithPayment(iPaymentDescriptor: IPaymentDescriptor, activity: Activity) {
+            // SEMOVI: lanzar con deeplink
+            val intent = Intent(activity, CongratsDeepLinkActivity::class.java).apply {
+                putExtra(PaymentCongrats.PAYMENT_DESCRIPTOR, iPaymentDescriptor)
+            }
+            activity.startActivity(intent)
+            activity.finish()
+        }
     }
 }

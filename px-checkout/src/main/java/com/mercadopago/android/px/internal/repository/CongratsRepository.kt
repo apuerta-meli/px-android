@@ -11,8 +11,4 @@ internal interface CongratsRepository {
     interface PostPaymentCallback {
         fun handleResult(paymentModel: PaymentModel)
     }
-
-    interface PostPaymentFlowCallback {
-        fun handlePostPaymentResult(iPaymentDescriptor: IPaymentDescriptor, deeplink: String)
-    }
 }

@@ -1,11 +1,18 @@
 package com.mercadopago.android.px.internal.features.payment_congrats
 
-import com.mercadopago.android.px.configuration.PostPaymentConfiguration
+import com.mercadopago.android.px.assertEquals
+import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
+import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
+import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 internal class CongratsResultFactoryTest {
@@ -13,67 +20,69 @@ internal class CongratsResultFactoryTest {
     private lateinit var congratsResultFactory: CongratsResultFactory
 
     @Mock
-    private lateinit var postPaymentConfiguration: PostPaymentConfiguration
-    @Mock
     private lateinit var paymentCongratsModelMapper: PaymentCongratsModelMapper
+
+    @Mock
+    private lateinit var paymentCongratsModel: PaymentCongratsModel
+
+    private val redirectUrl = "redirect_url"
 
     @Before
     fun setUp() {
-        congratsResultFactory = CongratsResultFactory(postPaymentConfiguration, paymentCongratsModelMapper)
-    }
-    //semovi: Finish these tests
-/*
-    @Test
-    fun onPostPaymentDeepLinkUrlNotNullOrEmptyAndPaymentResultApprovedThenCreateCongratsPostPaymentResult() {
-        val deepLink = "mercadopago://px/post-payment_url"
-
-        val paymentModel = mock<PaymentModel> {
-            on { paymentResult }.thenReturn(mock())
-            on { paymentResult.isApproved }.thenReturn(true)
-        }
-
-        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
-
-        val congratsResult = congratsResultFactory.create(paymentModel, null)
-        val expectedCongratsResult = BaseCongratsResult.PostPaymentResult(paymentModel, deepLink)
-
-        congratsResult.assertEquals(expectedCongratsResult)
-    }
-
-    @Test
-    fun onRedirectUrlNotNullOrEmptyThenCreateSkipCongratsResult() {
-        val redirectUrl = "redirect_url"
-
-        val paymentModel = mock<PaymentModel>()
-
-        val congratsResult = congratsResultFactory.create(paymentModel, redirectUrl)
-        val expectedCongratsResult = CongratsPaymentResult.SkipCongratsResult(paymentModel)
-
-        congratsResult.assertEquals(expectedCongratsResult)
-    }
-
-    @Test
-    fun onPaymentBusinessModelThenCreateCongratsBusinessPaymentResult() {
-        val businessPaymentModel = mock<BusinessPaymentModel>()
-        val paymentCongratsModel = mock<PaymentCongratsModel>()
-
         whenever(paymentCongratsModelMapper.map(any<BusinessPaymentModel>())).thenReturn(paymentCongratsModel)
 
-        val congratsResult = congratsResultFactory.create(businessPaymentModel, null)
-        val expectedCongratsResult = BaseCongratsResult.CongratsBusinessPaymentResult(paymentCongratsModel)
+        congratsResultFactory = CongratsResultFactory(paymentCongratsModelMapper)
+    }
+
+    @Test
+    fun onRedirectUrlIsNotEmptyThenReturnSkipCongratsResult() {
+
+        val paymentModel = mock<PaymentModel>()
+        val expectedCongratsResult = CongratsPaymentResult.SkipCongratsResult(paymentModel)
+        val congratsResult = congratsResultFactory.create(paymentModel, redirectUrl)
 
         congratsResult.assertEquals(expectedCongratsResult)
     }
 
     @Test
-    fun onDefaultPaymentModelThenCreateCongratsPaymentResult() {
-        val paymentModel = mock<PaymentModel>()
+    fun whenPaymentModelIsBusinessAndRedirectUrlIsNullThenReturnBusinessPaymentResult() {
 
-        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(null)
+        val businessPaymentModel = mock<BusinessPaymentModel>()
 
-        val congratsResult = congratsResultFactory.create(paymentModel, null)
-        val expectedCongratsResult = BaseCongratsResult.CongratsPaymentResult(paymentModel)
+        val expectedCongratsResult = BaseCongratsResult.BusinessPaymentResult(paymentCongratsModel)
+        val congratsResult = congratsResultFactory.create(businessPaymentModel, null)
 
         congratsResult.assertEquals(expectedCongratsResult)
-    }*/
+    }
+
+    @Test
+    fun onDefaultPaymentModelAndRedirectUrlIsNullThenPaymentResult() {
+        val paymentModel = mock<PaymentModel>()
+
+        val expectedCongratsResult = BaseCongratsResult.PaymentResult(paymentModel)
+        val congratsResult = congratsResultFactory.create(paymentModel, null)
+
+        congratsResult.assertEquals(expectedCongratsResult)
+    }
+
+    @Test
+    fun whenPaymentModelIsBusinessThenReturnBusinessPaymentResult() {
+
+        val businessPaymentModel = mock<BusinessPaymentModel>()
+
+        val expectedCongratsResult = BaseCongratsResult.BusinessPaymentResult(paymentCongratsModel)
+        val congratsResult = congratsResultFactory.create(businessPaymentModel)
+
+        congratsResult.assertEquals(expectedCongratsResult)
+    }
+
+    @Test
+    fun onDefaultPaymentModelThenPaymentResult() {
+        val paymentModel = mock<PaymentModel>()
+
+        val expectedCongratsResult = BaseCongratsResult.PaymentResult(paymentModel)
+        val congratsResult = congratsResultFactory.create(paymentModel)
+
+        congratsResult.assertEquals(expectedCongratsResult)
+    }
 }

@@ -2,7 +2,8 @@ package com.mercadopago.android.px.internal.callbacks;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory;
+import com.mercadopago.android.px.configuration.AdvancedConfiguration;
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
@@ -51,8 +52,11 @@ public class PaymentServiceHandlerWrapperTest {
     @Mock private EscPaymentManager escPaymentManager;
     @Mock private UserSelectionRepository userSelectionRepository;
     @Mock private PaymentSettingRepository paymentSettingRepository;
+    @Mock private AdvancedConfiguration advancedConfiguration;
+    @Mock private PostPaymentConfiguration postPaymentConfiguration;
 
     private PaymentServiceHandlerWrapper paymentServiceHandlerWrapper;
+    private final String deepLink = "mercadopago://px/post-payment_url";
 
     @Before
     public void setUp() {
@@ -63,6 +67,9 @@ public class PaymentServiceHandlerWrapperTest {
         when(paymentRepository.createRecoveryForInvalidESC()).thenReturn(paymentRecovery);
         when(paymentRepository.getPaymentDataList()).thenReturn(Collections.singletonList(mock(PaymentData.class)));
         when(userSelectionRepository.getPaymentMethod()).thenReturn(PaymentMethodStub.VISA_CREDIT.get());
+        when(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn("");
+        when(advancedConfiguration.getPostPaymentConfiguration()).thenReturn(postPaymentConfiguration);
+        when(paymentSettingRepository.getAdvancedConfiguration()).thenReturn(advancedConfiguration);
     }
 
     private void noMoreInteractions() {
@@ -236,5 +243,29 @@ public class PaymentServiceHandlerWrapperTest {
         verify(wrapped).onRecoverPaymentEscInvalid(paymentRecovery);
 
         noMoreInteractions();
+    }
+
+    @Test
+    public void whenPaymentThenVerifyPostPaymentFlowStarted() {
+        final Payment payment = mock(Payment.class);
+
+        when(payment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
+        when(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink);
+
+        final IPaymentDescriptorHandler handler = paymentServiceHandlerWrapper.getHandler();
+        handler.visit(payment);
+        verify(wrapped).onPostPaymentFlowStarted(payment, deepLink);
+    }
+
+    @Test
+    public void whenBusinessPaymentThenVerifyPostPaymentFlowStarted() {
+        final BusinessPayment businessPayment = mock(BusinessPayment.class);
+
+        when(businessPayment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
+        when(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink);
+
+        final IPaymentDescriptorHandler handler = paymentServiceHandlerWrapper.getHandler();
+        handler.visit(businessPayment);
+        verify(wrapped).onPostPaymentFlowStarted(businessPayment, deepLink);
     }
 }

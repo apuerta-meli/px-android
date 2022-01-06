@@ -451,10 +451,7 @@ public final class Session extends ApplicationModule {
     @NonNull
     public CongratsResultFactory getCongratsResultFactory() {
         if (congratsResultFactory == null) {
-            congratsResultFactory = new CongratsResultFactory(
-                configurationModule.getPaymentSettings().getAdvancedConfiguration().getPostPaymentConfiguration(),
-                MapperProvider.INSTANCE.getPaymentCongratsMapper()
-            );
+            congratsResultFactory = new CongratsResultFactory(MapperProvider.INSTANCE.getPaymentCongratsMapper());
         }
         return congratsResultFactory;
     }

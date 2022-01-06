@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.features.pay_button
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.mercadopago.android.px.assertEquals
+import com.mercadopago.android.px.configuration.AdvancedConfiguration
 import com.mercadopago.android.px.internal.audio.AudioPlayer
 import com.mercadopago.android.px.internal.audio.PlaySoundUseCase
 import com.mercadopago.android.px.internal.core.ConnectionHelper
@@ -39,6 +40,7 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.CustomTexts
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.model.Reason
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -107,6 +109,8 @@ internal class PayButtonViewModelTest {
     private val requireCvvLiveData = MutableSingleLiveData<Pair<Card,Reason>>()
     private val recoverInvalidEscLiveData = MutableSingleLiveData<PaymentRecovery>()
     private val visualPaymentLiveData = MutableSingleLiveData<Unit>()
+
+    private val deepLink = "mercadopago://px/post-payment_url"
 
     /*
     * https://stackoverflow.com/questions/29945087/kotlin-and-new-activitytestrule-the-rule-must-be-public
@@ -266,7 +270,6 @@ internal class PayButtonViewModelTest {
 
     @Test
     fun startPaymentAndObserveServiceWhenIsPostPaymentStartedEvent() {
-        val deepLink = "mercadopago://px/post-payment_url"
         val testStatementDescription = "test statement description"
         val callback = argumentCaptor<PayButton.OnEnqueueResolvedCallback>()
 
@@ -466,6 +469,38 @@ internal class PayButtonViewModelTest {
         verify(congratsStateObserver).onChanged(any<BaseCongratsResult.BusinessPaymentResult>())
         val actual = payButtonViewModel.congratsResultLiveData.value as BaseCongratsResult.BusinessPaymentResult
         actual.paymentCongratsModel.assertEquals(congratsModel)
+    }
+
+    @Test
+    fun onSkipRevealAnimationWithPostPaymentDeepLinkUrlNotEmptyAndPaymentIsApprovedThenReturnTrue() {
+        val advancedConfiguration = mock<AdvancedConfiguration> {
+            on { postPaymentConfiguration }.thenReturn(mock())
+            on { postPaymentConfiguration.getPostPaymentDeepLinkUrl() }.thenReturn(deepLink)
+        }
+
+        val state = mock<PayButtonViewModel.State> {
+            on { paymentModel }.thenReturn(mock())
+            on { paymentModel?.paymentResult }.thenReturn(mock())
+            on { paymentModel?.paymentResult?.isApproved }.thenReturn(true)
+        }
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+
+        payButtonViewModel.restoreState(state)
+
+        assertTrue(payButtonViewModel.skipRevealAnimation())
+    }
+
+    @Test
+    fun onSkipRevealAnimationWithPostPaymentDeepLinkUrlEmptyThenReturnsFalse() {
+        val advancedConfiguration = mock<AdvancedConfiguration> {
+            on { postPaymentConfiguration }.thenReturn(mock())
+            on { postPaymentConfiguration.getPostPaymentDeepLinkUrl() }.thenReturn("")
+        }
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+
+        assertFalse(payButtonViewModel.skipRevealAnimation())
     }
 
     private fun configurePaymentSettingServiceObservableEvents() {

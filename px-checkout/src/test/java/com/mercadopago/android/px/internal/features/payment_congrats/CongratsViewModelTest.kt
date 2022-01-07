@@ -82,56 +82,66 @@ class CongratsViewModelTest {
     }
 
     @Test
-    fun whenNonConnectionInternet() = runBlockingTest {
+    fun `When createCongratsResult and there is no connectivity then show ConnectionError`() = runBlockingTest {
         whenever(connectionHelper.hasConnection()).thenReturn(false)
+
         congratsViewModel.createCongratsResult(mock())
+
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(true))
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.ConnectionError)
     }
 
     @Test
-    fun whenCreateCongratsResultHasConnectionAndIPaymentDescriptorIsNull() = runBlockingTest {
+    fun `When createCongratsResult there is connectivity and IPaymentDescriptor is null`() = runBlockingTest {
         whenever(connectionHelper.hasConnection()).thenReturn(true)
+
         congratsViewModel.createCongratsResult(null)
+
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(true))
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.BusinessError)
     }
 
-    // SEMOVI: Estos dos casos son los que quedan pendiente para terminar de cubrir toda la clase
-    /*@Test
-    fun whenCreateCongratsResultHasConnectionAndIPaymentDescriptorIsNotNullAndTypePaymentModel() = runBlockingTest {
+    @Test
+    fun `When createCongratsResult there is connectivity and IPaymentDescriptor is not null of type PaymentResult with a PaymentModel`() = runBlockingTest {
         whenever(connectionHelper.hasConnection()).thenReturn(true)
-
         val paymentModel = mock<PaymentModel>{
             on { payment }.thenReturn(mock())
         }
         whenever(paymentModel.payment?.let { paymentRepository.createPaymentResult(it) }).thenReturn(mock())
+        whenever(congratsResultFactory.create(paymentModel)).thenReturn(BaseCongratsResult.PaymentResult(paymentModel))
 
         congratsViewModel.createCongratsResult(paymentModel.payment)
+
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(true))
+
         congratsViewModel.handleResult(paymentModel)
+
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
         verify(congratsResultLiveData).onChanged(BaseCongratsResult.PaymentResult(paymentModel))
     }
 
     @Test
-    fun whenCreateCongratsResultHasConnectionAndIPaymentDescriptorIsNotNullAndTypeBusinessModel() = runBlockingTest {
+    fun `When createCongratsResult there is connectivity and IPaymentDescriptor is not null of type BusinessPaymentResult with a BusinessPaymentModel`() = runBlockingTest {
         whenever(connectionHelper.hasConnection()).thenReturn(true)
-
         val businessModel = mock<BusinessPaymentModel>{
             on { payment }.thenReturn(mock())
         }
-
+        val paymentCongratsModel = mock<PaymentCongratsModel>{}
         whenever(paymentRepository.createPaymentResult(businessModel.payment)).thenReturn(mock())
+        whenever(congratsResultFactory.create(businessModel))
+            .thenReturn(BaseCongratsResult.BusinessPaymentResult(paymentCongratsModel))
 
         congratsViewModel.createCongratsResult(businessModel.payment)
+
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(true))
+
         congratsViewModel.handleResult(businessModel)
+
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
         verify(congratsResultLiveData).onChanged(BaseCongratsResult.BusinessPaymentResult(paymentCongratsModel))
-    }*/
+    }
 
     @After
     fun tearDown() {

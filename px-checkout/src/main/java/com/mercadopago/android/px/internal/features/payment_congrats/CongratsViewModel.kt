@@ -1,6 +1,5 @@
 package com.mercadopago.android.px.internal.features.payment_congrats
 
-import androidx.lifecycle.viewModelScope
 import com.mercadopago.android.px.internal.base.BaseState
 import com.mercadopago.android.px.internal.base.BaseViewModelWithState
 import com.mercadopago.android.px.internal.core.ConnectionHelper
@@ -13,8 +12,6 @@ import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.tracking.internal.MPTracker
 import com.mercadopago.android.px.tracking.internal.events.NoConnectionFrictionTracker
 import kotlinx.android.parcel.Parcelize
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 internal class CongratsViewModel(
     private val congratsRepository: CongratsRepository,
@@ -33,10 +30,9 @@ internal class CongratsViewModel(
         paymentSettingRepository.advancedConfiguration.postPaymentConfiguration.cleanPostPaymentDeepLinkUrl()
     }
 
-    fun createCongratsResult(iPaymentDescriptor: IPaymentDescriptor?) = viewModelScope.launch {
+    fun createCongratsResult(iPaymentDescriptor: IPaymentDescriptor?) {
         congratsResultLiveData.value = CongratsPostPaymentResult.Loading(true)
-        // SEMOVI: El delay molesta con los test, se debería eliminar
-        //delay(3000)
+
         if (connectionHelper.hasConnection()) {
             val descriptor = iPaymentDescriptor ?: paymentRepository.payment
             if (descriptor != null) {

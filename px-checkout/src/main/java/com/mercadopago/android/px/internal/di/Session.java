@@ -291,8 +291,7 @@ public final class Session extends ApplicationModule {
     @NonNull
     public PaymentRepository getPaymentRepository() {
         if (paymentRepository == null) {
-            paymentRepository = new PaymentService(
-                configurationModule.getUserSelectionRepository(),
+            paymentRepository = new PaymentService(configurationModule.getUserSelectionRepository(),
                 configurationModule.getPaymentSettings(),
                 configurationModule.getDisabledPaymentMethodRepository(),
                 getDiscountRepository(),
@@ -307,8 +306,7 @@ public final class Session extends ApplicationModule {
                 MapperProvider.INSTANCE.getFromPayerPaymentMethodToCardMapper(),
                 MapperProvider.INSTANCE.getPaymentMethodMapper(),
                 getPaymentMethodRepository(),
-                getUseCaseModule().getValidationProgramUseCase()
-            );
+                getUseCaseModule().getValidationProgramUseCase());
         }
 
         return paymentRepository;

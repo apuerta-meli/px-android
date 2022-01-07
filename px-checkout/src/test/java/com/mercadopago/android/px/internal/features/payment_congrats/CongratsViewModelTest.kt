@@ -57,8 +57,6 @@ class CongratsViewModelTest {
     private lateinit var advancedConfiguration: AdvancedConfiguration
     @Mock
     private lateinit var postPaymentConfiguration: PostPaymentConfiguration
-    @Mock
-    private lateinit var paymentCongratsModel: PaymentCongratsModel
 
 
     @Before

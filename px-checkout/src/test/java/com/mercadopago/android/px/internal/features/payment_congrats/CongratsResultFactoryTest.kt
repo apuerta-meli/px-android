@@ -35,7 +35,7 @@ internal class CongratsResultFactoryTest {
     }
 
     @Test
-    fun onRedirectUrlIsNotEmptyThenReturnSkipCongratsResult() {
+    fun `On redirect url is not empty then return skip congrats result`() {
 
         val paymentModel = mock<PaymentModel>()
         val expectedCongratsResult = CongratsPaymentResult.SkipCongratsResult(paymentModel)
@@ -45,7 +45,7 @@ internal class CongratsResultFactoryTest {
     }
 
     @Test
-    fun whenPaymentModelIsBusinessAndRedirectUrlIsNullThenReturnBusinessPaymentResult() {
+    fun `When payment model is business and redirect url is null then return business paymentResult`() {
 
         val businessPaymentModel = mock<BusinessPaymentModel>()
 
@@ -56,7 +56,7 @@ internal class CongratsResultFactoryTest {
     }
 
     @Test
-    fun onDefaultPaymentModelAndRedirectUrlIsNullThenPaymentResult() {
+    fun `On default payment model and redirect url is null then payment result`() {
         val paymentModel = mock<PaymentModel>()
 
         val expectedCongratsResult = BaseCongratsResult.PaymentResult(paymentModel)
@@ -66,7 +66,7 @@ internal class CongratsResultFactoryTest {
     }
 
     @Test
-    fun whenPaymentModelIsBusinessThenReturnBusinessPaymentResult() {
+    fun `When payment model is business then return business payment result`() {
 
         val businessPaymentModel = mock<BusinessPaymentModel>()
 
@@ -77,7 +77,7 @@ internal class CongratsResultFactoryTest {
     }
 
     @Test
-    fun onDefaultPaymentModelThenPaymentResult() {
+    fun `On default payment model then payment result`() {
         val paymentModel = mock<PaymentModel>()
 
         val expectedCongratsResult = BaseCongratsResult.PaymentResult(paymentModel)

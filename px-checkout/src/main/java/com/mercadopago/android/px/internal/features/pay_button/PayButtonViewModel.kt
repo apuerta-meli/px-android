@@ -17,7 +17,11 @@ import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactor
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper
 import com.mercadopago.android.px.internal.features.pay_button.PayButton.OnReadyForPaymentCallback
-import com.mercadopago.android.px.internal.features.pay_button.UIProgress.*
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.FingerprintRequired
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingStarted
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingCanceled
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingFinished
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.PostPaymentFlowStarted
 import com.mercadopago.android.px.internal.features.pay_button.UIResult.VisualProcessorResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory
@@ -32,7 +36,12 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.util.SecurityValidationDataFactory
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
-import com.mercadopago.android.px.model.*
+import com.mercadopago.android.px.model.Card
+import com.mercadopago.android.px.model.Currency
+import com.mercadopago.android.px.model.IPaymentDescriptor
+import com.mercadopago.android.px.model.Payment
+import com.mercadopago.android.px.model.PaymentRecovery
+import com.mercadopago.android.px.model.PaymentResult
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.MPTracker

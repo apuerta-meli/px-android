@@ -111,6 +111,7 @@ internal class PayButtonViewModelTest {
     private val visualPaymentLiveData = MutableSingleLiveData<Unit>()
 
     private val deepLink = "mercadopago://px/post-payment_url"
+    private val redirectUrl = "redirect_url"
 
     /*
     * https://stackoverflow.com/questions/29945087/kotlin-and-new-activitytestrule-the-rule-must-be-public
@@ -434,8 +435,8 @@ internal class PayButtonViewModelTest {
             on { congratsResponse }.thenReturn(mock())
         }
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>()))
-            .thenReturn(PostPaymentUrlsMapper.Response("redirect_url", null))
-        whenever(congratsResultFactory.create(paymentModel, "redirect_url"))
+            .thenReturn(PostPaymentUrlsMapper.Response(redirectUrl, null))
+        whenever(congratsResultFactory.create(paymentModel, redirectUrl))
             .thenReturn(CongratsPaymentResult.SkipCongratsResult(paymentModel))
         whenever(state.paymentModel).thenReturn(paymentModel)
 

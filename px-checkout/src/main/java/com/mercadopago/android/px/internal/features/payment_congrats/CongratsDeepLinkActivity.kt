@@ -1,9 +1,9 @@
 package com.mercadopago.android.px.internal.features.payment_congrats
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.mercadolibre.android.ui.widgets.MeliSpinner
 import com.mercadopago.android.px.R
@@ -25,12 +25,10 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_congrats_deep_link)
 
-        iPaymentDescriptor = intent.getSerializableExtra(PaymentCongrats.PAYMENT_DESCRIPTOR) as? IPaymentDescriptor
+        iPaymentDescriptor = intent.getSerializableExtra(PAYMENT_DESCRIPTOR) as? IPaymentDescriptor
         congratsViewModel.createCongratsResult(iPaymentDescriptor)
 
-        congratsViewModel.congratsResultLiveData.observe(
-            this,
-            Observer { state -> state?.let { onCongratsResult(it) } })
+        congratsViewModel.congratsResultLiveData.observe(this, Observer { state -> state?.let { onCongratsResult(it) } })
     }
 
     private fun onCongratsResult(congratsResult: CongratsResult) {
@@ -40,11 +38,7 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
                 finish()
             }
             is BaseCongratsResult.BusinessPaymentResult -> {
-                PaymentCongrats.show(
-                    congratsResult.paymentCongratsModel,
-                    this,
-                    REQ_CODE_CONGRATS
-                )
+                PaymentCongrats.show(congratsResult.paymentCongratsModel, this, REQ_CODE_CONGRATS)
                 finish()
             }
             is CongratsPostPaymentResult.Loading -> if (congratsResult.isLoading) {
@@ -77,7 +71,7 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (congratsViewModel.congratsResultLiveData.value != null) {
+        if (congratsViewModel.congratsResultLiveData.value == CongratsPostPaymentResult.Loading(false)) {
             super.onBackPressed()
         }
     }

@@ -12,7 +12,7 @@ import com.mercadopago.android.px.internal.datasource.MercadoPagoPaymentConfigur
 import com.mercadopago.android.px.internal.di.Session
 import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsDeepLinkActivity
-import com.mercadopago.android.px.internal.features.payment_congrats.PaymentCongrats
+import com.mercadopago.android.px.internal.features.payment_congrats.PAYMENT_DESCRIPTOR
 import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.preferences.CheckoutPreference
 import com.mercadopago.android.px.tracking.internal.events.InitEvent
@@ -184,10 +184,9 @@ class MercadoPagoCheckout internal constructor(builder: Builder) {
         fun launchCongratsWithPayment(iPaymentDescriptor: IPaymentDescriptor, activity: Activity) {
             // SEMOVI: lanzar con deeplink
             val intent = Intent(activity, CongratsDeepLinkActivity::class.java).apply {
-                putExtra(PaymentCongrats.PAYMENT_DESCRIPTOR, iPaymentDescriptor)
+                putExtra(PAYMENT_DESCRIPTOR, iPaymentDescriptor)
             }
             activity.startActivity(intent)
-            activity.finish()
         }
     }
 }

@@ -12,7 +12,6 @@ import com.mercadopago.android.px.core.v2.PaymentProcessor;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.internal.core.FileManager;
 import com.mercadopago.android.px.internal.datasource.mapper.FromPayerPaymentMethodToCardMapper;
-import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory;
 import com.mercadopago.android.px.internal.features.validation_program.ValidationProgramUseCase;
 import com.mercadopago.android.px.internal.mappers.PaymentMethodMapper;
 import com.mercadopago.android.px.internal.model.SecurityType;
@@ -114,7 +113,6 @@ public class PaymentServiceTest {
     @Mock private PaymentMethodRepository paymentMethodRepository;
     @Mock private ValidationProgramUseCase validationProgramUseCase;
     @Mock private CustomOptionIdSolver customOptionIdSolver;
-    @Mock private CongratsResultFactory congratsResultFactory;
 
     private PaymentService paymentService;
 

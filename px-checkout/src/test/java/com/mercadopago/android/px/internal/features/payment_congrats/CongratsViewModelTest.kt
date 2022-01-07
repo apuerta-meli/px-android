@@ -11,13 +11,6 @@ import com.mercadopago.android.px.internal.repository.PaymentRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runBlockingTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,7 +21,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-@ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
 class CongratsViewModelTest {
 
@@ -36,8 +28,6 @@ class CongratsViewModelTest {
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
-
-    private val testDispatcher = TestCoroutineDispatcher()
 
     @Mock
     private lateinit var state: CongratsViewModel.State
@@ -61,8 +51,6 @@ class CongratsViewModelTest {
 
     @Before
     fun setUp() {
-        Dispatchers.setMain(testDispatcher)
-
         whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
 
@@ -80,7 +68,7 @@ class CongratsViewModelTest {
     }
 
     @Test
-    fun `When createCongratsResult and there is no connectivity then show ConnectionError`() = runBlockingTest {
+    fun `When createCongratsResult and there is no connectivity then show ConnectionError`() {
         whenever(connectionHelper.hasConnection()).thenReturn(false)
 
         congratsViewModel.createCongratsResult(mock())
@@ -91,7 +79,7 @@ class CongratsViewModelTest {
     }
 
     @Test
-    fun `When createCongratsResult there is connectivity and IPaymentDescriptor is null`() = runBlockingTest {
+    fun `When createCongratsResult there is connectivity and IPaymentDescriptor is null`() {
         whenever(connectionHelper.hasConnection()).thenReturn(true)
 
         congratsViewModel.createCongratsResult(null)
@@ -102,7 +90,7 @@ class CongratsViewModelTest {
     }
 
     @Test
-    fun `When createCongratsResult there is connectivity and IPaymentDescriptor is not null of type PaymentResult with a PaymentModel`() = runBlockingTest {
+    fun `When createCongratsResult there is connectivity and IPaymentDescriptor is not null of type PaymentResult with a PaymentModel`() {
         whenever(connectionHelper.hasConnection()).thenReturn(true)
         val paymentModel = mock<PaymentModel>{
             on { payment }.thenReturn(mock())
@@ -121,7 +109,7 @@ class CongratsViewModelTest {
     }
 
     @Test
-    fun `When createCongratsResult there is connectivity and IPaymentDescriptor is not null of type BusinessPaymentResult with a BusinessPaymentModel`() = runBlockingTest {
+    fun `When createCongratsResult there is connectivity and IPaymentDescriptor is not null of type BusinessPaymentResult with a BusinessPaymentModel`() {
         whenever(connectionHelper.hasConnection()).thenReturn(true)
         val businessModel = mock<BusinessPaymentModel>{
             on { payment }.thenReturn(mock())
@@ -139,11 +127,5 @@ class CongratsViewModelTest {
 
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
         verify(congratsResultLiveData).onChanged(BaseCongratsResult.BusinessPaymentResult(paymentCongratsModel))
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-        testDispatcher.cleanupTestCoroutines()
     }
 }

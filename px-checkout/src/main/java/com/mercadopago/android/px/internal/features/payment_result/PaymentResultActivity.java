@@ -211,6 +211,9 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
 
     @Override
     public void onBackPressed() {
+        if (payButtonFragment.isExploding()) {
+            return;
+        }
         presenter.onAbort();
     }
 

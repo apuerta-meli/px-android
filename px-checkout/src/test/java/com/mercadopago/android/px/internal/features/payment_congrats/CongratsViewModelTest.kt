@@ -2,15 +2,13 @@ package com.mercadopago.android.px.internal.features.payment_congrats
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
-import com.mercadopago.android.px.configuration.AdvancedConfiguration
-import com.mercadopago.android.px.configuration.PostPaymentConfiguration
 import com.mercadopago.android.px.internal.core.ConnectionHelper
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
 import com.mercadopago.android.px.internal.repository.CongratsRepository
 import com.mercadopago.android.px.internal.repository.PaymentRepository
-import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -40,31 +38,27 @@ class CongratsViewModelTest {
     @Mock
     private lateinit var connectionHelper: ConnectionHelper
     @Mock
-    private lateinit var paymentSettingRepository: PaymentSettingRepository
-    @Mock
     private lateinit var congratsResultLiveData: Observer<CongratsResult>
-    @Mock
-    private lateinit var advancedConfiguration: AdvancedConfiguration
-    @Mock
-    private lateinit var postPaymentConfiguration: PostPaymentConfiguration
-
 
     @Before
     fun setUp() {
-        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
-        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
-
         congratsViewModel = CongratsViewModel(
             congratsRepository,
             paymentRepository,
             congratsResultFactory,
             connectionHelper,
-            paymentSettingRepository,
             mock()
         )
 
         congratsViewModel.congratsResultLiveData.observeForever(congratsResultLiveData)
         congratsViewModel.restoreState(state)
+    }
+
+    @Test
+    fun `When init CongratsViewModel then State IPaymentDescriptor is null`() {
+        congratsViewModel.initState()
+
+        assertNull(state.iPaymentDescriptor)
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.features.business_result;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.FlowBehaviour;
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.FlowBehaviourResultMapper;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
@@ -35,13 +36,16 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
     /* default */ final ResultViewTrack viewTracker;
     private final FlowBehaviour flowBehaviour;
     @Nullable /* default */ CongratsAutoReturn autoReturnTimer;
+    @NonNull /* default */ final PostPaymentConfiguration postPaymentConfiguration;
 
     /* default */ BusinessPaymentResultPresenter(@NonNull final PaymentCongratsModel model,
-        @NonNull final FlowBehaviour flowBehaviour, final boolean isMP, @NonNull final MPTracker tracker) {
+        @NonNull final FlowBehaviour flowBehaviour, final boolean isMP, @NonNull final MPTracker tracker,
+        @NonNull final PostPaymentConfiguration postPaymentConfiguration) {
         super(tracker);
         this.model = model;
         this.flowBehaviour = flowBehaviour;
         viewTracker = new ResultViewTrack(model, isMP);
+        this.postPaymentConfiguration = postPaymentConfiguration;
     }
 
     @Override
@@ -78,7 +82,10 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
     }
 
     private void configureView() {
-        final BusinessPaymentResultViewModel viewModel = new BusinessPaymentResultMapper(getTracker()).map(model);
+        final BusinessPaymentResultViewModel viewModel = new BusinessPaymentResultMapper(
+            getTracker(),
+            postPaymentConfiguration
+        ).map(model);
         getView().configureViews(viewModel, this, new PaymentResultFooter.Listener() {
             @Override
             public void onClick(@NonNull final ExitAction action) {

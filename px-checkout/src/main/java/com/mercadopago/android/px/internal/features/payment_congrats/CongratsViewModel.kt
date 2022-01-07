@@ -6,7 +6,6 @@ import com.mercadopago.android.px.internal.core.ConnectionHelper
 import com.mercadopago.android.px.internal.livedata.MediatorSingleLiveData
 import com.mercadopago.android.px.internal.repository.CongratsRepository
 import com.mercadopago.android.px.internal.repository.PaymentRepository
-import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.tracking.internal.MPTracker
@@ -18,17 +17,12 @@ internal class CongratsViewModel(
     private val paymentRepository: PaymentRepository,
     private val congratsResultFactory: CongratsResultFactory,
     private val connectionHelper: ConnectionHelper,
-    paymentSettingRepository: PaymentSettingRepository,
     tracker: MPTracker
 ) : BaseViewModelWithState<CongratsViewModel.State>(tracker), CongratsRepository.PostPaymentCallback {
 
     val congratsResultLiveData = MediatorSingleLiveData<CongratsResult>()
 
     override fun initState() = State()
-
-    init {
-        paymentSettingRepository.advancedConfiguration.postPaymentConfiguration.cleanPostPaymentDeepLinkUrl()
-    }
 
     fun createCongratsResult(iPaymentDescriptor: IPaymentDescriptor?) {
         congratsResultLiveData.value = CongratsPostPaymentResult.Loading(true)
@@ -60,7 +54,6 @@ internal class CongratsViewModel(
 
     @Parcelize
     data class State(
-        var iPaymentDescriptor: IPaymentDescriptor? = null,
-        var retryCounter: Int = 0
+        var iPaymentDescriptor: IPaymentDescriptor? = null
     ) : BaseState
 }

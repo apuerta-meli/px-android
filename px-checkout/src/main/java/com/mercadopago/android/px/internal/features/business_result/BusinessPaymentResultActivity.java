@@ -67,8 +67,17 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
     @NonNull
     private BusinessPaymentResultPresenter createPresenter() {
         final PaymentCongratsModel model = getIntent().getParcelableExtra(PAYMENT_CONGRATS);
-        return new BusinessPaymentResultPresenter(model,
-            BehaviourProvider.getFlowBehaviour(), isMP(this), Session.getInstance().getTracker());
+        return new BusinessPaymentResultPresenter(
+            model,
+            BehaviourProvider.getFlowBehaviour(),
+            isMP(this),
+            Session.getInstance().getTracker(),
+            Session.getInstance()
+                .getConfigurationModule()
+                .getPaymentSettings()
+                .getAdvancedConfiguration()
+                .getPostPaymentConfiguration()
+        );
     }
 
     @Override

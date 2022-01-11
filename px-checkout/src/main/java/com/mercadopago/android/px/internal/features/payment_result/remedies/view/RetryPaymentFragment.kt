@@ -12,7 +12,7 @@ import com.mercadopago.android.px.internal.di.MapperProvider
 import com.mercadopago.android.px.internal.experiments.BadgeVariant
 import com.mercadopago.android.px.internal.extensions.gone
 import com.mercadopago.android.px.internal.extensions.visible
-import com.mercadopago.android.px.internal.features.express.slider.PaymentMethodFragment
+import com.mercadopago.android.px.internal.features.one_tap.slider.PaymentMethodFragment
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesPayerCost
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesPaymentMethodMapper
 import com.mercadopago.android.px.internal.view.LinkableTextView

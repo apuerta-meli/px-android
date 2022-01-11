@@ -16,7 +16,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import java.math.BigDecimal
 
 @RunWith(MockitoJUnitRunner::class)
@@ -53,7 +57,7 @@ class ValidationProgramUseCaseTest {
             failure::invoke
         )
 
-        verifyZeroInteractions(success)
+        verifyNoInteractions(success)
         verify(tracker).track(any<FrictionEventTracker>())
         verify(failure).invoke(any())
     }
@@ -66,7 +70,7 @@ class ValidationProgramUseCaseTest {
             failure::invoke
         )
 
-        verifyZeroInteractions(success)
+        verifyNoInteractions(success)
         verify(tracker).track(any<FrictionEventTracker>())
         verify(failure).invoke(any())
     }
@@ -83,7 +87,7 @@ class ValidationProgramUseCaseTest {
 
         verify(success).invoke(null)
         verify(tracker).track(any<ProgramValidationEvent>())
-        verifyZeroInteractions(failure)
+        verifyNoInteractions(failure)
     }
 
     @Test
@@ -105,7 +109,7 @@ class ValidationProgramUseCaseTest {
         verify(authenticateUseCase).execute(any(), any(), any())
         verify(success).invoke("stp")
         verify(tracker).track(any())
-        verifyZeroInteractions(failure)
+        verifyNoInteractions(failure)
     }
 
     private fun createPaymentData(): PaymentData {
@@ -122,5 +126,4 @@ class ValidationProgramUseCaseTest {
             .setPaymentMethod(paymentMethod)
             .createPaymentData()
     }
-
 }

@@ -20,8 +20,8 @@ import com.mercadopago.android.px.internal.di.MapperProvider;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.features.Constants;
-import com.mercadopago.android.px.internal.features.express.ExpressPayment;
-import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
+import com.mercadopago.android.px.internal.features.one_tap.OneTap;
+import com.mercadopago.android.px.internal.features.one_tap.OneTapFragment;
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
@@ -40,7 +40,7 @@ import static com.mercadopago.android.px.internal.util.ErrorUtil.isErrorResult;
 import static com.mercadopago.android.px.model.ExitAction.EXTRA_CLIENT_RES_CODE;
 
 public class CheckoutActivity extends PXActivity<CheckoutPresenter>
-    implements Checkout.View, ExpressPaymentFragment.CallBack, LifecycleListener {
+    implements Checkout.View, OneTapFragment.CallBack, LifecycleListener {
 
     private static final String ARGS_WITH_PREFETCH = "args_with_prefetch";
     private static final String EXTRA_PRIVATE_KEY = "extra_private_key";
@@ -80,8 +80,8 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
         setIntent(intent);
         final Uri data = intent.getData();
         if (data != null) {
-            final ExpressPayment.View fragment =
-                (ExpressPayment.View) getSupportFragmentManager().findFragmentByTag(TAG_ONETAP_FRAGMENT);
+            final OneTap.View fragment =
+                (OneTap.View) getSupportFragmentManager().findFragmentByTag(TAG_ONETAP_FRAGMENT);
             if (fragment != null) {
                 fragment.onDeepLinkReceived(data);
             }
@@ -195,7 +195,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
             supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(R.anim.px_slide_right_to_left_in, R.anim.px_slide_right_to_left_out)
-                .replace(R.id.one_tap_fragment, ExpressPaymentFragment.getInstance(variant, getIntent().getData()), TAG_ONETAP_FRAGMENT)
+                .replace(R.id.one_tap_fragment, OneTapFragment.getInstance(variant, getIntent().getData()), TAG_ONETAP_FRAGMENT)
                 .commitNowAllowingStateLoss();
         }
     }

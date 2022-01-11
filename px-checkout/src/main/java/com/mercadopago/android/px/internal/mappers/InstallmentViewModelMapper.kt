@@ -3,7 +3,7 @@ package com.mercadopago.android.px.internal.mappers
 import com.mercadopago.android.px.internal.experiments.ScrolledVariant
 import com.mercadopago.android.px.internal.experiments.Variant
 import com.mercadopago.android.px.internal.experiments.VariantHandler
-import com.mercadopago.android.px.internal.features.express.installments.InstallmentRowHolder
+import com.mercadopago.android.px.internal.features.one_tap.installments.InstallmentRowHolder
 import com.mercadopago.android.px.internal.util.BenefitsHelper
 import com.mercadopago.android.px.model.BenefitsMetadata
 import com.mercadopago.android.px.model.Currency

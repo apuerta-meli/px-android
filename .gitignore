@@ -9,5 +9,5 @@ build
 *.iml
 *.log
 reports
-px-checkout/jacoco.exec
+*/jacoco.exec
 config/

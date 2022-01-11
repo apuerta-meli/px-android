@@ -193,10 +193,9 @@ public final class PaymentProcessorActivity extends PXActivity
 
             @Override
             public void onPostPaymentFlowStarted(
-                @NonNull final IPaymentDescriptor iPaymentDescriptor,
-                @NonNull final String deeplink
+                @NonNull final IPaymentDescriptor iPaymentDescriptor
             ) {
-                // SEMOVI: Finish this stuff
+                // do nothing
             }
 
             @Override

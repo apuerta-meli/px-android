@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.mercadopago.android.px.assertEquals
 import com.mercadopago.android.px.configuration.AdvancedConfiguration
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration
 import com.mercadopago.android.px.internal.audio.AudioPlayer
 import com.mercadopago.android.px.internal.audio.PlaySoundUseCase
 import com.mercadopago.android.px.internal.core.ConnectionHelper
@@ -101,9 +102,13 @@ internal class PayButtonViewModelTest {
     private lateinit var renderModeMapper: RenderModeMapper
     @Mock
     private lateinit var playSoundUseCase: PlaySoundUseCase
+    @Mock
+    private lateinit var advancedConfiguration: AdvancedConfiguration
+    @Mock
+    private lateinit var postPaymentConfiguration: PostPaymentConfiguration
 
     private val paymentErrorLiveData = MutableSingleLiveData<MercadoPagoError>()
-    private val postPaymentStartedLiveData = MutableSingleLiveData<Pair<IPaymentDescriptor, String>>()
+    private val postPaymentStartedLiveData = MutableSingleLiveData<IPaymentDescriptor>()
     private val paymentFinishedLiveData = MutableSingleLiveData<PaymentModel>()
     private val requireCvvLiveData = MutableSingleLiveData<Pair<Card,Reason>>()
     private val recoverInvalidEscLiveData = MutableSingleLiveData<PaymentRecovery>()
@@ -126,6 +131,8 @@ internal class PayButtonViewModelTest {
         whenever(paymentSettingRepository.checkoutPreference).thenReturn(mock())
         whenever(paymentSettingRepository.site).thenReturn(Sites.ARGENTINA)
         whenever(renderModeMapper.map(any<RenderMode>())).thenReturn(mock())
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
 
         configurePaymentSettingServiceObservableEvents()
 
@@ -270,6 +277,8 @@ internal class PayButtonViewModelTest {
 
     @Test
     fun startPaymentAndObserveServiceWhenIsPostPaymentStartedEvent() {
+        val deepLink = "mercadopago://px/post-payment_url"
+        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
         val testStatementDescription = "test statement description"
         val callback = argumentCaptor<PayButton.OnEnqueueResolvedCallback>()
 
@@ -279,7 +288,7 @@ internal class PayButtonViewModelTest {
         }
 
         payButtonViewModel.startPayment()
-        postPaymentStartedLiveData.value = Pair(iPaymentDescriptor, deepLink)
+        postPaymentStartedLiveData.value = iPaymentDescriptor
 
         verify(handler).enqueueOnExploding(callback.capture())
         callback.firstValue.success()

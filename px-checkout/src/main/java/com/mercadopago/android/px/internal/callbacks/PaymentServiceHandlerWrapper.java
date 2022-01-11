@@ -50,15 +50,12 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
             } else {
                 paymentRepository.storePayment(payment);
                 if (isPostPaymentFlow(payment)) {
-                    onPostPayment(
-                        payment,
-                        postPaymentConfiguration.getPostPaymentDeepLinkUrl()
-                    );
+                    onPostPayment(payment);
                 } else {
                     //Must be after store
                     final PaymentResult paymentResult = paymentRepository.createPaymentResult(payment);
                     disabledPaymentMethodRepository.handleRejectedPayment(paymentResult);
-                    onPostPayment(payment, paymentResult);
+                    onFetchCongratsResponse(payment, paymentResult);
                 }
             }
         }
@@ -68,20 +65,17 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
             verifyAndHandleEsc(businessPayment);
             paymentRepository.storePayment(businessPayment);
             if (isPostPaymentFlow(businessPayment)) {
-                onPostPayment(
-                    businessPayment,
-                    postPaymentConfiguration.getPostPaymentDeepLinkUrl()
-                );
+                onPostPayment(businessPayment);
             } else {
                 final PaymentResult paymentResult = paymentRepository.createPaymentResult(businessPayment);
                 disabledPaymentMethodRepository.handleRejectedPayment(paymentResult);
-                onPostPayment(businessPayment, paymentResult);
+                onFetchCongratsResponse(businessPayment, paymentResult);
             }
         }
     };
 
     private boolean isPostPaymentFlow(final IPaymentDescriptor iPaymentDescriptor) {
-        return !postPaymentConfiguration.getPostPaymentDeepLinkUrl().isEmpty()
+        return postPaymentConfiguration.hasPostPaymentUrl()
             && Payment.StatusCodes.STATUS_APPROVED.equals(iPaymentDescriptor.getPaymentStatus());
     }
 
@@ -151,12 +145,12 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         payment.process(getHandler());
     }
 
-    private void onPostPayment(@NonNull final IPaymentDescriptor payment, @NonNull final PaymentResult paymentResult) {
+    private void onFetchCongratsResponse(@NonNull final IPaymentDescriptor payment, @NonNull final PaymentResult paymentResult) {
         congratsRepository.getPostPaymentData(payment, paymentResult, this::onPostPayment);
     }
 
-    private void onPostPayment(@NonNull final IPaymentDescriptor payment, @NonNull final String deeplink) {
-        onPostPaymentFlowStarted(payment, deeplink);
+    private void onPostPayment(@NonNull final IPaymentDescriptor payment) {
+        onPostPaymentFlowStarted(payment);
     }
 
     @Override
@@ -165,8 +159,8 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     }
 
     @Override
-    public void onPostPaymentFlowStarted(@NonNull final IPaymentDescriptor iPaymentDescriptor, @NonNull final String deeplink) {
-        addAndProcess(new PostPaymentFlowStartedMessage(iPaymentDescriptor, deeplink));
+    public void onPostPaymentFlowStarted(@NonNull final IPaymentDescriptor iPaymentDescriptor) {
+        addAndProcess(new PostPaymentFlowStartedMessage(iPaymentDescriptor));
     }
 
     /* default */
@@ -281,25 +275,22 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     private static class PostPaymentFlowStartedMessage implements Message {
 
         @NonNull private final IPaymentDescriptor iPaymentDescriptor;
-        @NonNull private final String deeplink;
 
         /* default */ PostPaymentFlowStartedMessage(
-            @NonNull final IPaymentDescriptor iPaymentDescriptor,
-            @NonNull final String deeplink
+            @NonNull final IPaymentDescriptor iPaymentDescriptor
         ) {
             this.iPaymentDescriptor = iPaymentDescriptor;
-            this.deeplink = deeplink;
         }
 
         @Override
         public void processMessage(@Nullable final PaymentServiceHandler handler,
             @Nullable final PaymentServiceEventHandler eventHandler) {
             if (handler != null) {
-                handler.onPostPaymentFlowStarted(iPaymentDescriptor, deeplink);
+                handler.onPostPaymentFlowStarted(iPaymentDescriptor);
             }
 
             if (eventHandler != null) {
-                eventHandler.getPostPaymentStartedLiveData().setValue(new Pair(iPaymentDescriptor, deeplink));
+                eventHandler.getPostPaymentStartedLiveData().setValue(iPaymentDescriptor);
             }
         }
     }

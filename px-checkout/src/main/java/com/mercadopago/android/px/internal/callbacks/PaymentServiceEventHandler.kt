@@ -10,7 +10,7 @@ import com.mercadopago.android.px.tracking.internal.model.Reason
 
 internal class PaymentServiceEventHandler {
     val paymentFinishedLiveData = MutableSingleLiveData<PaymentModel>()
-    val postPaymentStartedLiveData = MutableSingleLiveData<Pair<IPaymentDescriptor, String>>()
+    val postPaymentStartedLiveData = MutableSingleLiveData<IPaymentDescriptor>()
     val requireCvvLiveData = MutableSingleLiveData<Pair<Card, Reason>>()
     val recoverInvalidEscLiveData = MutableSingleLiveData<PaymentRecovery>()
     val paymentErrorLiveData = MutableSingleLiveData<MercadoPagoError>()

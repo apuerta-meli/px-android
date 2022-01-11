@@ -186,8 +186,10 @@ internal class PayButtonViewModel(
 
         // PostPayment started event
         val postPaymentStartedLiveData: LiveData<PostPaymentFlowStarted?> =
-            transform(serviceLiveData.postPaymentStartedLiveData) { (descriptor, deeplink) ->
+            transform(serviceLiveData.postPaymentStartedLiveData) { descriptor ->
                 state.iPaymentDescriptor = descriptor
+                val deeplink =
+                    paymentSettingRepository.advancedConfiguration.postPaymentConfiguration.getPostPaymentDeepLinkUrl()
                 PostPaymentFlowStarted(descriptor, deeplink)
             }
         stateUILiveData.addSource(postPaymentStartedLiveData) { stateUILiveData.value = it }

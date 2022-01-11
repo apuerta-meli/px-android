@@ -52,7 +52,6 @@ public class PaymentServiceHandlerWrapperTest {
     @Mock private PostPaymentConfiguration postPaymentConfiguration;
 
     private PaymentServiceHandlerWrapper paymentServiceHandlerWrapper;
-    private final String deepLink = "mercadopago://px/post-payment_url";
 
     @Before
     public void setUp() {
@@ -63,7 +62,6 @@ public class PaymentServiceHandlerWrapperTest {
         when(paymentRepository.createRecoveryForInvalidESC()).thenReturn(paymentRecovery);
         when(paymentRepository.getPaymentDataList()).thenReturn(Collections.singletonList(mock(PaymentData.class)));
         when(userSelectionRepository.getPaymentMethod()).thenReturn(PaymentMethodStub.VISA_CREDIT.get());
-        when(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn("");
     }
 
     private void noMoreInteractions() {
@@ -143,7 +141,7 @@ public class PaymentServiceHandlerWrapperTest {
             CongratsRepository.PostPaymentCallback.class);
         verify(congratsRepository).getPostPaymentData(eq(payment), eq(paymentResult), callbackArgumentCaptor.capture());
         final CongratsRepository.PostPaymentCallback value = callbackArgumentCaptor.getValue();
-        PaymentModel paymentModel = mock(PaymentModel.class);
+        final PaymentModel paymentModel = mock(PaymentModel.class);
         value.handleResult(paymentModel);
         verify(wrapped).onPostPayment(paymentModel);
     }
@@ -244,11 +242,11 @@ public class PaymentServiceHandlerWrapperTest {
         final Payment payment = mock(Payment.class);
 
         when(payment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
-        when(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink);
+        when(postPaymentConfiguration.hasPostPaymentUrl()).thenReturn(true);
 
         final IPaymentDescriptorHandler handler = paymentServiceHandlerWrapper.getHandler();
         handler.visit(payment);
-        verify(wrapped).onPostPaymentFlowStarted(payment, deepLink);
+        verify(wrapped).onPostPaymentFlowStarted(payment);
     }
 
     @Test
@@ -256,10 +254,10 @@ public class PaymentServiceHandlerWrapperTest {
         final BusinessPayment businessPayment = mock(BusinessPayment.class);
 
         when(businessPayment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_APPROVED);
-        when(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink);
+        when(postPaymentConfiguration.hasPostPaymentUrl()).thenReturn(true);
 
         final IPaymentDescriptorHandler handler = paymentServiceHandlerWrapper.getHandler();
         handler.visit(businessPayment);
-        verify(wrapped).onPostPaymentFlowStarted(businessPayment, deepLink);
+        verify(wrapped).onPostPaymentFlowStarted(businessPayment);
     }
 }

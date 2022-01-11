@@ -13,7 +13,7 @@ internal open class CongratsPaymentResult : CongratsResult() {
 }
 
 internal open class CongratsPostPaymentResult : CongratsResult() {
-    data class Loading(val isLoading: Boolean) : CongratsPostPaymentResult()
+    object Loading : CongratsPostPaymentResult()
     object ConnectionError : CongratsPostPaymentResult()
     object BusinessError : CongratsPostPaymentResult()
 }

@@ -32,6 +32,7 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
     }
 
     private fun onCongratsResult(congratsResult: CongratsResult) {
+        findViewById<MeliSpinner>(R.id.loading_view).visibility = View.GONE
         when (congratsResult) {
             is CongratsResult.PaymentResult -> {
                 PaymentResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
@@ -41,18 +42,14 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
                 PaymentCongrats.show(congratsResult.paymentCongratsModel, this, REQ_CODE_CONGRATS)
                 finish()
             }
-            is CongratsPostPaymentResult.Loading -> if (congratsResult.isLoading) {
+            is CongratsPostPaymentResult.Loading ->
                 findViewById<MeliSpinner>(R.id.loading_view).visibility = View.VISIBLE
-            } else {
-                findViewById<MeliSpinner>(R.id.loading_view).visibility = View.GONE
-            }
             is CongratsPostPaymentResult.ConnectionError -> handleError(
                 message = getString(R.string.px_no_connection_message),
                 recoverable = true
             )
             is CongratsPostPaymentResult.BusinessError -> handleError(recoverable = false)
         }
-        findViewById<MeliSpinner>(R.id.loading_view).visibility = View.GONE
     }
 
     private fun handleError(message: String = "", recoverable: Boolean) {
@@ -72,7 +69,7 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (congratsViewModel.congratsResultLiveData.value == CongratsPostPaymentResult.Loading(false)) {
+        if (congratsViewModel.congratsResultLiveData.value != CongratsPostPaymentResult.Loading) {
             super.onBackPressed()
         }
     }

@@ -67,8 +67,7 @@ class CongratsViewModelTest {
 
         congratsViewModel.createCongratsResult(mock())
 
-        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(true))
-        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
+        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading)
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.ConnectionError)
     }
 
@@ -78,8 +77,7 @@ class CongratsViewModelTest {
 
         congratsViewModel.createCongratsResult(null)
 
-        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(true))
-        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
+        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading)
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.BusinessError)
     }
 
@@ -94,11 +92,10 @@ class CongratsViewModelTest {
 
         congratsViewModel.createCongratsResult(paymentModel.payment)
 
-        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(true))
+        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading)
 
         congratsViewModel.handleResult(paymentModel)
 
-        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
         verify(congratsResultLiveData).onChanged(CongratsResult.PaymentResult(paymentModel))
     }
 
@@ -115,11 +112,10 @@ class CongratsViewModelTest {
 
         congratsViewModel.createCongratsResult(businessModel.payment)
 
-        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(true))
+        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading)
 
         congratsViewModel.handleResult(businessModel)
 
-        verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
         verify(congratsResultLiveData).onChanged(CongratsResult.BusinessPaymentResult(paymentCongratsModel))
     }
 }

@@ -25,7 +25,7 @@ internal class CongratsViewModel(
     override fun initState() = State()
 
     fun createCongratsResult(iPaymentDescriptor: IPaymentDescriptor?) {
-        congratsResultLiveData.value = CongratsPostPaymentResult.Loading(true)
+        congratsResultLiveData.value = CongratsPostPaymentResult.Loading
 
         if (connectionHelper.hasConnection()) {
             val descriptor = iPaymentDescriptor ?: paymentRepository.payment
@@ -33,17 +33,14 @@ internal class CongratsViewModel(
                 val paymentResult = paymentRepository.createPaymentResult(descriptor)
                 congratsRepository.getPostPaymentData(descriptor, paymentResult, this@CongratsViewModel)
             } else {
-                congratsResultLiveData.value = CongratsPostPaymentResult.Loading(false)
                 congratsResultLiveData.value = CongratsPostPaymentResult.BusinessError
             }
         } else {
-            congratsResultLiveData.value = CongratsPostPaymentResult.Loading(false)
             manageNoConnection()
         }
     }
 
     override fun handleResult(paymentModel: PaymentModel) {
-        congratsResultLiveData.value = CongratsPostPaymentResult.Loading(false)
         congratsResultLiveData.value = congratsResultFactory.create(paymentModel)
     }
 

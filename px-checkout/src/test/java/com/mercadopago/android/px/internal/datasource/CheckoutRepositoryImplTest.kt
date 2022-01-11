@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.datasource
 
 import com.mercadopago.android.px.configuration.PaymentConfiguration
-import com.mercadopago.android.px.core.SplitPaymentProcessor
+import com.mercadopago.android.px.core.v2.PaymentProcessor
 import com.mercadopago.android.px.internal.adapters.NetworkApi
 import com.mercadopago.android.px.internal.callbacks.ApiResponse
 import com.mercadopago.android.px.internal.mappers.CustomChargeToPaymentTypeChargeMapper
@@ -83,7 +83,7 @@ class CheckoutRepositoryImplTest {
     private lateinit var customChargeToPaymentTypeChargeMapper: CustomChargeToPaymentTypeChargeMapper
 
     @Mock
-    private lateinit var splitPaymentProcessor: SplitPaymentProcessor
+    private lateinit var splitPaymentProcessor: PaymentProcessor
 
     @Mock
     private lateinit var checkoutResponse: CheckoutResponse
@@ -93,6 +93,9 @@ class CheckoutRepositoryImplTest {
 
     @Mock
     private lateinit var oneTapItemToDisabledPaymentMethodMapper: OneTapItemToDisabledPaymentMethodMapper
+
+    @Mock
+    private lateinit var chargesRepository: ChargeRepository
 
     @Before
     fun setUp() {
@@ -120,6 +123,7 @@ class CheckoutRepositoryImplTest {
             payerComplianceRepository,
             amountConfigurationRepository,
             discountRepository,
+            chargesRepository,
             customChargeToPaymentTypeChargeMapper,
             initRequestBodyMapper,
             oneTapItemToDisabledPaymentMethodMapper
@@ -229,7 +233,7 @@ class CheckoutRepositoryImplTest {
             verify(paymentSettingRepository).configure(checkoutResponse.currency)
             verify(paymentSettingRepository).configure(checkoutResponse.configuration)
             verify(customChargeToPaymentTypeChargeMapper).map(checkoutResponse.customCharges ?: mapOf())
-            verify(paymentSettingRepository).configure(anyList())
+            verify(chargesRepository).configure(anyList())
             verify(experimentsRepository).configure(checkoutResponse.experiments)
             verify(payerPaymentMethodRepository).configure(checkoutResponse.payerPaymentMethods)
             verify(oneTapItemRepository).configure(checkoutResponse.oneTapItems)

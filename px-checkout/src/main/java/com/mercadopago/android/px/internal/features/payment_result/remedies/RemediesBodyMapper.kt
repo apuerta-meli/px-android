@@ -40,7 +40,7 @@ internal class RemediesBodyMapper(private val userSelectionRepository: UserSelec
             val payerPaymentMethodRejected = RemedyPaymentMethod(customOptionId, payerCost?.installments,
                 issuer?.name, bin, lastFourDigits, paymentMethod.id, paymentMethod.paymentTypeId,
                 secCodeLength, secCodeLocation, amountRepository.getAmountToPay(paymentMethod.paymentTypeId, payerCost),
-                null, escStatus, esc)
+                null, escStatus, esc, null)
             val customStringConfiguration = paymentSettingRepository.advancedConfiguration.customStringConfiguration
             return RemediesBody(payerPaymentMethodRejected, alternativePayerPaymentMethods,
                 with(customStringConfiguration) {

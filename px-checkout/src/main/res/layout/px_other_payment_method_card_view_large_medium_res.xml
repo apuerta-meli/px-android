@@ -35,7 +35,7 @@
             android:id="@+id/other_payment_method_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/px_ico_new_card"
+            android:src="@drawable/px_ico_new_card"
             app:layout_constraintBottom_toTopOf="@id/guideline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

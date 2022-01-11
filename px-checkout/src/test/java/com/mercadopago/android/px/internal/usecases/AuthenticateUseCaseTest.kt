@@ -55,7 +55,7 @@ class AuthenticateUseCaseTest {
             failure::invoke
         )
 
-        verifyZeroInteractions(success)
+        verifyNoInteractions(success)
         verify(failure).invoke(any())
     }
 
@@ -71,7 +71,7 @@ class AuthenticateUseCaseTest {
             failure::invoke
         )
 
-        verifyZeroInteractions(failure)
+        verifyNoInteractions(failure)
         verify(cardHolderAuthenticatorRepository).authenticate(paymentData, authenticationParameters)
         verify(success).invoke(any())
     }

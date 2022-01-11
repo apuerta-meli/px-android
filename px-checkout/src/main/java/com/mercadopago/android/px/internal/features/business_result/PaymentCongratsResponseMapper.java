@@ -2,6 +2,8 @@ package com.mercadopago.android.px.internal.features.business_result;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.mercadolibre.android.andesui.message.hierarchy.AndesMessageHierarchy;
+import com.mercadolibre.android.andesui.message.type.AndesMessageType;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsResponse;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsText;
 import com.mercadopago.android.px.internal.mappers.Mapper;
@@ -21,7 +23,8 @@ public class PaymentCongratsResponseMapper extends Mapper<CongratsResponse, Paym
             congratsResponse.getCustomOrder(),
             congratsResponse.getBackUrl(),
             congratsResponse.getRedirectUrl(),
-            getAutoReturn(congratsResponse.getAutoReturn()));
+            getAutoReturn(congratsResponse.getAutoReturn()),
+            getOperationInfo(congratsResponse.getOperationInfo()));
     }
 
     private PaymentCongratsResponse.Loyalty getLoyalty(final CongratsResponse.Score score) {
@@ -111,6 +114,16 @@ public class PaymentCongratsResponseMapper extends Mapper<CongratsResponse, Paym
     private PaymentCongratsResponse.AutoReturn getAutoReturn(@Nullable final CongratsResponse.AutoReturn autoReturn) {
         if (autoReturn != null) {
             return new PaymentCongratsResponse.AutoReturn(autoReturn.getLabel(), autoReturn.getSeconds());
+        }
+        return null;
+    }
+
+    @Nullable
+    private PaymentCongratsResponse.OperationInfo getOperationInfo(@Nullable final CongratsResponse.OperationInfo operationInfo) {
+        if (operationInfo != null) {
+            return
+                new PaymentCongratsResponse.OperationInfo(AndesMessageHierarchy.valueOf(operationInfo.getHierarchy().toUpperCase()),
+                AndesMessageType.valueOf(operationInfo.getType().toUpperCase()), operationInfo.getBody());
         }
         return null;
     }

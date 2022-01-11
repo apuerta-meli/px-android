@@ -14,5 +14,6 @@ internal data class CongratsViewModel(
     val actionCardViewData: MLBusinessActionCardViewData?,
     val crossSellingBoxData: List<MLBusinessCrossSellingBoxData>?,
     val viewReceipt: PaymentCongratsResponse.Action?,
-    val customOrder: Boolean
+    val customOrder: Boolean,
+    val operationInfo: PaymentCongratsResponse.OperationInfo?
 )

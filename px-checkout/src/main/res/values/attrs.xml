@@ -73,4 +73,7 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="ToolbarCancel">
+        <attr name="icon_color" format="color" />
+    </declare-styleable>
 </resources>

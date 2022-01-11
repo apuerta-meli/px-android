@@ -2,14 +2,14 @@ package com.mercadopago.android.px.internal.features.pay_button
 
 import android.content.Intent
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
-import com.mercadopago.android.px.internal.features.express.RenderMode
+import com.mercadopago.android.px.internal.features.one_tap.RenderMode
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 
-interface PayButton {
+internal interface PayButton {
 
     interface View : ExplodingFragment.Handler {
         fun isExploding(): Boolean
@@ -21,6 +21,7 @@ interface PayButton {
     interface ViewModel {
         fun attach(handler: Handler)
         fun detach()
+        fun onButtonPressed()
         fun preparePayment()
         fun handleBiometricsResult(isSuccess: Boolean, securityRequested: Boolean)
         fun startPayment()
@@ -35,6 +36,7 @@ interface PayButton {
     }
 
     interface Handler {
+        fun getViewTrackPath(callback: ViewTrackPathCallback)
         fun prePayment(callback: OnReadyForPaymentCallback)
         @JvmDefault fun enqueueOnExploding(callback: OnEnqueueResolvedCallback) = callback.success()
         @JvmDefault fun onPostPaymentAction(postPaymentAction: PostPaymentAction) = Unit
@@ -43,6 +45,10 @@ interface PayButton {
         @JvmDefault fun onPaymentFinished(paymentModel: PaymentModel, callback: OnPaymentFinishedCallback) = callback.call()
         @JvmDefault fun onPaymentError(error: MercadoPagoError) = Unit
         @JvmDefault fun onPostCongrats(resultCode: Int, data: Intent?) = Unit
+    }
+
+    interface ViewTrackPathCallback {
+        fun call(viewTrackPath: String)
     }
 
     interface OnReadyForPaymentCallback {

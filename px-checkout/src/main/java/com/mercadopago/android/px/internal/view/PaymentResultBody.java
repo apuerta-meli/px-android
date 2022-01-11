@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.mercadolibre.android.andesui.message.AndesMessage;
 import com.mercadolibre.android.mlbusinesscomponents.components.actioncard.MLBusinessActionCardView;
 import com.mercadolibre.android.mlbusinesscomponents.components.actioncard.MLBusinessActionCardViewData;
 import com.mercadolibre.android.mlbusinesscomponents.components.common.dividingline.MLBusinessDividingLineView;
@@ -88,11 +89,24 @@ public final class PaymentResultBody extends LinearLayout {
         renderMoneySplit(model.congratsViewModel.getActionCardViewData(), listener);
         renderCrossSellingBox(model.congratsViewModel.getCrossSellingBoxData(), listener);
         renderReceipt(model.receiptId);
+        renderOperationInfo(model.congratsViewModel.getOperationInfo());
         renderHelp(model.help);
         renderFragment(R.id.px_fragment_container_top, model.topFragment);
         renderMethods(model);
         renderViewReceipt(model.congratsViewModel.getViewReceipt(), listener);
         renderFragment(R.id.px_fragment_container_bottom, model.bottomFragment);
+    }
+
+    private void renderOperationInfo(@Nullable final PaymentCongratsResponse.OperationInfo operationInfo) {
+        final AndesMessage operationInfoView = findViewById(R.id.operationInfo);
+        if (operationInfo != null) {
+            operationInfoView.setVisibility(VISIBLE);
+            operationInfoView.setBody(operationInfo.getBody());
+            operationInfoView.setHierarchy(operationInfo.getHierarchy());
+            operationInfoView.setType(operationInfo.getType());
+        } else {
+            operationInfoView.setVisibility(GONE);
+        }
     }
 
     private void renderLoyalty(@Nullable final MLBusinessLoyaltyRingData loyaltyData,

@@ -54,7 +54,7 @@ public class SummaryView extends LinearLayout {
     public SummaryView(final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setOrientation(VERTICAL);
-        setBackgroundResource(R.color.px_background);
+        setBackgroundResource(R.color.px_checkout_summary_background);
         inflate(getContext(), R.layout.px_view_express_summary, this);
         itemsMaxSize = findViewById(R.id.itemsMaxSize);
         bigHeaderDescriptor = findViewById(R.id.bigElementDescriptor);
@@ -194,11 +194,7 @@ public class SummaryView extends LinearLayout {
         } else {
             bigHeaderDescriptor.setVisibility(GONE);
         }
-
-        totalAmountDescriptor.setTextSize(R.dimen.px_l_text);
-        totalAmountDescriptor.setBold(AmountDescriptorView.Position.RIGHT);
         totalAmountDescriptor.update(model.total);
-
         detailAdapter.updateItems(model.elements);
         detailRecyclerView.startAnimation(listAppearAnimation);
     }

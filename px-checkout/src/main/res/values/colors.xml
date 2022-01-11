@@ -129,8 +129,8 @@
 
     <color name="px_summary_top_color">@color/ui_components_light_grey_color</color>
     <color name="px_color_terms_and_conditions">@color/px_darkest_gray</color>
-    <color name="px_color_payer_costs">#999999</color>
-    <color name="px_color_payer_costs_selected_background">#f5f5f5</color>
+    <color name="px_color_payer_costs">@color/andes_text_color_secondary</color>
+    <color name="px_color_payer_costs_selected_background">#EDEDED</color>
     <color name="px_review_gray_background">#F7F7F7</color>
     <color name="px_color_unlock_card_text">#A1924C</color>
     <color name="px_color_unlock_card_link">#118BDC</color>
@@ -148,6 +148,7 @@
     <color name="px_white">@color/ui_components_white_color</color>
     <color name="px_white_smoke">#ccededed</color>
     <color name="px_med_light_gray">@color/ui_components_light_grey_color</color>
+    <color name="px_remedies_link_blue">#009EE3</color>
 
     <!-- Customized colors -->
     <!-- Toolbar and status bar default -->
@@ -158,7 +159,7 @@
     <color name="px_toolbar_text">@color/ui_components_white_color</color>
 
     <!-- Discount description -->
-    <color name="px_discount_description">#64c574</color>
+    <color name="px_discount_description">#008744</color>
 
     <!-- Inputs -->
     <color name="px_input">@color/ui_components_primary_color</color>
@@ -182,13 +183,24 @@
     <color name="px_paymentMethodTint">@color/px_colorPrimary</color>
 
     <!-- ExpressMetadata checkout configurations-->
-    <color name="px_expressCheckoutTextColor">@color/px_white</color>
-    <color name="px_expressCheckoutTextColorDiscount">@color/px_white</color>
-    <color name="px_expressCheckoutTextColorBriefDiscount">@color/px_white_smoke</color>
-    <color name="px_expressCheckoutSeparatorLine">#19000000</color>
+    <color name="px_expressCheckoutTextColor">@color/andes_text_color_primary</color>
+    <color name="px_expressCheckoutTextColorDiscount">@color/andes_text_color_secondary</color>
+    <color name="px_expressCheckoutTextColorBriefDiscount">@color/andes_text_color_secondary</color>
+    <color name="px_expressCheckoutSeparatorLine">@color/andes_gray_100</color>
     <color name="px_expressCheckoutScrollIndicatorColor">@color/px_expressCheckoutSeparatorLine</color>
     <color name="px_expressCheckoutChangePaymentMethodColor">#ffeae8e8</color>
-    <color name="px_expressCheckoutInstallmentTitle">#73000000</color>
+    <color name="px_expressCheckoutInstallmentTitle">@color/andes_text_color_primary</color>
+    <color name="px_checkout_dark_gray">#9B9B9B</color>
+    <color name="px_checkout_background">@color/white</color>
+    <color name="px_checkout_summary_background">@color/white</color>
+    <color name="px_checkout_split_background">@color/andes_gray_040_solid</color>
+    <color name="px_checkout_payment_method_header_background">@color/andes_gray_040_solid</color>
+    <color name="px_checkout_discount_amount">@color/andes_green_600</color>
+    <color name="px_checkout_helper_icon">@color/andes_blue_mp_500</color>
+    <color name="px_checkout_secondary_color">@color/andes_text_color_secondary</color>
+    <color name="px_checkout_darker_separator_line">@color/px_checkout_dark_gray</color>
+    <color name="px_checkout_installments_scrollbar">@color/px_checkout_dark_gray</color>
+    <color name="px_checkout_offline_toolbar_background">@color/white</color>
 
     <!-- Disable payment method detail dialog -->
     <color name="px_disablePaymentMethodDetailDialogTitle">@color/px_color_translucent_black</color>
@@ -203,6 +215,7 @@
     <color name="px_payment_result_method_ring">#ededed</color>
     <color name="px_payment_result_black_text">#CC000000</color>
     <color name="px_payment_result_gray_text">#73000000</color>
+    <color name="px_payment_result_component_remedies">#E6000000</color>
 
     <!-- Colors used by Money in -->
     <color name="px_blue_status_bar">#008CD6</color>

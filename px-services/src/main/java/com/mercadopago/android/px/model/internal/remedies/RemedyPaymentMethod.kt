@@ -18,5 +18,6 @@ data class RemedyPaymentMethod(
     val totalAmount: BigDecimal?,
     val installmentsList: List<Installment>?,
     val escStatus: String?,
-    val esc: Boolean
+    val esc: Boolean,
+    val cardSize: CardSize?
 ) : Parcelable

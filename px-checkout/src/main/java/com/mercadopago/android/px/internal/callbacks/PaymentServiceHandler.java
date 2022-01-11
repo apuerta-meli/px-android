@@ -1,14 +1,14 @@
 package com.mercadopago.android.px.internal.callbacks;
 
 import androidx.annotation.NonNull;
-import com.mercadopago.android.px.core.SplitPaymentProcessor;
+import com.mercadopago.android.px.core.internal.OnPaymentListener;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.tracking.internal.model.Reason;
 
-public interface PaymentServiceHandler extends SplitPaymentProcessor.OnPaymentListener {
+public interface PaymentServiceHandler extends OnPaymentListener {
 
     /**
      * When flow is a saved card that does not have token saved this method will be called to re-enter CVV and create

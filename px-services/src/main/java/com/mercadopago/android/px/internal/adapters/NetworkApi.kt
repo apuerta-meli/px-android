@@ -3,12 +3,12 @@ package com.mercadopago.android.px.internal.adapters
 import com.mercadopago.android.px.internal.base.CoroutineContextProvider
 import com.mercadopago.android.px.internal.base.exception.ExceptionFactory
 import com.mercadopago.android.px.internal.base.exception.ExceptionParser
-import com.mercadopago.android.px.model.exceptions.SocketTimeoutApiException
 import com.mercadopago.android.px.internal.callbacks.ApiResponse
-import com.mercadopago.android.px.internal.callbacks.ApiResponse.Success
 import com.mercadopago.android.px.internal.callbacks.ApiResponse.Failure
+import com.mercadopago.android.px.internal.callbacks.ApiResponse.Success
 import com.mercadopago.android.px.internal.core.ConnectionHelper
 import com.mercadopago.android.px.model.exceptions.ApiException
+import com.mercadopago.android.px.model.exceptions.SocketTimeoutApiException
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -25,9 +25,7 @@ class NetworkApi(
         apiCall: suspend (api: T) -> Response<D>
     ): ApiResponseCallback<D> {
         return withContext(contextProvider.IO) {
-            if (connectionHelper.hasConnection()) {
-                apiCallWithRetries(apiServiceClass, apiCall)
-            } else Failure(ExceptionFactory.connectionError())
+            apiCallWithRetries(apiServiceClass, apiCall)
         }
     }
 
@@ -54,6 +52,9 @@ class NetworkApi(
         var currAttempt = 1
         var apiResponse = getApiResponse(apiCall, apiServiceClass)
         while (needRetry(apiResponse, currAttempt)) {
+            if (!connectionHelper.hasConnection()) {
+                return Failure(ExceptionFactory.connectionError())
+            }
             apiResponse = getApiResponse(apiCall, apiServiceClass)
             currAttempt++
         }

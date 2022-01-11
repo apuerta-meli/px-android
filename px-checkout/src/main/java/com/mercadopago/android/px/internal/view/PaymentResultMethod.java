@@ -127,7 +127,7 @@ public class PaymentResultMethod extends ConstraintLayout {
             if (paymentData.getDiscount() != null) {
                 paymentInfoBuilder
                     .withDiscountData(paymentData.getDiscount().getName(),
-                        getPrettyAmount(currency, paymentData.getRawAmount()));
+                        getPrettyAmount(currency, paymentData.getNoDiscountAmount()));
             }
 
             if (paymentData.getPayerCost() != null) {

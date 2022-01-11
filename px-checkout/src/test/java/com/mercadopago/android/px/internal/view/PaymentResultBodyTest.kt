@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.facebook.drawee.backends.pipeline.Fresco
 import com.mercadolibre.android.mlbusinesscomponents.common.MLBusinessSingleItem
 import com.mercadolibre.android.mlbusinesscomponents.components.actioncard.MLBusinessActionCardViewData
 import com.mercadolibre.android.mlbusinesscomponents.components.common.downloadapp.MLBusinessDownloadAppData
@@ -48,6 +49,10 @@ class PaymentResultBodyTest : BasicRobolectricTest() {
         `when`(packageManager.getApplicationInfo(anyString(), anyInt())).thenReturn(mercadoPagoAppInfo)
         `when`(context.packageManager).thenReturn(packageManager)
 
+        if (!Fresco.hasBeenInitialized()) {
+            Fresco.initialize(context)
+        }
+
         body = PaymentResultBody(context)
         modelBuilder = PaymentResultBody.Model.Builder().setCongratsViewModel(congratsViewModel)
     }
@@ -70,6 +75,7 @@ class PaymentResultBodyTest : BasicRobolectricTest() {
             assertGone(R.id.px_fragment_container_important)
             assertGone(R.id.px_fragment_container_top)
             assertGone(R.id.px_fragment_container_bottom)
+            assertGone(R.id.operationInfo)
         }
     }
 

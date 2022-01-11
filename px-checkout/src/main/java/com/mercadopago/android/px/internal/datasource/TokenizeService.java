@@ -50,7 +50,6 @@ public class TokenizeService implements TokenRepository {
             final CardTokenBody body = new CardTokenBody(cardId, device, true, "", esc, remotePaymentToken);
             gatewayService.createToken(
                 paymentSettingRepository.getPublicKey(),
-                paymentSettingRepository.getPrivateKey(),
                 body).enqueue(wrap(card, esc, callback));
         };
     }
@@ -64,7 +63,6 @@ public class TokenizeService implements TokenRepository {
 
             gatewayService.createToken(
                 paymentSettingRepository.getPublicKey(),
-                paymentSettingRepository.getPrivateKey(),
                 body).enqueue(wrap(card, callback));
         };
     }

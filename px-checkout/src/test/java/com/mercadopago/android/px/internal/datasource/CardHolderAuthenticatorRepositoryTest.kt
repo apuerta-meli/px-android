@@ -74,16 +74,14 @@ class CardHolderAuthenticatorRepositoryTest {
 
             whenever(paymentSettingRepository.site).thenReturn(site)
 
-            whenever(paymentSettingRepository.privateKey).thenReturn("987654321")
-
         runBlocking {
 
-            whenever(cardHolderAuthenticatorService.authenticate(any(), any(), any())).thenReturn(mock())
+            whenever(cardHolderAuthenticatorService.authenticate(any(), any())).thenReturn(mock())
 
             assertNotNull(cardHolderAuthenticatorRepository.authenticate(
                 makePaymentData().setToken(token).createPaymentData(),
                 threeDSDataOnlyParams))
-            verify(cardHolderAuthenticatorService).authenticate(any(), any(), any())
+            verify(cardHolderAuthenticatorService).authenticate(any(), any())
         }
     }
 
@@ -94,6 +92,7 @@ class CardHolderAuthenticatorRepositoryTest {
 
         return PaymentData.Builder()
             .setRawAmount(BigDecimal.TEN)
+            .setNoDiscountAmount(BigDecimal.TEN)
             .setPaymentMethod(paymentMethod)
     }
 }

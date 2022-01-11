@@ -28,6 +28,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <com.mercadolibre.android.andesui.message.AndesMessage
+        android:id="@+id/operationInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/ui_4m"
+        android:layout_marginRight="@dimen/ui_4m" />
+
     <FrameLayout
         android:id="@+id/px_fragment_container_top"
         android:layout_width="match_parent"

@@ -10,11 +10,12 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="@dimen/px_toolbar_height"
-        android:background="@color/px_colorPrimary"
         android:visibility="invisible"
+        android:background="@color/px_checkout_offline_toolbar_background"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/coordinator"
         app:layout_constraintVertical_chainStyle="packed"
+        app:icon_color="@color/andes_gray_900"
         tools:visibility="visible">
 
         <com.mercadopago.android.px.internal.view.MPTextView
@@ -24,7 +25,8 @@
             android:layout_gravity="center_vertical|end"
             android:layout_marginEnd="@dimen/px_s_margin"
             android:textColor="@color/px_expressCheckoutTextColor"
-            android:textSize="@dimen/px_l_text"
+            android:textSize="@dimen/px_m_text"
+            app:customStyle="semi_bold"
             tools:text="Total $ 10.000" />
     </com.mercadopago.android.px.internal.view.ToolbarCancel>
 
@@ -32,8 +34,8 @@
         android:id="@+id/coordinator"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/offline_methods_bottom_sheet"
@@ -48,22 +50,22 @@
                 android:layout_height="@dimen/ui_050m"
                 android:layout_marginTop="@dimen/px_s_margin"
                 android:background="@drawable/px_short_line_rounded"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/methods"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/fake_footer"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <View
                 android:id="@+id/fake_footer"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/ui_2m"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/methods"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toTopOf="@id/fake_footer"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

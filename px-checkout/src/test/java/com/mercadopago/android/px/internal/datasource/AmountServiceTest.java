@@ -1,9 +1,11 @@
 package com.mercadopago.android.px.internal.datasource;
 
+import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.ChargeRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
+import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Discount;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.PayerCost;
@@ -14,9 +16,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -27,9 +34,11 @@ public class AmountServiceTest {
     @Mock private CheckoutPreference checkoutPreference;
     @Mock private DiscountRepository discountRepository;
     @Mock private UserSelectionRepository userSelectionRepository;
+    @Mock private AmountConfigurationRepository amountConfigurationRepository;
     @Mock private PayerCost payerCost;
     @Mock private DiscountConfigurationModel discountModel;
     @Mock private Discount discount;
+    @Mock private AmountConfiguration amountConfiguration;
 
     private AmountService amountService;
 
@@ -38,8 +47,8 @@ public class AmountServiceTest {
 
     @Before
     public void setUp() {
-        amountService =
-            new AmountService(paymentSettingRepository, chargeRepository, discountRepository, userSelectionRepository);
+        amountService = new AmountService(paymentSettingRepository, chargeRepository, discountRepository,
+            amountConfigurationRepository, userSelectionRepository);
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(checkoutPreference);
         when(checkoutPreference.getTotalAmount()).thenReturn(BigDecimal.TEN);
         when(discountRepository.getCurrentConfiguration()).thenReturn(discountModel);
@@ -122,5 +131,41 @@ public class AmountServiceTest {
         when(payerCost.getTotalAmount()).thenReturn(BigDecimal.TEN);
 
         assertEquals(BigDecimal.TEN, amountService.getAmountToPay(PaymentTypes.CREDIT_CARD, payerCost));
+    }
+
+    @Test
+    public void whenGetAmountWithoutDiscountWithNoPayerCostReturnAmountWithoutDiscount() {
+        when(amountConfiguration.getNoDiscountAmount()).thenReturn(BigDecimal.TEN);
+        when(amountConfigurationRepository.getCurrentConfiguration()).thenReturn(amountConfiguration);
+        assertEquals(BigDecimal.TEN, amountService.getAmountWithoutDiscount(PaymentTypes.ACCOUNT_MONEY, null));
+    }
+
+    @Test
+    public void whenGetTaxFreeAmountWithNoPayerCostReturnTaxFreeAmount() {
+        when(amountConfiguration.getTaxFreeAmount()).thenReturn(BigDecimal.TEN);
+        when(amountConfigurationRepository.getCurrentConfiguration()).thenReturn(amountConfiguration);
+        assertEquals(BigDecimal.TEN, amountService.getTaxFreeAmount(PaymentTypes.ACCOUNT_MONEY, null));
+    }
+
+    @Test
+    public void whenGetNoDiscountAmountWithNoPayerCostThrowsExceptionThenItFallbacksToItemsPlusCharges() {
+        when(checkoutPreference.getTotalAmount()).thenReturn(BigDecimal.ONE);
+        when(chargeRepository.getChargeAmount(PaymentTypes.TICKET)).thenReturn(BigDecimal.TEN);
+        when(amountConfigurationRepository.getCurrentConfiguration()).thenThrow(new IllegalStateException("Test ex"));
+        amountService = Mockito.spy(amountService);
+        final BigDecimal result = amountService.getAmountWithoutDiscount(PaymentTypes.TICKET, null);
+        assertEquals(result, BigDecimal.TEN.add(BigDecimal.ONE));
+        verify(amountService).getItemsPlusCharges(PaymentTypes.TICKET);
+    }
+
+    @Test
+    public void whenGetTaxFreeAmountWithNoPayerCostThrowsExceptionThenItFallbacksToItemsPlusCharges() {
+        when(checkoutPreference.getTotalAmount()).thenReturn(BigDecimal.ONE);
+        when(chargeRepository.getChargeAmount(PaymentTypes.TICKET)).thenReturn(BigDecimal.TEN);
+        when(amountConfigurationRepository.getCurrentConfiguration()).thenThrow(new IllegalStateException("Test ex"));
+        amountService = Mockito.spy(amountService);
+        final BigDecimal result = amountService.getTaxFreeAmount(PaymentTypes.TICKET, null);
+        assertEquals(result, BigDecimal.TEN.add(BigDecimal.ONE));
+        verify(amountService).getItemsPlusCharges(PaymentTypes.TICKET);
     }
 }

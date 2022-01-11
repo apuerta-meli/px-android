@@ -24,7 +24,5 @@
             app:card_header_behaviour="responsive"
             app:card_header_internal_padding="0dp" />
 
-        <include layout="@layout/px_highlight_text_low_res" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

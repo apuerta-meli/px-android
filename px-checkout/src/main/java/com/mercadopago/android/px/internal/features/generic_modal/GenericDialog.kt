@@ -100,6 +100,7 @@ class GenericDialog : MeliDialog() {
     override fun dismiss() {
         super.dismiss()
         viewModel.onDialogDismissed()
+        listener?.onAction(GenericDialogAction.CustomAction(ActionType.DISMISS))
     }
 
     override fun getContentView(): Int {

@@ -11,6 +11,7 @@ public final class PXBehaviourConfigurer {
     private FlowBehaviour flowBehaviour;
     private ThreeDSBehaviour threeDSBehaviour;
     private TokenDeviceBehaviour tokenDeviceBehaviour;
+    private AuthenticationBehaviour authenticationBehaviour;
 
     public PXBehaviourConfigurer with(@NonNull final ESCManagerBehaviour escManagerBehaviour) {
         this.escManagerBehaviour = escManagerBehaviour;
@@ -46,14 +47,42 @@ public final class PXBehaviourConfigurer {
         this.tokenDeviceBehaviour = tokenDeviceBehaviour;
         return this;
     }
+  
+    public PXBehaviourConfigurer with(@NonNull final AuthenticationBehaviour authenticationBehaviour) {
+        this.authenticationBehaviour = authenticationBehaviour;
+        return this;
+    }
 
+    /**
+     * Apply only an nonnull configuration to override previous configuration
+     * with nonnull values.
+     * This configs may be null at start flow but BehaviourProvider retrieves a new one
+     * with basic behaviour.
+     */
     public void configure() {
-        BehaviourProvider.set(securityBehaviour);
-        BehaviourProvider.set(escManagerBehaviour);
-        BehaviourProvider.set(trackingBehaviour);
-        BehaviourProvider.set(localeBehaviour);
-        BehaviourProvider.set(flowBehaviour);
-        BehaviourProvider.set(threeDSBehaviour);
-        BehaviourProvider.set(tokenDeviceBehaviour);
+        if (securityBehaviour != null) {
+            BehaviourProvider.set(securityBehaviour);
+        }
+        if (escManagerBehaviour != null) {
+            BehaviourProvider.set(escManagerBehaviour);
+        }
+        if (trackingBehaviour != null) {
+            BehaviourProvider.set(trackingBehaviour);
+        }
+        if (localeBehaviour != null) {
+            BehaviourProvider.set(localeBehaviour);
+        }
+        if (flowBehaviour != null) {
+            BehaviourProvider.set(flowBehaviour);
+        }
+        if (threeDSBehaviour != null) {
+            BehaviourProvider.set(threeDSBehaviour);
+        }
+        if (tokenDeviceBehaviour != null) {
+            BehaviourProvider.set(tokenDeviceBehaviour);
+        }
+        if (authenticationBehaviour != null) {
+            BehaviourProvider.set(authenticationBehaviour);
+        }
     }
 }

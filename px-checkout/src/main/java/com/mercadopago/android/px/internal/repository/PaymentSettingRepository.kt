@@ -18,7 +18,6 @@ internal interface PaymentSettingRepository : ConfigurationProvider {
     val currency: Currency
     val transactionId: String
     val advancedConfiguration: AdvancedConfiguration
-    val privateKey: String?
     val configuration: Configuration
     val token: Token?
     val securityType: SecurityType
@@ -30,12 +29,10 @@ internal interface PaymentSettingRepository : ConfigurationProvider {
     fun configure(currency: Currency)
     fun configure(checkoutPreference: CheckoutPreference?)
     fun configure(paymentConfiguration: PaymentConfiguration)
-    fun configure(charges: List<PaymentTypeChargeRule>)
     fun configure(configuration: Configuration)
     fun configure(token: Token)
     fun configure(secondFactor: SecurityType)
     fun configurePreferenceId(preferenceId: String?)
-    fun configurePrivateKey(privateKey: String?)
     fun clearToken()
     fun reset()
 }

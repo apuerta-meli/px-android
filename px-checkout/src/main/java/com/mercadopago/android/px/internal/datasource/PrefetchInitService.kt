@@ -27,12 +27,11 @@ internal class PrefetchInitService(
 
     private suspend fun getApiResponse(body: InitRequestBody): ApiResponseCallback<CheckoutResponse> {
         val preferenceId = checkout.preferenceId
-        val privateKey = checkout.privateKey
         return networkApi.apiCallForResponse(CheckoutService::class.java) {
             if (preferenceId != null) {
-                it.checkout(preferenceId, privateKey, null, body)
+                it.checkout(preferenceId, body)
             } else {
-                it.checkout(privateKey, null, body)
+                it.checkout(body)
             }
         }
     }

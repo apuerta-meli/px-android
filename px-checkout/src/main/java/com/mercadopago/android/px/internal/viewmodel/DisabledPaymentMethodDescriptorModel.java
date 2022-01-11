@@ -32,8 +32,8 @@ public class DisabledPaymentMethodDescriptorModel extends PaymentMethodDescripto
         @NonNull final TextView textView) {
         final Context context = textView.getContext();
         final SpannableFormatter amountLabeledFormatter = new SpannableFormatter(spannableStringBuilder, context);
-        amountLabeledFormatter.withTextColor(ContextCompat.getColor(context, R.color.ui_meli_blue))
-            .withStyle(PxFont.SEMI_BOLD);
+        amountLabeledFormatter.withTextColor(ContextCompat.getColor(context, R.color.px_expressCheckoutTextColor))
+            .withStyle(PxFont.REGULAR);
         if (message != null && TextUtil.isNotEmpty(message.getMessage())) {
             description = message.getMessage();
         } else {

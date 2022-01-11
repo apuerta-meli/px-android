@@ -341,6 +341,7 @@ public class PaymentCongratsModel implements Parcelable {
         /* default */ PaymentCongratsResponse.ExpenseSplit expenseSplit;
         /* default */ PaymentCongratsResponse.Action receiptAction;
         /* default */ boolean customSorting = false;
+        /* default */ PaymentCongratsResponse.OperationInfo operationInfo;
 
         //Internal PX data
         /* default */ PaymentCongratsResponse.AutoReturn autoReturn;
@@ -354,7 +355,6 @@ public class PaymentCongratsModel implements Parcelable {
         /* default */ String trackingRelativePath;
         /* default */ PaymentData paymentData;
         /* default */ BigDecimal discountCouponsAmount;
-
 
         public Builder() {
         }
@@ -376,7 +376,7 @@ public class PaymentCongratsModel implements Parcelable {
             }
             paymentCongratsResponse =
                 new PaymentCongratsResponse(loyalty, discount, expenseSplit, crossSelling, receiptAction,
-                    customSorting, backUrl, redirectUrl, autoReturn);
+                    customSorting, backUrl, redirectUrl, autoReturn, operationInfo);
 
             return new PaymentCongratsModel(this);
         }

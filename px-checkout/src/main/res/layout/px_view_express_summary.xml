@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:layout_height="match_parent"
     tools:layout_width="match_parent"
-    tools:background="@color/px_background"
+    tools:background="@color/white"
     tools:orientation="vertical"
     tools:parentTag="android.widget.LinearLayout">
 
@@ -42,7 +42,7 @@
                 app:px_element_subtitle_size="@dimen/px_xs_text"
                 app:px_element_subtitle_text_color="@color/px_expressCheckoutTextColor"
                 app:px_element_title_max_lines="1"
-                app:px_element_title_size="@dimen/px_l_text"
+                app:px_element_title_size="@dimen/px_m_text"
                 app:px_element_title_text_color="@color/px_expressCheckoutTextColor"
                 tools:visibility="visible" />
 
@@ -98,6 +98,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginBottom="@dimen/px_xs_margin"
+        android:layout_marginHorizontal="@dimen/px_m_margin"
         android:background="@color/px_expressCheckoutSeparatorLine" />
 
 

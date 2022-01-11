@@ -11,6 +11,7 @@ import com.mercadopago.android.px.internal.actions.LinkAction;
 import com.mercadopago.android.px.internal.actions.NextAction;
 import com.mercadopago.android.px.internal.actions.RecoverPaymentAction;
 import com.mercadopago.android.px.internal.base.BasePresenter;
+import com.mercadopago.android.px.internal.features.pay_button.PayButton;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper;
 import com.mercadopago.android.px.internal.features.payment_result.mappers.PaymentResultViewModelMapper;
 import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultButton;
@@ -25,7 +26,6 @@ import com.mercadopago.android.px.model.Action;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.internal.CongratsResponse;
 import com.mercadopago.android.px.tracking.internal.MPTracker;
-import com.mercadopago.android.px.tracking.internal.events.AbortEvent;
 import com.mercadopago.android.px.tracking.internal.events.ChangePaymentMethodEvent;
 import com.mercadopago.android.px.tracking.internal.events.CongratsSuccessDeepLink;
 import com.mercadopago.android.px.tracking.internal.events.ContinueEvent;
@@ -42,7 +42,6 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
     implements ActionDispatcher, PaymentResult.Presenter, PaymentResult.Listener {
 
     private final PaymentModel paymentModel;
-    private final ResultViewTrack resultViewTrack;
     @NonNull private final PaymentResultViewModelMapper paymentResultViewModelMapper;
     @NonNull /* default */ final PaymentCongratsModelMapper paymentCongratsMapper;
     private final FlowBehaviour flowBehaviour;
@@ -62,7 +61,7 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
         final PaymentResultScreenConfiguration screenConfiguration =
             paymentSettings.getAdvancedConfiguration().getPaymentResultScreenConfiguration();
         this.paymentResultViewModelMapper = paymentResultViewModelMapper;
-        resultViewTrack = new ResultViewTrack(paymentModel, screenConfiguration, paymentSettings, isMP);
+        setViewTrack(new ResultViewTrack(paymentModel, screenConfiguration, paymentSettings, isMP));
     }
 
     @Override
@@ -73,7 +72,7 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
 
     @Override
     public void onFreshStart() {
-        setCurrentViewTracker(resultViewTrack);
+        trackView();
         final IPaymentDescriptor payment = paymentModel.getPayment();
         if (payment != null) {
             flowBehaviour.trackConversion(new FlowBehaviourResultMapper().map(payment));
@@ -98,8 +97,13 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
 
     @Override
     public void onAbort() {
-        track(new AbortEvent(resultViewTrack));
+        trackAbort();
         finishWithResult(MercadoPagoCheckout.PAYMENT_RESULT_CODE);
+    }
+
+    @Override
+    public void onGetViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback) {
+        callback.call(getViewTrack().getTrack().getPath());
     }
 
     private void configureView() {
@@ -145,10 +149,10 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
         }
 
         if (action instanceof NextAction) {
-            track(new ContinueEvent(resultViewTrack));
+            track(new ContinueEvent(getViewTrack()));
             finishWithResult(MercadoPagoCheckout.PAYMENT_RESULT_CODE);
         } else if (action instanceof ChangePaymentMethodAction) {
-            track(new ChangePaymentMethodEvent(resultViewTrack));
+            track(new ChangePaymentMethodEvent(false));
             getView().changePaymentMethod();
         } else if (action instanceof RecoverPaymentAction) {
             getView().recoverPayment();
@@ -158,50 +162,50 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
     @Override
     public void onLinkAction(@NonNull final LinkAction action) {
         if (isViewAttached()) {
-            getView().openLink(((LinkAction) action).url);
+            getView().openLink(action.url);
         }
     }
 
     @Override
     public void onCopyAction(@NonNull final CopyAction action) {
         if (isViewAttached()) {
-            getView().copyToClipboard(((CopyAction) action).content);
+            getView().copyToClipboard(action.content);
         }
     }
 
     @Override
     public void OnClickDownloadAppButton(@NonNull final String deepLink) {
-        track(new DownloadAppEvent(resultViewTrack));
+        track(new DownloadAppEvent(getViewTrack()));
         getView().launchDeepLink(deepLink);
     }
 
     @Override
     public void OnClickCrossSellingButton(@NonNull final String deepLink) {
-        track(new CrossSellingEvent(resultViewTrack));
+        track(new CrossSellingEvent(getViewTrack()));
         getView().processCrossSellingBusinessAction(deepLink);
     }
 
     @Override
     public void onClickLoyaltyButton(@NonNull final String deepLink) {
-        track(new ScoreEvent(resultViewTrack));
+        track(new ScoreEvent(getViewTrack()));
         getView().launchDeepLink(deepLink);
     }
 
     @Override
     public void onClickShowAllDiscounts(@NonNull final String deepLink) {
-        track(new SeeAllDiscountsEvent(resultViewTrack));
+        track(new SeeAllDiscountsEvent(getViewTrack()));
         getView().launchDeepLink(deepLink);
     }
 
     @Override
     public void onClickViewReceipt(@NonNull final String deeLink) {
-        track(new ViewReceiptEvent(resultViewTrack));
+        track(new ViewReceiptEvent(getViewTrack()));
         getView().launchDeepLink(deeLink);
     }
 
     @Override
     public void onClickTouchPoint(@Nullable final String deepLink) {
-        track(new DiscountItemEvent(resultViewTrack, 0, TextUtil.EMPTY));
+        track(new DiscountItemEvent(getViewTrack(), 0, TextUtil.EMPTY));
         if (deepLink != null) {
             getView().launchDeepLink(deepLink);
         }
@@ -209,7 +213,7 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
 
     @Override
     public void onClickDiscountItem(final int index, @Nullable final String deepLink, @Nullable final String trackId) {
-        track(new DiscountItemEvent(resultViewTrack, index, trackId));
+        track(new DiscountItemEvent(getViewTrack(), index, trackId));
         if (deepLink != null) {
             getView().launchDeepLink(deepLink);
         }

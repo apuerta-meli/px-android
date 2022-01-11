@@ -39,7 +39,7 @@
         android:id="@+id/fingerprint"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:srcCompat="@drawable/ic_fingerprint"
+        android:src="@drawable/ic_fingerprint"
         app:layout_constraintHeight_percent="0.2"
         app:layout_constraintWidth_percent="0.2"
         app:layout_constraintBottom_toBottomOf="@id/bottom"

@@ -36,5 +36,5 @@ internal class CustomChargeToPaymentTypeChargeMapper(
     }
 
     private fun isChargeFree(customCharge: CustomChargeDM) =
-        customCharge.charge == BigDecimal.ZERO
+        customCharge.charge.compareTo(BigDecimal.ZERO) == 0
 }

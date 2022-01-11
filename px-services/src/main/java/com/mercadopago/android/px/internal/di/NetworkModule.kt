@@ -13,7 +13,11 @@ class NetworkModule(context: Context) : ApplicationModule(context) {
         RetrofitUtil.getRetrofitClient(applicationContext)
     }
 
-    val networkApi: NetworkApi by lazy {
-        NetworkApi(retrofitClient, ConnectionHelper().also{ it.initialize(applicationContext) })
+    val connectionHelper by lazy {
+        ConnectionHelper(applicationContext)
+    }
+
+    val networkApi by lazy {
+        NetworkApi(retrofitClient, connectionHelper)
     }
 }

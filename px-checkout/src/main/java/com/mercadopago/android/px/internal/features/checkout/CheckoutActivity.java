@@ -1,7 +1,9 @@
 package com.mercadopago.android.px.internal.features.checkout;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.NonNull;
@@ -18,8 +20,8 @@ import com.mercadopago.android.px.internal.di.MapperProvider;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.experiments.Variant;
 import com.mercadopago.android.px.internal.features.Constants;
-import com.mercadopago.android.px.internal.features.express.ExpressPayment;
-import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
+import com.mercadopago.android.px.internal.features.one_tap.OneTap;
+import com.mercadopago.android.px.internal.features.one_tap.OneTapFragment;
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
@@ -38,7 +40,7 @@ import static com.mercadopago.android.px.internal.util.ErrorUtil.isErrorResult;
 import static com.mercadopago.android.px.model.ExitAction.EXTRA_CLIENT_RES_CODE;
 
 public class CheckoutActivity extends PXActivity<CheckoutPresenter>
-    implements Checkout.View, ExpressPaymentFragment.CallBack, LifecycleListener {
+    implements Checkout.View, OneTapFragment.CallBack, LifecycleListener {
 
     private static final String ARGS_WITH_PREFETCH = "args_with_prefetch";
     private static final String EXTRA_PRIVATE_KEY = "extra_private_key";
@@ -66,6 +68,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     protected void onCreated(@Nullable final Bundle savedInstanceState) {
         setContentView(R.layout.px_activity_checkout);
         progress = findViewById(R.id.mpsdkProgressLayout);
+
         if (savedInstanceState == null) {
             initPresenter();
         }
@@ -74,11 +77,13 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     @Override
     protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
-        if (intent.getData() != null) {
-            final ExpressPayment.View fragment =
-                (ExpressPayment.View) getSupportFragmentManager().findFragmentByTag(TAG_ONETAP_FRAGMENT);
+        setIntent(intent);
+        final Uri data = intent.getData();
+        if (data != null) {
+            final OneTap.View fragment =
+                (OneTap.View) getSupportFragmentManager().findFragmentByTag(TAG_ONETAP_FRAGMENT);
             if (fragment != null) {
-                fragment.onDeepLinkReceived();
+                fragment.onDeepLinkReceived(data);
             }
         } else {
             FragmentUtil.tryRemoveNow(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT);
@@ -129,31 +134,30 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     @Override
     public void onBackPressed() {
         final FragmentManager fragmentManager = getSupportFragmentManager();
-        if (fragmentManager != null) {
-            final int backStackEntryCount = fragmentManager.getBackStackEntryCount();
 
-            final Fragment fragment = fragmentManager.findFragmentByTag(CardFormWithFragment.TAG);
-            if (fragment != null && fragment.getChildFragmentManager().getBackStackEntryCount() > 0) {
-                fragment.getChildFragmentManager().popBackStack();
-                return;
-            }
+        final int backStackEntryCount = fragmentManager.getBackStackEntryCount();
 
-            if (earlyExitFromBackHandler(fragmentManager.findFragmentByTag(SecurityCodeFragment.TAG))) {
-                return;
-            }
-
-            if (earlyExitFromBackHandler(fragmentManager.findFragmentByTag(TAG_ONETAP_FRAGMENT))) {
-                return;
-            }
-
-            if (backStackEntryCount > 0) {
-                fragmentManager.popBackStack();
-                return;
-            }
-
-            super.onBackPressed();
-            overrideTransitionOut();
+        final Fragment fragment = fragmentManager.findFragmentByTag(CardFormWithFragment.TAG);
+        if (fragment != null && fragment.getChildFragmentManager().getBackStackEntryCount() > 0) {
+            fragment.getChildFragmentManager().popBackStack();
+            return;
         }
+
+        if (earlyExitFromBackHandler(fragmentManager.findFragmentByTag(SecurityCodeFragment.TAG))) {
+            return;
+        }
+
+        if (earlyExitFromBackHandler(fragmentManager.findFragmentByTag(TAG_ONETAP_FRAGMENT))) {
+            return;
+        }
+
+        if (backStackEntryCount > 0) {
+            fragmentManager.popBackStack();
+            return;
+        }
+
+        super.onBackPressed();
+        overrideTransitionOut();
     }
 
     private boolean earlyExitFromBackHandler(@Nullable final Fragment fragment) {
@@ -168,7 +172,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
         final CheckoutConfigurationModule configurationModule = session.getConfigurationModule();
         final PaymentSettingRepository configuration = configurationModule.getPaymentSettings();
 
-        privateKey = configuration.getPrivateKey();
+        privateKey = configurationModule.getAuthorizationProvider().getPrivateKey();
 
         merchantPublicKey = configuration.getPublicKey();
 
@@ -191,7 +195,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
             supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(R.anim.px_slide_right_to_left_in, R.anim.px_slide_right_to_left_out)
-                .replace(R.id.one_tap_fragment, ExpressPaymentFragment.getInstance(variant), TAG_ONETAP_FRAGMENT)
+                .replace(R.id.one_tap_fragment, OneTapFragment.getInstance(variant, getIntent().getData()), TAG_ONETAP_FRAGMENT)
                 .commitNowAllowingStateLoss();
         }
     }
@@ -220,7 +224,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
                 //Business custom exit
                 final int resCode = data.getIntExtra(EXTRA_CLIENT_RES_CODE, RESULT_OK);
                 presenter.onPaymentResultResponse(resCode, backUrl, redirectUrl);
-            } else if (data != null && data.hasExtra(EXTRA_RESULT_CODE)) {
+            } else if (data.hasExtra(EXTRA_RESULT_CODE)) {
                 //Custom exit  - Result screen.
                 final Integer finalResultCode = data.getIntExtra(EXTRA_RESULT_CODE, PAYMENT_RESULT_CODE);
                 customDataBundle = data;
@@ -257,17 +261,21 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
 
     @Override
     public void goToLink(@NonNull final String link) {
-        final Intent intent = MercadoPagoUtil.getIntent(this, link);
-        if (intent != null) {
+        final Intent intent = MercadoPagoUtil.getIntent(link);
+        try {
             startActivity(intent);
+        } catch (final ActivityNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     public void openInWebView(@NonNull final String link) {
         final Intent intent = MercadoPagoUtil.getNativeOrWebViewIntent(this, link);
-        if (intent != null) {
+        try {
             startActivity(intent);
+        } catch (final ActivityNotFoundException e) {
+            e.printStackTrace();
         }
     }
 

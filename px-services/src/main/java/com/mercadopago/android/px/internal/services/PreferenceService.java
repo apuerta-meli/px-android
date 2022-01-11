@@ -16,6 +16,5 @@ public interface PreferenceService {
         @Query("public_key") String publicKey);
 
     @POST("/checkout/preferences")
-    MPCall<CheckoutPreference> createPreference(@NonNull @Body final CheckoutPreference preference,
-        @Query("access_token") final String privateKey);
+    MPCall<CheckoutPreference> createPreference(@NonNull @Body final CheckoutPreference preference);
 }

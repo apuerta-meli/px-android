@@ -30,7 +30,6 @@ public class PaymentSettingService implements PaymentSettingRepository {
     private static final String PREF_PUBLIC_KEY = "PREF_PUBLIC_KEY";
     private static final String PREF_SITE = "PREF_SITE";
     private static final String PREF_CURRENCY = "PREF_CURRENCY";
-    private static final String PREF_PRIVATE_KEY = "PREF_PRIVATE_KEY";
     private static final String PREF_TOKEN = "PREF_TOKEN";
     private static final String PREF_SECURITY_TYPE = "PREF_SECURITY_TYPE";
     private static final String PREF_PRODUCT_ID = "PREF_PRODUCT_ID";
@@ -135,23 +134,9 @@ public class PaymentSettingService implements PaymentSettingRepository {
     }
 
     @Override
-    public void configurePrivateKey(@Nullable final String privateKey) {
-        final SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.putString(PREF_PRIVATE_KEY, privateKey);
-        edit.apply();
-    }
-
-    @Override
     public void configure(@NonNull final PaymentConfiguration paymentConfiguration) {
         this.paymentConfiguration = paymentConfiguration;
         fileManager.writeToFile(paymentConfigFile, paymentConfiguration);
-    }
-
-    @Override
-    public void configure(@NonNull final List<PaymentTypeChargeRule> charges) {
-        paymentConfiguration.getCharges().clear();
-        paymentConfiguration.getCharges().addAll(charges);
-        configure(paymentConfiguration);
     }
 
     @Override
@@ -273,11 +258,5 @@ public class PaymentSettingService implements PaymentSettingRepository {
                 .build();
         }
         return advancedConfiguration;
-    }
-
-    @Nullable
-    @Override
-    public String getPrivateKey() {
-        return sharedPreferences.getString(PREF_PRIVATE_KEY, null);
     }
 }

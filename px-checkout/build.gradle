@@ -8,27 +8,22 @@ apply plugin:'kotlin-android-extensions'
 android {
     defaultConfig {
         multiDexEnabled true
-        vectorDrawables.useSupportLibrary = true
     }
     kotlinOptions {
         jvmTarget = "1.8"
         freeCompilerArgs = ['-Xjvm-default=enable', '-Xuse-experimental=kotlin.contracts.ExperimentalContracts']
     }
-    testOptions {
-        unitTests.includeAndroidResources = true
-    }
 }
 
 dependencies {
     testImplementation "junit:junit:$junit"
-    testImplementation "org.mockito:mockito-core:$mockito"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlin"
     testImplementation "org.robolectric:robolectric:$robolectric"
     testImplementation "androidx.test:core:$androidTestCore"
     testImplementation "androidx.arch.core:core-testing:$androidTestArch"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutines"
+    testImplementation "io.mockk:mockk:$mockk"
 
-    implementation "androidx.multidex:multidex:$multidex"
     implementation "androidx.cardview:cardview:$cardView"
     implementation "androidx.recyclerview:recyclerview:$recyclerView"
     implementation "androidx.appcompat:appcompat:$appcompat"

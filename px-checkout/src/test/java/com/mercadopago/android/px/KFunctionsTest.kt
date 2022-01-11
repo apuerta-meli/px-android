@@ -21,6 +21,8 @@ internal fun View.assertGone() {
     Assert.assertEquals(visibility, View.GONE)
 }
 
+internal fun View.assertInvisible() = Assert.assertEquals(visibility, View.INVISIBLE)
+
 internal fun View.assertGone(viewId: Int) {
     findView<View>(viewId).assertGone()
 }
@@ -45,4 +47,4 @@ internal fun Any.setField(field: String, value: Any) = ReflectionHelpers.setFiel
 
 internal inline fun <reified V : View> View.findView(viewId: Int): V = findViewById(viewId)
 
-internal fun <T : Any> T.assertEquals(expected: T) = Assert.assertEquals(this, expected)
+internal fun <T : Any> T.assertEquals(expected: T) = Assert.assertEquals(expected, this)

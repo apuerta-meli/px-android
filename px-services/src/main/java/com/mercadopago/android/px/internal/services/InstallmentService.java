@@ -13,7 +13,7 @@ public interface InstallmentService {
     @GET("{environment}/checkout/payment_methods/installments")
     MPCall<List<Installment>> getInstallments(
         @Path(value = "environment", encoded = true) String environment,
-        @Query("public_key") String publicKey, @Query("access_token") String privateKey, @Query("bin") String bin,
+        @Query("public_key") String publicKey, @Query("bin") String bin,
         @Query("amount") BigDecimal amount, @Query("issuer.id") Long issuerId,
         @Query("payment_method_id") String paymentMethodId,
         @Query("locale") String locale,

@@ -17,9 +17,10 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 internal class DummyResultActivity : PXActivity<DummyResultPresenter>(), MvpView {
 
     override fun onCreated(savedInstanceState: Bundle?) {
+        val paymentModel = intent.getParcelableExtra<PaymentModel>(PaymentResultActivity.EXTRA_PAYMENT_MODEL) ?:
+            error("PaymentModel can't be null")
         val session = Session.getInstance()
         val configuration = session.configurationModule
-        val paymentModel: PaymentModel = intent.getParcelableExtra(PaymentResultActivity.EXTRA_PAYMENT_MODEL)
         val presenter = DummyResultPresenter(
             paymentModel,
             configuration.paymentSettings.advancedConfiguration.paymentResultScreenConfiguration,

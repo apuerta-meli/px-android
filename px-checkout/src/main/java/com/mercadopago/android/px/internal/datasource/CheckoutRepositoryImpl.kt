@@ -31,6 +31,7 @@ internal open class CheckoutRepositoryImpl(
     private val payerComplianceRepository: PayerComplianceRepository,
     private val amountConfigurationRepository: AmountConfigurationRepository,
     private val discountRepository: DiscountRepository,
+    private val chargesRepository: ChargeRepository,
     private val customChargeToPaymentTypeChargeMapper: CustomChargeToPaymentTypeChargeMapper,
     private val initRequestBodyMapper: InitRequestBodyMapper,
     private val oneTapItemToDisabledPaymentMethodMapper: OneTapItemToDisabledPaymentMethodMapper
@@ -48,7 +49,7 @@ internal open class CheckoutRepositoryImpl(
 
         // TODO: Remove null check when backend has IDC ready
         checkoutResponse.customCharges?.let {
-            paymentSettingRepository.configure(
+            chargesRepository.configure(
                 customChargeToPaymentTypeChargeMapper.map(it)
             )
         }
@@ -84,14 +85,13 @@ internal open class CheckoutRepositoryImpl(
     }
 
     private suspend fun doCheckout(cardId: String?): ResponseCallback<CheckoutResponse> {
-        val body = initRequestBodyMapper.map(paymentSettingRepository)
+        val body = initRequestBodyMapper.map(paymentSettingRepository, cardId)
         val preferenceId = paymentSettingRepository.checkoutPreferenceId
-        val privateKey = paymentSettingRepository.privateKey
         val apiResponse = networkApi.apiCallForResponse(CheckoutService::class.java) {
             if (preferenceId != null) {
-                it.checkout(preferenceId, privateKey, cardId, body)
+                it.checkout(preferenceId, body)
             } else {
-                it.checkout(privateKey, cardId, body)
+                it.checkout(body)
             }
         }
         return when (apiResponse) {

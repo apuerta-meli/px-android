@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.PaymentProcessor;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
+import com.mercadopago.android.px.core.internal.CheckoutData;
+import com.mercadopago.android.px.core.internal.OnPaymentListener;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandlerWrapper;
@@ -21,6 +23,7 @@ import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.validation_program.ValidationProgramUseCase;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
+import com.mercadopago.android.px.internal.util.PaymentConfigurationUtil;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.Card;
@@ -40,7 +43,7 @@ import static com.mercadopago.android.px.internal.features.Constants.RESULT_PAYM
 import static com.mercadopago.android.px.internal.util.ErrorUtil.ERROR_REQUEST_CODE;
 
 public final class PaymentProcessorActivity extends PXActivity
-    implements SplitPaymentProcessor.OnPaymentListener,
+    implements OnPaymentListener,
     PaymentProcessor.OnPaymentListener {
 
     private static final String TAG_PROCESSOR_FRAGMENT = "TAG_PROCESSOR_FRAGMENT";
@@ -112,9 +115,9 @@ public final class PaymentProcessorActivity extends PXActivity
         final ValidationProgramUseCase validationProgramUseCase =
             session.getUseCaseModule().getValidationProgramUseCase();
 
-        final SplitPaymentProcessor paymentProcessor = paymentSettings
-            .getPaymentConfiguration()
-            .getPaymentProcessor();
+        final com.mercadopago.android.px.core.v2.PaymentProcessor paymentProcessor =
+            PaymentConfigurationUtil.getPaymentProcessor(paymentSettings
+                .getPaymentConfiguration());
 
         final List<PaymentData> paymentData = session
             .getPaymentRepository()
@@ -124,16 +127,16 @@ public final class PaymentProcessorActivity extends PXActivity
         final String securityType = paymentSettings.getSecurityType().getValue();
 
         validationProgramUseCase.execute(paymentData, validationProgramId -> {
-            final SplitPaymentProcessor.CheckoutData checkoutData =
-                new SplitPaymentProcessor.CheckoutData(
+            final CheckoutData checkoutData =
+                new CheckoutData(
                     paymentData, checkoutPreference, securityType, validationProgramId);
             startPayment(paymentProcessor, checkoutData);
             return null;
         });
     }
 
-    private void startPayment(final SplitPaymentProcessor paymentProcessor,
-        final SplitPaymentProcessor.CheckoutData checkoutData) {
+    private void startPayment(final com.mercadopago.android.px.core.v2.PaymentProcessor paymentProcessor,
+        final CheckoutData checkoutData) {
         final Fragment fragment = paymentProcessor.getFragment(checkoutData, this);
 
         if (fragment != null) {

@@ -19,7 +19,10 @@ import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.model.internal.remedies.RemedyPaymentMethod
 import com.mercadopago.android.px.tracking.internal.MPTracker
+import com.mercadopago.android.px.tracking.internal.events.ChangePaymentMethodEvent
 import com.mercadopago.android.px.tracking.internal.events.RemedyEvent
+import com.mercadopago.android.px.tracking.internal.events.RemedyModalAbortEvent
+import com.mercadopago.android.px.tracking.internal.events.RemedyModalView
 import com.mercadopago.android.px.tracking.internal.model.RemedyTrackData
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
@@ -46,16 +49,19 @@ internal class RemediesViewModel(
     private val isSilverBullet = remediesModel.retryPayment?.isAnotherMethod == true
     private var paymentConfiguration: PaymentConfiguration? = null
     private var card: Card? = null
+    private var showedModal = false
 
     init {
         val methodIds = getMethodIds()
         val customOptionId = methodIds.customOptionId
         val methodData = oneTapItemRepository[customOptionId]
         card = fromPayerPaymentMethodToCardMapper.map(
-            PayerPaymentMethodKey(customOptionId, methodIds.typeId))
+            PayerPaymentMethodKey(customOptionId, methodIds.typeId)
+        )
         remediesModel.retryPayment?.let {
             if (isSilverBullet) {
-                val paymentTypeId = previousPaymentModel.remedies.suggestedPaymentMethod?.alternativePaymentMethod?.paymentTypeId
+                val paymentTypeId =
+                    previousPaymentModel.remedies.suggestedPaymentMethod?.alternativePaymentMethod?.paymentTypeId
                 applicationSelectionRepository[methodData] = methodData.getApplications().first { application ->
                     application.paymentMethod.type == paymentTypeId
                 }
@@ -65,8 +71,11 @@ internal class RemediesViewModel(
         remediesModel.highRisk?.let {
             remedyState.value = RemedyState.ShowKyCRemedy(it)
         }
-        paymentConfiguration = PaymentConfiguration(methodIds.methodId, methodIds.typeId, customOptionId,
-            card?.isSecurityCodeRequired() == true, false, getPayerCost(customOptionId))
+
+        paymentConfiguration = PaymentConfiguration(
+            methodIds.methodId, methodIds.typeId, customOptionId,
+            card?.isSecurityCodeRequired() == true, false, getPayerCost(customOptionId)
+        )
     }
 
     override fun onPayButtonPressed(callback: PayButton.OnEnqueueResolvedCallback) {
@@ -78,7 +87,12 @@ internal class RemediesViewModel(
     }
 
     override fun onPrePayment(callback: PayButton.OnReadyForPaymentCallback) {
-        callback.call(paymentConfiguration!!)
+        previousPaymentModel.remedies.suggestedPaymentMethod?.modal?.takeUnless {
+            showedModal
+        }?.let {
+            track(RemedyModalView())
+            remedyState.value = RemedyState.ShowModal(it)
+        } ?: callback.call(paymentConfiguration!!)
     }
 
     private fun getMethodIds(): MethodIds {
@@ -119,7 +133,7 @@ internal class RemediesViewModel(
     }
 
     private fun startPayment(callback: PayButton.OnEnqueueResolvedCallback) {
-        track(RemedyEvent(getRemedyTrackData(RemedyType.PAYMENT_METHOD_SUGGESTION)))
+        track(RemedyEvent(getRemedyTrackData(RemedyType.PAYMENT_METHOD_SUGGESTION), showedModal))
         remediesModel.retryPayment?.cvvModel?.let {
             CoroutineScope(Dispatchers.IO).launch {
                 val response = TokenCreationWrapper.Builder(cardTokenRepository, escManagerBehaviour, tokenizeWithCvvUseCase)
@@ -136,14 +150,15 @@ internal class RemediesViewModel(
     }
 
     private fun startCvvRecovery(callback: PayButton.OnEnqueueResolvedCallback) {
-        track(RemedyEvent(getRemedyTrackData(RemedyType.CVV_REQUEST)))
+        track(RemedyEvent(getRemedyTrackData(RemedyType.CVV_REQUEST), showedModal))
         CoroutineScope(Dispatchers.IO).launch {
             val response = CVVRecoveryWrapper(
                 cardTokenRepository,
                 escManagerBehaviour,
                 tokenizeWithCvvUseCase,
                 state.paymentRecovery,
-                tracker).recoverWithCVV(state.cvv)
+                tracker
+            ).recoverWithCVV(state.cvv)
 
             withContext(Dispatchers.Main) {
                 response.resolve(success = { token ->
@@ -156,11 +171,19 @@ internal class RemediesViewModel(
 
     override fun onButtonPressed(action: PaymentResultButton.Action) {
         when (action) {
-            PaymentResultButton.Action.CHANGE_PM -> remedyState.value = RemedyState.ChangePaymentMethod
+            PaymentResultButton.Action.CHANGE_PM, PaymentResultButton.Action.MODAL_CHANGE_PM -> {
+                track(ChangePaymentMethodEvent(action == PaymentResultButton.Action.MODAL_CHANGE_PM))
+                remedyState.value = RemedyState.ChangePaymentMethod
+            }
             PaymentResultButton.Action.KYC -> remediesModel.highRisk?.let {
-                track(RemedyEvent(getRemedyTrackData(RemedyType.KYC_REQUEST)))
+                track(RemedyEvent(getRemedyTrackData(RemedyType.KYC_REQUEST), showedModal))
                 remedyState.value = RemedyState.GoToKyc(it.deepLink)
             }
+            PaymentResultButton.Action.MODAL_PAY -> {
+                showedModal = true
+                remedyState.value = RemedyState.Pay
+            }
+
             else -> TODO()
         }
     }
@@ -175,6 +198,10 @@ internal class RemediesViewModel(
         RemedyTrackData(type.getType(), remediesModel.trackingData, it.paymentStatus, it.paymentStatusDetail)
     }
 
+    fun trackRemedyModalAbort() {
+        track(RemedyModalAbortEvent())
+    }
+
     private data class MethodIds(val methodId: String, val typeId: String, val customOptionId: String) {
         companion object {
             fun with(paymentData: PaymentData): MethodIds {
@@ -185,13 +212,13 @@ internal class RemediesViewModel(
             }
 
             fun with(remedyPaymentMethod: RemedyPaymentMethod) =
-                MethodIds(remedyPaymentMethod.paymentMethodId, remedyPaymentMethod.paymentTypeId,
-                    remedyPaymentMethod.customOptionId)
+                MethodIds(
+                    remedyPaymentMethod.paymentMethodId, remedyPaymentMethod.paymentTypeId,
+                    remedyPaymentMethod.customOptionId
+                )
         }
     }
 
     @Parcelize
-    class State(var paymentRecovery: PaymentRecovery) : BaseState {
-        var cvv = ""
-    }
+    data class State(var paymentRecovery: PaymentRecovery, var cvv: String = "") : BaseState
 }

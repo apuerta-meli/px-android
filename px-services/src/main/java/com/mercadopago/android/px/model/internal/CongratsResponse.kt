@@ -20,7 +20,8 @@ data class CongratsResponse(
     val backUrl: String? = null,
     val primaryButton: Button? = null,
     val secondaryButton: Button? = null,
-    val instructions: Instruction? = null
+    val instructions: Instruction? = null,
+    val operationInfo: OperationInfo? = null
 ) : Parcelable {
 
     fun getCrossSellings() = crossSellingList ?: emptyList()
@@ -105,6 +106,13 @@ data class CongratsResponse(
     data class AutoReturn(
         val label: String,
         val seconds: Int
+    ) : Parcelable
+
+    @Parcelize
+    data class OperationInfo(
+        val hierarchy: String,
+        val type: String,
+        val body: String
     ) : Parcelable
 
     companion object {

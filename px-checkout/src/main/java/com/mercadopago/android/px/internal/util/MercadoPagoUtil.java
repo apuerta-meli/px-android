@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.mercadopago.android.px.model.PaymentTypes;
 
 public final class MercadoPagoUtil {
@@ -51,25 +50,17 @@ public final class MercadoPagoUtil {
         return new Intent(Intent.ACTION_VIEW).setPackage(context.getPackageName()).putExtra(INTERNAL, true);
     }
 
-    @Nullable
-    public static Intent getIntent(@NonNull final Context context, @NonNull final String link) {
-        final Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(link));
-        if (context.getPackageManager().queryIntentActivities(intent, 0).isEmpty()) {
-            return null;
-        } else {
-            return intent;
-        }
+    @NonNull
+    public static Intent getIntent(@NonNull final String link) {
+        return new Intent(Intent.ACTION_VIEW).setData(Uri.parse(link));
     }
 
-    @Nullable
+    @NonNull
     public static Intent getNativeOrWebViewIntent(@NonNull final Context context, @NonNull final String link) {
         if (link.startsWith("http")) {
             final String webViewPath = isMP(context) ? MP_WEBVIEW_DEEPLINK : ML_WEBVIEW_DEEPLINK;
-            final Intent intent = getIntent(context, webViewPath + link);
-            if (intent != null) {
-                return intent;
-            }
+            return getIntent(webViewPath + link);
         }
-        return getIntent(context, link);
+        return getIntent(link);
     }
 }

@@ -97,4 +97,8 @@ internal class SecurityCodeViewModel(
                 callback.failure()
             })
     }
+
+    fun onGetViewTrackPath(callback: PayButton.ViewTrackPathCallback) {
+        callback.call(securityCodeTracker.getViewTrackPath())
+    }
 }

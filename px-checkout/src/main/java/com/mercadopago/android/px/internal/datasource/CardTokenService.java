@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
+import com.mercadopago.android.px.internal.core.AuthorizationProvider;
 import com.mercadopago.android.px.internal.model.CardTokenBody;
 import com.mercadopago.android.px.internal.model.RemotePaymentToken;
 import com.mercadopago.android.px.internal.repository.CardTokenRepository;
@@ -21,17 +22,20 @@ public class CardTokenService implements CardTokenRepository {
 
     /* default */ @NonNull final PaymentSettingRepository paymentSettingRepository;
     /* default */ @NonNull final ESCManagerBehaviour escManagerBehaviour;
+    /* default */ @NonNull final AuthorizationProvider authorizationProvider;
     @NonNull private final Device device;
     @NonNull private final GatewayService gatewayService;
 
     public CardTokenService(@NonNull final GatewayService gatewayService,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final Device device,
-        @NonNull final ESCManagerBehaviour escManagerBehaviour) {
+        @NonNull final ESCManagerBehaviour escManagerBehaviour,
+        @NonNull final AuthorizationProvider authorizationProvider) {
         this.gatewayService = gatewayService;
         this.paymentSettingRepository = paymentSettingRepository;
         this.device = device;
         this.escManagerBehaviour = escManagerBehaviour;
+        this.authorizationProvider = authorizationProvider;
     }
 
     @Override
@@ -39,17 +43,16 @@ public class CardTokenService implements CardTokenRepository {
         @Nullable final RemotePaymentToken remotePaymentToken, final boolean requireEsc) {
         final CardTokenBody body = new CardTokenBody(cardId, device, requireEsc, cvv, "", remotePaymentToken);
         return gatewayService
-            .createToken(paymentSettingRepository.getPublicKey(), paymentSettingRepository.getPrivateKey(),
-                body);
+            .createToken(paymentSettingRepository.getPublicKey(), body);
     }
 
     @Override
     public void clearCap(@NonNull final String cardId, @NonNull final ClearCapCallback callback) {
-        if (TextUtil.isEmpty(paymentSettingRepository.getPrivateKey())) {
+        if (TextUtil.isEmpty(authorizationProvider.getPrivateKey())) {
             callback.execute();
             return;
         }
-        gatewayService.clearCap(API_ENVIRONMENT_NEW, cardId, paymentSettingRepository.getPrivateKey())
+        gatewayService.clearCap(API_ENVIRONMENT_NEW, cardId)
             .enqueue(new Callback<String>() {
                 @Override
                 public void success(final String s) {

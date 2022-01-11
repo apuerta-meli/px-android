@@ -54,7 +54,7 @@ public class AccountMoneyDescriptorModel extends PaymentMethodDescriptorView.Mod
             } else {
                 final AmountLabeledFormatter amountLabeledFormatter =
                     new AmountLabeledFormatter(spannableStringBuilder, context)
-                        .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_grey));
+                        .withTextColor(ContextCompat.getColor(context, R.color.px_expressCheckoutTextColor));
                 amountLabeledFormatter.apply(sliderTitle);
             }
         }
@@ -71,7 +71,7 @@ public class AccountMoneyDescriptorModel extends PaymentMethodDescriptorView.Mod
             .toSpannable();
 
         new AmountLabeledFormatter(spannableStringBuilder, context)
-            .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_black))
+            .withTextColor(ContextCompat.getColor(context, R.color.px_expressCheckoutTextColor))
             .withSemiBoldStyle()
             .apply(amount);
     }

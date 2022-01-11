@@ -1,13 +1,12 @@
 package com.mercadopago.android.px.internal.view
 
-import android.graphics.Color
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import com.mercadopago.android.px.*
-import com.mercadopago.android.px.assertText
-import com.mercadopago.android.px.getField
 import com.mercadopago.android.px.internal.base.PXActivity
+import com.mercadopago.android.px.internal.viewmodel.GenericLocalized
+import com.mercadopago.android.px.internal.viewmodel.SummaryRowTextDescriptor
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,25 +47,29 @@ class SummaryViewTest : BasicRobolectricTest() {
         val descriptor = "Total"
         val amount = "$ 100"
         val amountModel = AmountDescriptorView.Model(
-            { descriptor },
-            { amount },
-            { Color.BLACK }
+            AmountDescriptorView.Model.LabelDescriptor(
+                listOf(SummaryRowTextDescriptor(GenericLocalized(descriptor, 0)))
+            ),
+            SummaryRowTextDescriptor(GenericLocalized(amount, 0))
         )
 
         summaryView.update(SummaryView.Model(null, emptyList(), amountModel))
 
         summaryView.getField<AmountDescriptorView>("totalAmountDescriptor").apply {
-            getField<TextView>("descriptor").assertText(descriptor)
+            getField<TextView>("label").assertText(descriptor)
             getField<TextView>("amount").assertText(amount)
         }
     }
 
     @Test
     fun whenInitWithTotalAmountMakeHeaderOverlapThenCorrectViewsAreVisible() {
+        val descriptor = "Total"
+        val amount = "$ 100"
         val amountModel = AmountDescriptorView.Model(
-            { "descriptor" },
-            { "amount" },
-            { Color.BLACK }
+            AmountDescriptorView.Model.LabelDescriptor(
+                listOf(SummaryRowTextDescriptor(GenericLocalized(descriptor, 0)))
+            ),
+            SummaryRowTextDescriptor(GenericLocalized(amount, 0))
         )
         val headerModel = ElementDescriptorView.Model("headerTitle", null, null, R.drawable.px_icon_default)
 

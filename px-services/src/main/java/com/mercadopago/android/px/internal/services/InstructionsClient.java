@@ -16,6 +16,5 @@ public interface InstructionsClient {
         @Path(value = "environment", encoded = true) String environment,
         @Path(value = "payment_id", encoded = true) Long paymentId,
         @Query("public_key") String mKey,
-        @Nullable @Query("access_token") String privateKey,
         @Query("payment_type") String paymentTypeId);
 }

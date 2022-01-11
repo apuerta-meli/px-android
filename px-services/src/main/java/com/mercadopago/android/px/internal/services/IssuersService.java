@@ -12,7 +12,7 @@ public interface IssuersService {
     @GET("{environment}/checkout/payment_methods/card_issuers")
     MPCall<List<Issuer>> getIssuers(
         @Path(value = "environment", encoded = true) String environment,
-        @Query("public_key") String publicKey, @Query("access_token") String privateKey,
+        @Query("public_key") String publicKey,
         @Query("payment_method_id") String paymentMethodId, @Query("bin") String bin,
         @Query("processing_modes") String processingMode);
 }

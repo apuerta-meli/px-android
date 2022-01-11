@@ -7,9 +7,14 @@ apply plugin: 'kotlin-android-extensions'
 
 dependencies {
     testImplementation "junit:junit:$junit"
-    testImplementation "org.mockito:mockito-core:$mockito"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlin"
+    testImplementation "org.robolectric:robolectric:$robolectric"
+    testImplementation "androidx.test.ext:junit:$androidTestJunit"
+    testImplementation "androidx.test:core:$androidTestCore"
+    testImplementation "androidx.test.espresso:espresso-intents:$androidTestEspresso"
+    testImplementation "androidx.fragment:fragment-testing:$androidTestFragment"
 
     implementation "androidx.appcompat:appcompat:$appcompat"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlin"
+    implementation "com.google.code.gson:gson:$gson"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin"
 }

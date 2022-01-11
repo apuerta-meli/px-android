@@ -5,7 +5,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
     compileSdkVersion apiLevel as int
     buildToolsVersion buildTools as String
 
@@ -21,6 +20,7 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
     }
 
     buildTypes {

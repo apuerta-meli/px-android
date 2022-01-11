@@ -17,9 +17,8 @@ internal class CardHolderAuthenticatorRepositoryImpl(
         val token = paymentData.token ?: throw IllegalStateException("Missing token during authentication")
         val sdkEphemPubKey = (JsonUtil.fromJson(threeDSDataOnlyParams.sdkEphemeralPublicKey, CardHolderAuthenticatorBody.SdkEphemPubKey::class.java)
             ?: throw MalformedJsonException("Malformed sdkEphemeralPublicKey"))
-        val accessToken = paymentSettingRepository.privateKey.orEmpty()
         val body = CardHolderAuthenticatorBody(
-            paymentData.rawAmount.toString(),
+            paymentData.noDiscountAmount.toString(),
             CardHolderAuthenticatorBody.Card(
                 token.cardHolder?.name.orEmpty(),
                 paymentData.paymentMethod.id
@@ -32,6 +31,6 @@ internal class CardHolderAuthenticatorRepositoryImpl(
             threeDSDataOnlyParams.sdkReferenceNumber,
             threeDSDataOnlyParams.sdkTransactionId
         )
-        return cardHolderAuthenticatorService.authenticate(token.id, accessToken, body)
+        return cardHolderAuthenticatorService.authenticate(token.id, body)
     }
 }

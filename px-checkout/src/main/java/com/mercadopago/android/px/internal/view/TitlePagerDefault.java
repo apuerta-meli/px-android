@@ -30,14 +30,4 @@ public class TitlePagerDefault extends TitlePager {
         nextView = getChildAt(2);
         super.onFinishInflate();
     }
-
-    @Override
-    public void showInstallments() {
-        // do nothing
-    }
-
-    @Override
-    public void hideInstallments() {
-        // do nothing
-    }
 }

@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@id/top_text"
                 android:layout_marginBottom="@dimen/px_xxs_margin"
-                app:srcCompat="@drawable/px_consumer_credits_onetap"
+                android:src="@drawable/px_consumer_credits_onetap"
                 app:layout_constraintBottom_toTopOf="@id/top_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -76,8 +76,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/top_text"
                 app:layout_constraintVertical_bias="1.0"
                 tools:text="Al confirmar, aceptás los términos generales y las condiciones particulares de este préstamo." />
-
-            <include layout="@layout/px_highlight_text_medium_res" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

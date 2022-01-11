@@ -188,6 +188,9 @@
     <string name="px_connectivity_neutral_error">Hubo un error de conexión. Por favor, intenta pagar nuevamente.</string>
     <string name="px_connectivity_error">No hay conexión. Intenta pagar más tarde.</string>
     <string name="px_snackbar_error_action">Volver</string>
+    <string name="px_tokenization_snackbar_success">¡Listo! Ya puedes usar tu tarjeta con seguridad.</string>
+    <string name="px_tokenization_snackbar_pending">Estamos finalizando la validación de tu tarjeta. Por favor, espera unos segundos.</string>
+    <string name="px_tokenization_snackbar_error">No es posible validar tu tarjeta.</string>
     <plurals name="px_accreditation_time_hour">
         <item quantity="one">Se acreditará en {0} hora</item>
         <item quantity="other">Se acreditará en {0} horas</item>

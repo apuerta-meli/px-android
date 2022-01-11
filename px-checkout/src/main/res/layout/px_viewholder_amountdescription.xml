@@ -8,5 +8,5 @@
     android:clipToPadding="false"
     android:clickable="false"
     android:focusable="false"
-    android:paddingTop="@dimen/px_xxxs_margin"
+    android:paddingTop="@dimen/px_xxs_margin"
     tools:background="@color/px_colorPrimary"/>

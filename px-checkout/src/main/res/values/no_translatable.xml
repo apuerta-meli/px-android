@@ -19,6 +19,8 @@
     <string name="px_card_aspect_ratio" translatable="false">H,256:158</string>
     <string name="px_card_aspect_ratio_mediumres" translatable="false">H,256:126</string>
     <string name="px_card_aspect_ratio_lowres" translatable="false">H,256:84</string>
+    <string name="px_card_aspect_ratio_xsmallres" translatable="false">H,256:68</string>
+    <string name="px_card_aspect_ratio_minires" translatable="false">H,256:36</string>
 
     <!-- PX Render Mode -->
     <string name="px_render_mode" translatable="false">low_res</string>

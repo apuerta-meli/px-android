@@ -2,8 +2,8 @@ package com.mercadopago.android.px.internal.features.payment_result.viewmodel
 
 import com.mercadopago.android.px.internal.features.payment_result.CongratsAutoReturn
 import com.mercadopago.android.px.internal.features.payment_result.instruction.Instruction
-import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel
 import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter
+import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel
 import com.mercadopago.android.px.internal.view.PaymentResultBody
 import com.mercadopago.android.px.internal.view.PaymentResultHeader
 

@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.features.security_code
 
 import com.mercadopago.android.px.internal.mappers.Mapper
-import com.mercadopago.android.px.internal.features.express.RenderMode as RenderModeOneTap
+import com.mercadopago.android.px.internal.features.one_tap.RenderMode as RenderModeOneTap
 import com.mercadopago.android.px.internal.features.security_code.RenderMode as RenderModeCVV
 
 private const val HIGH_RES_MIN_HEIGHT = 620

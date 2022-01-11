@@ -11,7 +11,12 @@ data class CheckoutFeaturesDM(
     val comboCard: Boolean,
     val hybridCard: Boolean,
     val pix: Boolean,
-    val customCharges: Boolean,
+    val customTaxesCharges: Boolean,
+    val cardsCustomTaxesCharges: Boolean,
+    val taxableCharges: Boolean,
+    val styleVersion: String,
+    val threedsSdkVersion: String,
     @SerializedName("validations_programs")
-    val validationPrograms: List<String>
+    val validationPrograms: List<String>,
+    val debinVersion: String
 )

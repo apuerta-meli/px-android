@@ -113,7 +113,7 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
 
         new AmountLabeledFormatter(spannableStringBuilder, context)
             .withInstallment(getCurrentPayerCost().getInstallments())
-            .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_black))
+            .withTextColor(ContextCompat.getColor(context, R.color.px_expressCheckoutTextColor))
             .withSemiBoldStyle()
             .apply(amount);
     }
@@ -125,7 +125,7 @@ public final class CreditCardDescriptorModel extends PaymentMethodDescriptorView
         @NonNull final Context context) {
         if (hasAmountDescriptor()) {
             new PayerCostFormatter(spannableStringBuilder, context, getCurrentPayerCost(), currency)
-                .withTextColor(ContextCompat.getColor(context, R.color.ui_meli_grey))
+                .withTextColor(ContextCompat.getColor(context, R.color.px_checkout_secondary_color))
                 .apply();
         }
     }

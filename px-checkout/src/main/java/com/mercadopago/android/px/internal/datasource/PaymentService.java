@@ -5,7 +5,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
+import com.mercadopago.android.px.core.internal.CheckoutData;
 import com.mercadopago.android.px.core.internal.PaymentWrapper;
+import com.mercadopago.android.px.core.v2.PaymentProcessor;
 import com.mercadopago.android.px.internal.base.use_case.TokenizeWithEscUseCase;
 import com.mercadopago.android.px.internal.base.use_case.TokenizeWithoutCvvUseCase;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceEventHandler;
@@ -26,6 +28,7 @@ import com.mercadopago.android.px.internal.repository.PaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
+import com.mercadopago.android.px.internal.util.PaymentConfigurationUtil;
 import com.mercadopago.android.px.internal.util.TokenErrorWrapper;
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Card;
@@ -304,8 +307,8 @@ public class PaymentService implements PaymentRepository {
         } else {
             final List<PaymentData> paymentDataList = getPaymentDataList();
             validationProgramUseCase.execute(paymentDataList, validationProgramId -> {
-                final SplitPaymentProcessor.CheckoutData checkoutData =
-                    new SplitPaymentProcessor.CheckoutData(
+                final CheckoutData checkoutData =
+                    new CheckoutData(
                         paymentDataList, checkoutPreference, securityType, validationProgramId);
                 getPaymentProcessor().startPayment(context, checkoutData, handlerWrapper);
                 return Unit.INSTANCE;
@@ -346,6 +349,7 @@ public class PaymentService implements PaymentRepository {
                 .setCampaign(discountModel.getCampaign())
                 .setDiscount(splitConfiguration.primaryPaymentMethod.discount)
                 .setRawAmount(splitConfiguration.primaryPaymentMethod.amount)
+                .setNoDiscountAmount(splitConfiguration.primaryPaymentMethod.amount)
                 .createPaymentData();
 
             final PaymentData secondaryPaymentData = new PaymentData.Builder()
@@ -355,6 +359,7 @@ public class PaymentService implements PaymentRepository {
                 .setCampaign(discountModel.getCampaign())
                 .setDiscount(splitConfiguration.secondaryPaymentMethod.discount)
                 .setRawAmount(splitConfiguration.secondaryPaymentMethod.amount)
+                .setNoDiscountAmount(splitConfiguration.secondaryPaymentMethod.amount)
                 .createPaymentData();
 
             return Arrays.asList(paymentData, secondaryPaymentData);
@@ -377,7 +382,9 @@ public class PaymentService implements PaymentRepository {
                 .setPayer(paymentSettingRepository.getCheckoutPreference().getPayer())
                 .setTransactionAmount(amountToPay)
                 .setCampaign(discountModel.getCampaign())
-                .setRawAmount(amountRepository.getAmountWithoutDiscount(paymentMethod.getPaymentTypeId(), payerCost))
+                .setNoDiscountAmount(amountRepository.getAmountWithoutDiscount(paymentMethod.getPaymentTypeId(),
+                    payerCost))
+                .setRawAmount(amountRepository.getTaxFreeAmount(paymentMethod.getPaymentTypeId(), payerCost))
                 .createPaymentData();
 
             return Collections.singletonList(paymentData);
@@ -403,8 +410,8 @@ public class PaymentService implements PaymentRepository {
             .build();
     }
 
-    private SplitPaymentProcessor getPaymentProcessor() {
-        return paymentSettingRepository.getPaymentConfiguration().getPaymentProcessor();
+    private PaymentProcessor getPaymentProcessor() {
+        return PaymentConfigurationUtil.getPaymentProcessor(paymentSettingRepository.getPaymentConfiguration());
     }
 
     @Override

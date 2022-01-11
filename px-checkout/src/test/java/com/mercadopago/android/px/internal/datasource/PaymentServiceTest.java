@@ -6,8 +6,9 @@ import androidx.annotation.Nullable;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.Observer;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
-import com.mercadopago.android.px.core.SplitPaymentProcessor;
+import com.mercadopago.android.px.core.internal.CheckoutData;
 import com.mercadopago.android.px.core.internal.PaymentWrapper;
+import com.mercadopago.android.px.core.v2.PaymentProcessor;
 import com.mercadopago.android.px.internal.base.use_case.TokenizeWithEscUseCase;
 import com.mercadopago.android.px.internal.base.use_case.TokenizeWithoutCvvUseCase;
 import com.mercadopago.android.px.internal.core.FileManager;
@@ -27,6 +28,7 @@ import com.mercadopago.android.px.internal.repository.PayerPaymentMethodKey;
 import com.mercadopago.android.px.internal.repository.PaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
+import com.mercadopago.android.px.internal.util.PaymentConfigurationUtil;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.mocks.CheckoutResponseStub;
 import com.mercadopago.android.px.model.AmountConfiguration;
@@ -90,7 +92,7 @@ public class PaymentServiceTest {
     @Mock private DisabledPaymentMethodRepository disabledPaymentMethodRepository;
     @Mock private DiscountRepository discountRepository;
     @Mock private AmountRepository amountRepository;
-    @Mock private SplitPaymentProcessor paymentProcessor;
+    @Mock private PaymentProcessor paymentProcessor;
     @Mock private Context context;
     @Mock private EscPaymentManager escPaymentManager;
     @Mock private ESCManagerBehaviour escManagerBehaviour;
@@ -147,7 +149,8 @@ public class PaymentServiceTest {
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(mock(CheckoutPreference.class));
         when(paymentSettingRepository.getPaymentConfiguration())
             .thenReturn(mock(com.mercadopago.android.px.configuration.PaymentConfiguration.class));
-        when(paymentSettingRepository.getPaymentConfiguration().getPaymentProcessor()).thenReturn(paymentProcessor);
+        when(PaymentConfigurationUtil.getPaymentProcessor(paymentSettingRepository.getPaymentConfiguration()))
+            .thenReturn(paymentProcessor);
         when(discountRepository.getCurrentConfiguration()).thenReturn(WITHOUT_DISCOUNT);
         when(userSelectionRepository.getPaymentMethod()).thenReturn(paymentMethod);
         when(paymentMethod.getId()).thenReturn(PaymentMethods.ARGENTINA.AMEX);
@@ -334,8 +337,8 @@ public class PaymentServiceTest {
 
     @Test
     public void whenOneTapPaymentWhenHasTokenAndPaymentSuccess() {
-        final ArgumentCaptor<SplitPaymentProcessor.CheckoutData> checkoutDataCaptor =
-            ArgumentCaptor.forClass(SplitPaymentProcessor.CheckoutData.class);
+        final ArgumentCaptor<CheckoutData> checkoutDataCaptor =
+            ArgumentCaptor.forClass(CheckoutData.class);
 
         final ArgumentCaptor<Function1> validationProgramSuccessCaptor =
             ArgumentCaptor.forClass(Function1.class);

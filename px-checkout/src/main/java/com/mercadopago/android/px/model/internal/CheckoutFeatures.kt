@@ -16,10 +16,15 @@ internal class CheckoutFeatures(builder: Builder) {
     val comboCard: Boolean
     val hybridCard: Boolean
     val pix: Boolean
-    val customCharges: Boolean
+    val customTaxesCharges: Boolean
+    val styleVersion: String
+    val threedsSdkVersion: String
+    val taxableCharges: Boolean
+    val cardsCustomTaxesCharges: Boolean
 
     @SerializedName("validations_programs")
     val validationPrograms: List<String>
+    val debinVersion: String
 
     /* default */
     init {
@@ -29,8 +34,13 @@ internal class CheckoutFeatures(builder: Builder) {
         comboCard = builder.comboCard
         hybridCard = builder.hybridCard
         pix = builder.pix
-        customCharges = builder.customCharges
+        customTaxesCharges = builder.customTaxesCharges
         validationPrograms = builder.validationPrograms
+        styleVersion = STYLE_VERSION
+        threedsSdkVersion = THREEDS_SDK_VERSION
+        taxableCharges = builder.taxableCharges
+        cardsCustomTaxesCharges = builder.cardsCustomTaxesCharges
+        debinVersion = DEBIN_VERSION
     }
 
     class Builder {
@@ -40,7 +50,9 @@ internal class CheckoutFeatures(builder: Builder) {
         var comboCard = false
         var hybridCard = false
         var pix = false
-        var customCharges = false
+        var customTaxesCharges = false
+        var taxableCharges = false
+        var cardsCustomTaxesCharges = false
         var validationPrograms: MutableList<String> = mutableListOf()
 
         fun setSplit(split: Boolean) = apply { this.split = split }
@@ -55,7 +67,12 @@ internal class CheckoutFeatures(builder: Builder) {
 
         fun setPix(pix: Boolean) = apply { this.pix = pix }
 
-        fun setCustomCharges(customCharges: Boolean) = apply { this.customCharges = customCharges }
+        fun setCustomTaxesCharges(customTaxesCharges: Boolean) = apply { this.customTaxesCharges = customTaxesCharges }
+
+        fun setCardsCustomTaxesCharges(cardsCustomTaxesCharges: Boolean) =
+            apply { this.cardsCustomTaxesCharges = cardsCustomTaxesCharges }
+
+        fun setTaxableCharges(taxableCharges: Boolean) = apply { this.taxableCharges = taxableCharges }
 
         fun addValidationPrograms(validationPrograms: List<String>) =
             apply { this.validationPrograms.addAll(validationPrograms) }
@@ -63,5 +80,11 @@ internal class CheckoutFeatures(builder: Builder) {
         fun addValidationProgram(validationProgram: String) = apply { validationPrograms.add(validationProgram) }
 
         fun build() = CheckoutFeatures(this)
+    }
+
+    companion object {
+        const val STYLE_VERSION = "v1"
+        const val THREEDS_SDK_VERSION = "v1"
+        const val DEBIN_VERSION = "v1"
     }
 }

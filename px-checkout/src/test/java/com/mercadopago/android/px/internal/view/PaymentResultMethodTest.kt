@@ -66,6 +66,7 @@ class PaymentResultMethodTest : BasicRobolectricTest() {
             .setToken(token)
             .setDiscount(discount)
             .setRawAmount(BigDecimal.TEN)
+            .setNoDiscountAmount(BigDecimal.TEN)
             .setPaymentMethod(paymentMethod)
             .createPaymentData()
 

@@ -8,7 +8,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.internal.experiments.Variant;
-import com.mercadopago.android.px.internal.features.express.slider.ViewAdapter;
+import com.mercadopago.android.px.internal.features.one_tap.slider.ViewAdapter;
 import com.mercadopago.android.px.internal.viewmodel.GoingToModel;
 
 public abstract class TitlePager extends FrameLayout implements ViewTreeObserver.OnGlobalLayoutListener {
@@ -99,8 +99,4 @@ public abstract class TitlePager extends FrameLayout implements ViewTreeObserver
         previousView.setX(-currentWidth);
         nextView.setX(currentWidth);
     }
-
-    public abstract void showInstallments();
-
-    public abstract void hideInstallments();
 }

@@ -1,7 +1,9 @@
 package com.mercadopago.android.px.internal.view.animator
 
+import android.graphics.Color
 import android.view.View
 import android.view.animation.AnimationUtils
+import androidx.core.content.ContextCompat
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.internal.view.SummaryView
 
@@ -14,7 +16,9 @@ class OneTapTransition(private val slider: View,
     private val button: View,
     private val sliderHeader: View,
     private val scrollIndicator: View,
-    private val split: View) {
+    private val split: View,
+    private val oneTapContainer: View
+) {
 
     fun playEnterFromCardForm() {
         val context = slider.context
@@ -40,6 +44,9 @@ class OneTapTransition(private val slider: View,
     }
 
     fun playEnterFromSecurityCode() {
+        with(oneTapContainer) {
+            setBackgroundColor(ContextCompat.getColor(context, R.color.px_checkout_background))
+        }
         with(slider) {
             visibility = View.INVISIBLE
             postDelayed({ visibility = View.VISIBLE }, SECURITY_CODE_ENTER_DELAY)
@@ -83,6 +90,7 @@ class OneTapTransition(private val slider: View,
     }
 
     fun playExitToSecurityCode() {
+        oneTapContainer.setBackgroundColor(Color.TRANSPARENT)
         slider.postDelayed({
             slider.clearAnimation()
             slider.visibility = View.INVISIBLE

@@ -4,6 +4,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +36,16 @@ public final class AmountConfiguration implements Serializable {
      * The discount token associated with this configuration.
      */
     @Nullable private String discountToken;
+
+    /**
+     * The amount without taxes or discounts included.
+     */
+    @Nullable private BigDecimal taxFreeAmount;
+
+    /**
+     * The amount without discounts included.
+     */
+    @Nullable private BigDecimal noDiscountAmount;
 
     @NonNull
     public List<PayerCost> getPayerCosts() {
@@ -82,6 +93,16 @@ public final class AmountConfiguration implements Serializable {
         } else {
             return payerCosts.get(userSelectedPayerCost);
         }
+    }
+
+    @Nullable
+    public BigDecimal getTaxFreeAmount() {
+        return taxFreeAmount;
+    }
+
+    @Nullable
+    public BigDecimal getNoDiscountAmount() {
+        return noDiscountAmount;
     }
 
     private boolean isSplitPossible(final boolean userWantToSplit) {

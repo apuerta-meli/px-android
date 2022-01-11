@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ScrollView;
+import android.widget.Space;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -68,6 +69,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     private PaymentResultBody body;
     private Instruction instructions;
     private ScrollView scrollView;
+    private Space space;
 
     public static void start(@NonNull final Fragment fragment, final int requestCode, @NonNull final PaymentModel model) {
         final Activity activity = fragment.getActivity();
@@ -88,6 +90,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
         header = findViewById(R.id.header);
         body = findViewById(R.id.body);
         scrollView = findViewById(R.id.scroll_view);
+        space = findViewById(R.id.space);
 
         presenter = createPresenter();
         presenter.attachView(this);
@@ -126,8 +129,10 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
         header.setModel(model.getHeaderModel());
         if (model.getRemediesModel().hasRemedies()) {
             body.setVisibility(View.GONE);
+            space.setVisibility(View.GONE);
             loadRemedies(paymentModel, model);
         } else {
+            space.setVisibility(View.VISIBLE);
             final Instruction.Model instructionModel = model.getInstructionModel();
             if (instructionModel != null) {
                 instructions.setVisibility(View.VISIBLE);
@@ -145,7 +150,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
                 footer.setVisibility(View.GONE);
             }
             PaymentResultLegacyRenderer.render(findViewById(R.id.container), listener, model.getLegacyViewModel(),
-                shouldDrawLegacyFooter, instructions == null, Session.getInstance().getPaymentResultViewModelFactory());
+                shouldDrawLegacyFooter, instructionModel == null, Session.getInstance().getPaymentResultViewModelFactory());
         }
     }
 
@@ -174,6 +179,7 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
                 transaction.commitAllowingStateLoss();
             }
 
+
             startKeyboardListener();
             final PaymentResultFooter.Model footerModel = model.getFooterModel();
             if (footerModel != null) {
@@ -196,6 +202,9 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
 
     @Override
     public void onBackPressed() {
+        if (payButtonFragment.isExploding()) {
+            return;
+        }
         presenter.onAbort();
     }
 
@@ -279,6 +288,11 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     }
 
     @Override
+    public void getViewTrackPath(@NonNull final PayButton.ViewTrackPathCallback callback) {
+        presenter.onGetViewTrackPath(callback);
+    }
+
+    @Override
     public void prePayment(@NonNull final PayButton.OnReadyForPaymentCallback callback) {
         ViewUtils.hideKeyboard(this);
         remediesFragment.onPrePayment(callback);
@@ -320,5 +334,10 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
             footer.showSecondaryButton();
             return Unit.INSTANCE;
         });
+    }
+
+    @Override
+    public void payFromModal() {
+        payButtonFragment.stimulate();
     }
 }

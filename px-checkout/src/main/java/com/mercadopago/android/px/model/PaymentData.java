@@ -9,9 +9,16 @@ import java.math.BigDecimal;
 public final class PaymentData implements Serializable {
 
     /**
-     * Raw amount, contains preference total value or split value for this payment method. Always available.
+     * Raw amount, contains preference total value or split value for this payment method (not including taxes).
+     * Always available.
      */
     private BigDecimal rawAmount;
+
+    /**
+     * No discount amount, contains preference total value or split value for this payment method (including taxes)
+     * with no discount applied.
+     */
+    private BigDecimal noDiscountAmount;
 
     /**
      * Always available.
@@ -175,12 +182,21 @@ public final class PaymentData implements Serializable {
     }
 
     /**
-     * Raw amount, contains preference total value or split value for this payment method.
+     * Raw amount, contains preference total value or split value for this payment method (not including taxes).
      *
-     * @return raw amount to pay
+     * @return raw amount to pay (not including taxes)
      */
     public BigDecimal getRawAmount() {
         return rawAmount;
+    }
+
+    /**
+     * No discount amount, contains preference total value or split value for this payment method (including taxes)
+     * and no discount.
+     * @return no discount amount (including taxes)
+     */
+    public BigDecimal getNoDiscountAmount() {
+        return noDiscountAmount;
     }
 
     /**
@@ -216,6 +232,7 @@ public final class PaymentData implements Serializable {
         /* default */ PaymentMethod paymentMethod;
         /* default */ Payer payer;
         /* default */ BigDecimal rawAmount;
+        /* default */ BigDecimal noDiscountAmount;
 
         @Nullable /* default */ Discount discount;
         @Nullable /* default */ Campaign campaign;
@@ -241,6 +258,11 @@ public final class PaymentData implements Serializable {
 
         public Builder setRawAmount(final BigDecimal rawAmount) {
             this.rawAmount = rawAmount;
+            return this;
+        }
+
+        public Builder setNoDiscountAmount(final BigDecimal noDiscountAmount) {
+            this.noDiscountAmount = noDiscountAmount;
             return this;
         }
 
@@ -278,6 +300,7 @@ public final class PaymentData implements Serializable {
     static PaymentData create(@NonNull final Builder paymentDataBuilder) {
         final PaymentData paymentData = new PaymentData();
         paymentData.rawAmount = paymentDataBuilder.rawAmount;
+        paymentData.noDiscountAmount = paymentDataBuilder.noDiscountAmount;
         paymentData.campaign = paymentDataBuilder.campaign;
         paymentData.discount = paymentDataBuilder.discount;
         paymentData.issuer = paymentDataBuilder.issuer;

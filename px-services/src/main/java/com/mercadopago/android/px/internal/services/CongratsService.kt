@@ -11,7 +11,6 @@ interface CongratsService {
     @GET("${BuildConfig.API_ENVIRONMENT}/px_mobile/congrats")
     suspend fun getCongrats(
         @Header("X-Location-Enabled") locationEnabled: Boolean,
-        @Query("access_token") accessToken: String,
         @Query("public_key") publicKey: String,
         @Query("payment_ids") paymentIds: String,
         @Query("platform") platform: String,
@@ -26,7 +25,6 @@ interface CongratsService {
     @POST("${BuildConfig.API_ENVIRONMENT_NEW}/px_mobile/v1/remedies/{payment_id}")
     suspend fun getRemedies(
         @Path(value = "payment_id", encoded = true) paymentId: String,
-        @Query("access_token") accessToken: String,
         @Query("one_tap") oneTap: Boolean,
         @Body body: RemediesBody): RemediesResponse
 }

@@ -22,7 +22,9 @@ internal data class PaymentResultButton(
         CONTINUE,
         KYC,
         CHANGE_PM,
-        PAY
+        PAY,
+        MODAL_PAY,
+        MODAL_CHANGE_PM
     }
 
     enum class Type {

@@ -17,8 +17,12 @@ android {
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
-        vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+        freeCompilerArgs = ['-Xjvm-default=enable']
     }
 
     compileOptions {
@@ -60,7 +64,6 @@ android {
 dependencies {
     implementation project(':px-checkout')
     implementation project(':px-addons')
-    implementation "androidx.multidex:multidex:$multidex"
     implementation "com.google.code.gson:gson:$gson"
     implementation "com.facebook.stetho:stetho:$stetho"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho"

@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.mercadopago.android.px.R;
-import com.mercadopago.android.px.internal.core.ConnectionHelper;
+import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.ErrorActivity;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
@@ -45,7 +45,7 @@ public final class ErrorUtil {
         final MercadoPagoError mercadoPagoError;
         final String errorMessage;
 
-        if (!ConnectionHelper.getInstance().checkConnection()) {
+        if (!Session.getInstance().getNetworkModule().getConnectionHelper().hasConnection()) {
             errorMessage = activity.getString(R.string.px_no_connection_message);
             mercadoPagoError = new MercadoPagoError(errorMessage, true);
         } else {

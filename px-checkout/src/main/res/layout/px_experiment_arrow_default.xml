@@ -8,4 +8,4 @@
     android:scaleType="center"
     android:layout_gravity="center_vertical"
     app:tint="@color/ui_components_primary_color"
-    app:srcCompat="@drawable/px_arrow_down" />
+    android:src="@drawable/px_arrow_down" />

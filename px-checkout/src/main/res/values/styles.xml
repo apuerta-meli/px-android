@@ -73,9 +73,13 @@
         <item name="android:textColor">#999999</item>
     </style>
 
-    <style name="Theme.MercadoPagoTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.MercadoPagoTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/px_colorPrimaryDark</item>
+        <item name="android:colorPrimary">@color/px_colorPrimary</item>
+        <item name="android:colorAccent">@color/ui_components_android_color_accent</item>
     </style>
 
     <style name="MPTransparentActionBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">

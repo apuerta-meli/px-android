@@ -5,6 +5,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.BehaviourProvider;
+import com.mercadopago.android.px.internal.core.AuthorizationInterceptor;
 import com.mercadopago.android.px.internal.core.ConnectivityStateInterceptor;
 import com.mercadopago.android.px.internal.core.ExperimentSeedInterceptor;
 import com.mercadopago.android.px.internal.core.FlowIdInterceptor;
@@ -96,6 +97,7 @@ public final class HttpClientUtil {
             baseClient.addInterceptor(new PlatformInterceptor(context));
             baseClient.addInterceptor(new FlowIdInterceptor(ConfigurationModule.INSTANCE.getTrackingRepository()));
             baseClient.addInterceptor(new LanguageInterceptor(BehaviourProvider.getLocaleBehaviour()));
+            baseClient.addInterceptor(new AuthorizationInterceptor(ConfigurationModule.INSTANCE.getAuthorizationProvider()));
         }
 
         baseClient.addInterceptor(new StrictModeInterceptor());

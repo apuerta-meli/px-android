@@ -9,7 +9,7 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/px_s_margin"
+        android:layout_marginTop="@dimen/px_xs_margin"
         android:orientation="horizontal">
 
         <com.mercadopago.android.px.internal.view.MPTextView
@@ -18,6 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textSize="@dimen/px_xs_text"
             android:maxLines="1"
             android:ellipsize="end"
             android:importantForAccessibility="no"
@@ -37,8 +38,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/px_xxxs_height"
-        android:layout_marginTop="@dimen/px_s_margin"
-        android:background="@color/px_expressCheckoutSeparatorLine"/>
-
-
+        android:layout_marginTop="@dimen/px_xs_margin"
+        android:background="@color/px_checkout_darker_separator_line"/>
 </merge>

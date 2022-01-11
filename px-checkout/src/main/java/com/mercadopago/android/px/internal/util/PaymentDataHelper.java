@@ -15,9 +15,9 @@ public final class PaymentDataHelper {
         if (paymentData.getPayerCost() != null) {
             return paymentData.getPayerCost().getTotalAmount();
         } else if (paymentData.getDiscount() != null) {
-            return paymentData.getRawAmount().subtract(paymentData.getDiscount().getCouponAmount());
+            return paymentData.getNoDiscountAmount().subtract(paymentData.getDiscount().getCouponAmount());
         }
-        return paymentData.getRawAmount();
+        return paymentData.getNoDiscountAmount();
     }
 
     public static boolean isSplitPaymentData(@NonNull final Collection<PaymentData> paymentDataList) {

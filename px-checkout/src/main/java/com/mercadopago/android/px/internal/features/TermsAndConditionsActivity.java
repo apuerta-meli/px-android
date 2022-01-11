@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.URLUtil;
@@ -17,6 +18,7 @@ import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.tracking.internal.views.TermsAndConditionsViewTracker;
+import java.nio.charset.StandardCharsets;
 
 public class TermsAndConditionsActivity extends PXActivity {
 
@@ -70,19 +72,21 @@ public class TermsAndConditionsActivity extends PXActivity {
                 mMPTermsAndConditionsView.setVisibility(View.VISIBLE);
             }
         });
+        String version;
+        try {
+            final PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = packageInfo.versionName;
+        } catch (final PackageManager.NameNotFoundException e) {
+            version = "1.0.0";
+        }
+        mTermsAndConditionsWebView.getSettings().setUserAgentString("MercadoLibre-Android/" + version);
 
         if (URLUtil.isValidUrl(data)) {
-            String version;
-            try {
-                final PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-                version = packageInfo.versionName;
-            } catch (final PackageManager.NameNotFoundException e) {
-                version = "1.0.0";
-            }
-            mTermsAndConditionsWebView.getSettings().setUserAgentString("MercadoLibre-Android/" + version);
             mTermsAndConditionsWebView.loadUrl(data);
         } else {
-            mTermsAndConditionsWebView.loadData(data, "text/html", "UTF-8");
+            final String encodedUrl = Base64.encodeToString(data.getBytes(StandardCharsets.UTF_8),
+                Base64.DEFAULT);
+            mTermsAndConditionsWebView.loadData(encodedUrl, "text/html; charset=utf-8", "base64");
         }
     }
 }

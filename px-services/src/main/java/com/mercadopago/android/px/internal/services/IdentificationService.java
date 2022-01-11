@@ -21,5 +21,5 @@ public interface IdentificationService {
      * @return MPCall with list of IdentificationTypes in case of Success.
      */
     @GET("/v1/identification_types")
-    MPCall<List<IdentificationType>> getIdentificationTypesForAuthUser(@NonNull@Query("access_token") String privateKey);
+    MPCall<List<IdentificationType>> getIdentificationTypesForAuthUser();
 }

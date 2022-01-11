@@ -9,6 +9,8 @@ class SecurityCodeTracker(
     private val abortSecurityCodeTrack: AbortSecurityCodeTrack,
     private val securityCodeFrictions: SecurityCodeFrictions) {
 
+    fun getViewTrackPath() = securityCodeViewTrack.getTrack().path
+
     fun trackConfirmSecurityCode() {
         tracker.track(confirmSecurityCodeTrack)
     }

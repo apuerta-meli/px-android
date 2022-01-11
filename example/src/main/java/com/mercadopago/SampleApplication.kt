@@ -1,22 +1,20 @@
 package com.mercadopago
 
 import android.app.Application
-import android.content.Context
-import androidx.multidex.MultiDex
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.stetho.Stetho
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.mercadopago.android.px.BuildConfig
-import com.mercadopago.android.px.addons.*
+import com.mercadopago.android.px.addons.ESCManagerBehaviour
+import com.mercadopago.android.px.addons.FakeEscManagerBehaviourImpl
+import com.mercadopago.android.px.addons.FakeLocaleBehaviourImpl
+import com.mercadopago.android.px.addons.MockSecurityBehaviour
+import com.mercadopago.android.px.addons.PXBehaviourConfigurer
 import com.mercadopago.android.px.di.Dependencies.Companion.instance
 import com.mercadopago.android.px.font.FontConfigurator
 import com.mercadopago.android.px.internal.util.HttpClientUtil
 
 class SampleApplication : Application() {
-    override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(base)
-        MultiDex.install(this)
-    }
 
     override fun onCreate() {
         super.onCreate()

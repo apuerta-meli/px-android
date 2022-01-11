@@ -2,6 +2,10 @@
 <manifest package="com.mercadopago.android.px"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <queries>
+        <package android:name="com.mercadopago.wallet" />
+    </queries>
+
     <application>
         <activity
             android:name=".internal.features.TermsAndConditionsActivity"

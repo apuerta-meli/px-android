@@ -21,6 +21,6 @@
         android:layout_centerInParent="true"
         android:layout_marginEnd="@dimen/px_xs_margin"
         android:scaleType="center"
-        app:srcCompat="@drawable/px_circle_arrow" />
+        android:src="@drawable/px_circle_arrow" />
 
 </com.mercadopago.android.px.internal.view.PulseView>

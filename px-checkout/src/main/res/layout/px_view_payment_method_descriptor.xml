@@ -11,7 +11,7 @@
         android:id="@+id/left_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/px_s_text"
+        android:textSize="@dimen/px_xs_text"
         android:layout_weight=".9"
         tools:text="1x $1200" />
 

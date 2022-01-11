@@ -2,6 +2,7 @@ package com.mercadopago.android.px.internal.features.payment_result
 
 import androidx.annotation.ColorRes
 import com.mercadopago.android.px.internal.base.MvpView
+import com.mercadopago.android.px.internal.features.pay_button.PayButton
 import com.mercadopago.android.px.internal.features.payment_result.instruction.adapter.InstructionActionAdapter
 import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultViewModel
@@ -28,6 +29,7 @@ internal interface PaymentResult {
     }
 
     interface Presenter {
+        fun onGetViewTrackPath(callback: PayButton.ViewTrackPathCallback)
         fun onFreshStart()
         fun onAbort()
         fun onStart()

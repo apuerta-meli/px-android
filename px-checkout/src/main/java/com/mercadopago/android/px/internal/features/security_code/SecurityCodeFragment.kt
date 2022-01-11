@@ -112,6 +112,7 @@ internal class SecurityCodeFragment : BaseFragment(), PayButton.Handler, BackHan
                 postAnimationConfig()
             }
         }
+
         return super.onCreateAnimator(transit, enter, nextAnim)
     }
 
@@ -216,6 +217,10 @@ internal class SecurityCodeFragment : BaseFragment(), PayButton.Handler, BackHan
                 view.showSnackBar(getString(R.string.px_error_title), andesSnackbarAction = action)
             }
         }
+    }
+
+    override fun getViewTrackPath(callback: PayButton.ViewTrackPathCallback) {
+        securityCodeViewModel.onGetViewTrackPath(callback)
     }
 
     override fun prePayment(callback: PayButton.OnReadyForPaymentCallback) {

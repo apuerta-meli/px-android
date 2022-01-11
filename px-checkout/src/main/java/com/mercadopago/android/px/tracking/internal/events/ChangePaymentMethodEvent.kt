@@ -3,13 +3,16 @@ package com.mercadopago.android.px.tracking.internal.events
 import com.mercadopago.android.px.tracking.internal.TrackFactory
 import com.mercadopago.android.px.tracking.internal.TrackWrapper
 
-class ChangePaymentMethodEvent(viewTrack: TrackWrapper? = null) : TrackWrapper() {
+internal class ChangePaymentMethodEvent(showedModal: Boolean) : TrackWrapper() {
 
-    private val eventPath = (viewTrack?.getTrack()?.path ?: "$BASE_PATH/review/traditional") + CHANGE_PATH
+    private val event = if(showedModal) MODAL else VIEW
+    private val body = hashMapOf("from" to event)
 
-    override fun getTrack() = TrackFactory.withEvent(eventPath).build()
+    override fun getTrack() = TrackFactory.withEvent(PATH).addData(body).build()
 
     companion object {
-        private const val CHANGE_PATH = "/change_payment_method"
+        private const val PATH = "${BASE_PATH}/result/error/change_payment_method"
+        private const val MODAL = "modal"
+        private const val VIEW = "view"
     }
 }

@@ -10,7 +10,6 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.TransitionDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -34,8 +33,11 @@ import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.internal.extensions.visible
 import com.mercadopago.android.px.internal.util.ViewUtils
 import kotlin.math.hypot
+import kotlin.math.min
 
-class ExplodingFragment : Fragment() {
+private const val MAX_LOADING_TIME_MILLIS = 60_000
+
+internal class ExplodingFragment : Fragment() {
 
     private var animator: ObjectAnimator? = null
 
@@ -66,7 +68,7 @@ class ExplodingFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             buttonText = it.getCharSequence(ARG_PROGRESS_TEXT)
-            maxLoadingTime = it.getInt(ARG_TIMEOUT)
+            maxLoadingTime = min(it.getInt(ARG_TIMEOUT), MAX_LOADING_TIME_MILLIS)
         } ?: error("Missing explode params")
     }
 
@@ -268,11 +270,7 @@ class ExplodingFragment : Fragment() {
             val cy = (progressBar.top + progressBar.bottom) / 2 + buttonYPosition
             val startColor = explodeDecorator.getDarkPrimaryColor(context)
             val endColor = explodeDecorator.getPrimaryColor(context)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                ViewAnimationUtils.createCircularReveal(reveal, cx, cy, startRadius.toFloat(), finalRadius)
-            } else {
-                ObjectAnimator.ofFloat(reveal, "alpha", 0f, 1f)
-            }.apply {
+            ViewAnimationUtils.createCircularReveal(reveal, cx, cy, startRadius.toFloat(), finalRadius).apply {
                 duration = resources.getInteger(R.integer.px_long_animation_time).toLong()
                 startDelay = resources.getInteger(R.integer.px_long_animation_time).toLong()
                 interpolator = AccelerateInterpolator()

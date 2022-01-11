@@ -2,15 +2,15 @@ package com.mercadopago.android.px.internal.features.payment_congrats.model;
 
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.internal.features.business_result.PaymentCongratsResponseMapper;
+import com.mercadopago.android.px.internal.features.payment_congrats.mapper.PaymentCongratsTypeMapper;
+import com.mercadopago.android.px.internal.mappers.Mapper;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.tracking.TrackingRepository;
 import com.mercadopago.android.px.internal.util.CurrenciesUtil;
 import com.mercadopago.android.px.internal.util.PaymentDataHelper;
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
-import com.mercadopago.android.px.internal.mappers.Mapper;
 import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.Currency;
-import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.internal.CongratsResponse;
 import java.math.BigDecimal;
@@ -56,7 +56,7 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
             .withTracking(tracking)
             .withDiscountCouponsAmount(
                 PaymentDataHelper.getTotalDiscountAmount(businessPaymentModel.getPaymentResult().getPaymentDataList()))
-            .withCongratsType(getCongratsType(businessPayment.getPaymentStatus()))
+            .withCongratsType(PaymentCongratsTypeMapper.INSTANCE.map(businessPayment.getDecorator()))
             .withCrossSelling(paymentCongratsResponse.getCrossSellings())
             .withHeader(businessPayment.getTitle(), businessPayment.getImageUrl())
             .withShouldShowPaymentMethod(businessPayment.shouldShowPaymentMethod())
@@ -145,7 +145,7 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
 
         if (paymentData.getDiscount() != null) {
             paymentInfo.withDiscountData(paymentData.getDiscount().getName(),
-                getPrettyAmount(currency, paymentData.getRawAmount()));
+                getPrettyAmount(currency, paymentData.getNoDiscountAmount()));
         }
 
         return paymentInfo.build();
@@ -153,14 +153,5 @@ public class PaymentCongratsModelMapper extends Mapper<BusinessPaymentModel, Pay
 
     private String getPrettyAmount(@NonNull final Currency currency, @NonNull final BigDecimal amount) {
         return CurrenciesUtil.getLocalizedAmountWithoutZeroDecimals(currency, amount);
-    }
-
-    @NonNull
-    private PaymentCongratsModel.CongratsType getCongratsType(@NonNull final String statusCode) {
-        if (Payment.StatusCodes.STATUS_IN_PROCESS.equals(statusCode)) {
-            return PaymentCongratsModel.CongratsType.PENDING;
-        } else {
-            return PaymentCongratsModel.CongratsType.fromName(statusCode);
-        }
     }
 }

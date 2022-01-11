@@ -30,7 +30,7 @@
             android:layout_width="@dimen/px_m_height"
             android:layout_height="@dimen/px_m_height"
             android:layout_marginStart="@dimen/px_s_margin"
-            app:srcCompat="@drawable/px_ico_new_card"
+            android:src="@drawable/px_ico_new_card"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -72,7 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/px_s_margin"
-            app:srcCompat="@drawable/px_arrow_right"
+            android:src="@drawable/px_arrow_right"
             app:tint="@color/ui_components_android_color_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

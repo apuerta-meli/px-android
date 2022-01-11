@@ -116,4 +116,3 @@ public class ApiException implements Serializable {
             '}';
     }
 }
-

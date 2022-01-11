@@ -9,7 +9,6 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -245,27 +244,6 @@ public final class ViewUtils {
         Logger.debug(TAG, "Cannot parse color" + color);
     }
 
-    public static void loadTextListOrGone(@NonNull final MPTextView textView,
-        @Nullable final List<Text> texts, @ColorInt final int color) {
-        if (texts != null && !texts.isEmpty()) {
-            final SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
-            int startIndex = 0, endIndex;
-
-            for (Text text : texts) {
-                spannableStringBuilder.append(text.getMessage()).append(" ");
-                endIndex = spannableStringBuilder.length();
-                ViewUtils.setFontInSpannable(textView.getContext(), PxFont.from(text.getWeight()), spannableStringBuilder, startIndex, endIndex);
-                ViewUtils.setColorInSpannable(color, startIndex, endIndex, spannableStringBuilder);
-                startIndex = spannableStringBuilder.length();
-            }
-
-            textView.setText(spannableStringBuilder);
-            textView.setVisibility(VISIBLE);
-        } else {
-            textView.setVisibility(GONE);
-        }
-    }
-
     public static void setFontInSpannable(@NonNull final Context context, @NonNull final PxFont font,
         @NonNull final Spannable spannable) {
         setFontInSpannable(context, font, spannable, 0, spannable.length());
@@ -347,10 +325,8 @@ public final class ViewUtils {
      */
     @SuppressLint({ "InlinedApi" })
     public static void setStatusBarColor(@ColorInt final int color, @NonNull final Window window) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(getDarkPrimaryColor(color));
-        }
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(getDarkPrimaryColor(color));
     }
 
     public static boolean isScreenSize(@NonNull final Context context, final int screenLayoutSize) {

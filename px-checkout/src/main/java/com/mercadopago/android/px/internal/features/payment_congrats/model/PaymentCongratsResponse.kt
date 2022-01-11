@@ -1,6 +1,9 @@
 package com.mercadopago.android.px.internal.features.payment_congrats.model
 
 import android.os.Parcelable
+import com.mercadolibre.android.andesui.message.AndesMessage
+import com.mercadolibre.android.andesui.message.hierarchy.AndesMessageHierarchy
+import com.mercadolibre.android.andesui.message.type.AndesMessageType
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 
@@ -14,7 +17,8 @@ data class PaymentCongratsResponse(
     private val customOrder: Boolean = false,
     val backUrl: String? = null,
     val redirectUrl: String? = null,
-    val autoReturn: AutoReturn? = null): Parcelable {
+    val autoReturn: AutoReturn? = null,
+    val operationInfo: OperationInfo? = null): Parcelable {
 
     fun getCrossSellings() = crossSellings ?: emptyList()
     fun hasCustomOrder() = customOrder
@@ -102,6 +106,13 @@ data class PaymentCongratsResponse(
     data class AutoReturn(
         val label: String? = null,
         val seconds: Int? = null
+    ) : Parcelable
+
+    @Parcelize
+    data class OperationInfo(
+        val hierarchy: AndesMessageHierarchy,
+        val type: AndesMessageType,
+        val body: String
     ) : Parcelable
 
     companion object {

@@ -14,6 +14,5 @@ interface CardHolderAuthenticatorService {
     @POST("$ENVIRONMENT/px_mobile/authentication/$API_VERSION/card_holder")
     suspend fun authenticate(
         @Query("card_token") cardTokenId: String,
-        @Query("access_token") accessToken: String,
         @Body body: CardHolderAuthenticatorBody): Any
 }

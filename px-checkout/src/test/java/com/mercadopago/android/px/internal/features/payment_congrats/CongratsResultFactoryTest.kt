@@ -49,7 +49,7 @@ internal class CongratsResultFactoryTest {
 
         val businessPaymentModel = mock<BusinessPaymentModel>()
 
-        val expectedCongratsResult = BaseCongratsResult.BusinessPaymentResult(paymentCongratsModel)
+        val expectedCongratsResult = CongratsResult.BusinessPaymentResult(paymentCongratsModel)
         val congratsResult = congratsResultFactory.create(businessPaymentModel, null)
 
         congratsResult.assertEquals(expectedCongratsResult)
@@ -59,7 +59,7 @@ internal class CongratsResultFactoryTest {
     fun `On default payment model and redirect url is null then payment result`() {
         val paymentModel = mock<PaymentModel>()
 
-        val expectedCongratsResult = BaseCongratsResult.PaymentResult(paymentModel)
+        val expectedCongratsResult = CongratsResult.PaymentResult(paymentModel)
         val congratsResult = congratsResultFactory.create(paymentModel, null)
 
         congratsResult.assertEquals(expectedCongratsResult)
@@ -70,7 +70,7 @@ internal class CongratsResultFactoryTest {
 
         val businessPaymentModel = mock<BusinessPaymentModel>()
 
-        val expectedCongratsResult = BaseCongratsResult.BusinessPaymentResult(paymentCongratsModel)
+        val expectedCongratsResult = CongratsResult.BusinessPaymentResult(paymentCongratsModel)
         val congratsResult = congratsResultFactory.create(businessPaymentModel)
 
         congratsResult.assertEquals(expectedCongratsResult)
@@ -80,7 +80,7 @@ internal class CongratsResultFactoryTest {
     fun `On default payment model then payment result`() {
         val paymentModel = mock<PaymentModel>()
 
-        val expectedCongratsResult = BaseCongratsResult.PaymentResult(paymentModel)
+        val expectedCongratsResult = CongratsResult.PaymentResult(paymentModel)
         val congratsResult = congratsResultFactory.create(paymentModel)
 
         congratsResult.assertEquals(expectedCongratsResult)

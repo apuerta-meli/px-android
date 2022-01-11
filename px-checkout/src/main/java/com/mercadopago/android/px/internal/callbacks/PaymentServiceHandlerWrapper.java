@@ -3,11 +3,11 @@ package com.mercadopago.android.px.internal.callbacks;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
-import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.model.BusinessPayment;
@@ -38,7 +38,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     @NonNull private final Queue<Message> messages;
     @NonNull /* default */ final PaymentRepository paymentRepository;
     @NonNull /* default */ final DisabledPaymentMethodRepository disabledPaymentMethodRepository;
-    @NonNull /* default */ final PaymentSettingRepository paymentSettingRepository;
+    @NonNull /* default */ final PostPaymentConfiguration postPaymentConfiguration;
 
     @NonNull private final IPaymentDescriptorHandler paymentHandler = new IPaymentDescriptorHandler() {
         @Override
@@ -52,8 +52,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
                 if (isPostPaymentFlow(payment)) {
                     onPostPayment(
                         payment,
-                        paymentSettingRepository.getAdvancedConfiguration().getPostPaymentConfiguration()
-                            .getPostPaymentDeepLinkUrl()
+                        postPaymentConfiguration.getPostPaymentDeepLinkUrl()
                     );
                 } else {
                     //Must be after store
@@ -71,8 +70,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
             if (isPostPaymentFlow(businessPayment)) {
                 onPostPayment(
                     businessPayment,
-                    paymentSettingRepository.getAdvancedConfiguration().getPostPaymentConfiguration()
-                        .getPostPaymentDeepLinkUrl()
+                    postPaymentConfiguration.getPostPaymentDeepLinkUrl()
                 );
             } else {
                 final PaymentResult paymentResult = paymentRepository.createPaymentResult(businessPayment);
@@ -83,8 +81,7 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     };
 
     private boolean isPostPaymentFlow(final IPaymentDescriptor iPaymentDescriptor) {
-        return !paymentSettingRepository.getAdvancedConfiguration().getPostPaymentConfiguration()
-            .getPostPaymentDeepLinkUrl().isEmpty()
+        return !postPaymentConfiguration.getPostPaymentDeepLinkUrl().isEmpty()
             && Payment.StatusCodes.STATUS_APPROVED.equals(iPaymentDescriptor.getPaymentStatus());
     }
 
@@ -94,13 +91,13 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
         @NonNull final EscPaymentManager escPaymentManager,
         @NonNull final CongratsRepository congratsRepository,
         @NonNull final UserSelectionRepository userSelectionRepository,
-        @NonNull final PaymentSettingRepository paymentSettingRepository) {
+        @NonNull final PostPaymentConfiguration postPaymentConfiguration) {
         this.paymentRepository = paymentRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
         this.escPaymentManager = escPaymentManager;
         this.congratsRepository = congratsRepository;
         this.userSelectionRepository = userSelectionRepository;
-        this.paymentSettingRepository = paymentSettingRepository;
+        this.postPaymentConfiguration = postPaymentConfiguration;
         messages = new LinkedList<>();
     }
 

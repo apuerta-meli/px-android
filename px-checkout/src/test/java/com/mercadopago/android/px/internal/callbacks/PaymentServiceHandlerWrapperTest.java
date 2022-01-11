@@ -2,13 +2,11 @@ package com.mercadopago.android.px.internal.callbacks;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.PostPaymentConfiguration;
 import com.mercadopago.android.px.internal.repository.CongratsRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
-import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
 import com.mercadopago.android.px.mocks.PaymentMethodStub;
@@ -51,8 +49,6 @@ public class PaymentServiceHandlerWrapperTest {
     @Mock private CongratsRepository congratsRepository;
     @Mock private EscPaymentManager escPaymentManager;
     @Mock private UserSelectionRepository userSelectionRepository;
-    @Mock private PaymentSettingRepository paymentSettingRepository;
-    @Mock private AdvancedConfiguration advancedConfiguration;
     @Mock private PostPaymentConfiguration postPaymentConfiguration;
 
     private PaymentServiceHandlerWrapper paymentServiceHandlerWrapper;
@@ -62,14 +58,12 @@ public class PaymentServiceHandlerWrapperTest {
     public void setUp() {
         paymentServiceHandlerWrapper =
             new PaymentServiceHandlerWrapper(paymentRepository, disabledPaymentMethodRepository, escPaymentManager,
-                congratsRepository, userSelectionRepository, paymentSettingRepository);
+                congratsRepository, userSelectionRepository, postPaymentConfiguration);
         paymentServiceHandlerWrapper.setHandler(wrapped);
         when(paymentRepository.createRecoveryForInvalidESC()).thenReturn(paymentRecovery);
         when(paymentRepository.getPaymentDataList()).thenReturn(Collections.singletonList(mock(PaymentData.class)));
         when(userSelectionRepository.getPaymentMethod()).thenReturn(PaymentMethodStub.VISA_CREDIT.get());
         when(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn("");
-        when(advancedConfiguration.getPostPaymentConfiguration()).thenReturn(postPaymentConfiguration);
-        when(paymentSettingRepository.getAdvancedConfiguration()).thenReturn(advancedConfiguration);
     }
 
     private void noMoreInteractions() {

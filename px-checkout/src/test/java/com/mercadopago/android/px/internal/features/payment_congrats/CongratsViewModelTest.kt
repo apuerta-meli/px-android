@@ -90,7 +90,7 @@ class CongratsViewModelTest {
             on { payment }.thenReturn(mock())
         }
         whenever(paymentModel.payment?.let { paymentRepository.createPaymentResult(it) }).thenReturn(mock())
-        whenever(congratsResultFactory.create(paymentModel)).thenReturn(BaseCongratsResult.PaymentResult(paymentModel))
+        whenever(congratsResultFactory.create(paymentModel)).thenReturn(CongratsResult.PaymentResult(paymentModel))
 
         congratsViewModel.createCongratsResult(paymentModel.payment)
 
@@ -99,7 +99,7 @@ class CongratsViewModelTest {
         congratsViewModel.handleResult(paymentModel)
 
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
-        verify(congratsResultLiveData).onChanged(BaseCongratsResult.PaymentResult(paymentModel))
+        verify(congratsResultLiveData).onChanged(CongratsResult.PaymentResult(paymentModel))
     }
 
     @Test
@@ -111,7 +111,7 @@ class CongratsViewModelTest {
         val paymentCongratsModel = mock<PaymentCongratsModel>{}
         whenever(paymentRepository.createPaymentResult(businessModel.payment)).thenReturn(mock())
         whenever(congratsResultFactory.create(businessModel))
-            .thenReturn(BaseCongratsResult.BusinessPaymentResult(paymentCongratsModel))
+            .thenReturn(CongratsResult.BusinessPaymentResult(paymentCongratsModel))
 
         congratsViewModel.createCongratsResult(businessModel.payment)
 
@@ -120,6 +120,6 @@ class CongratsViewModelTest {
         congratsViewModel.handleResult(businessModel)
 
         verify(congratsResultLiveData).onChanged(CongratsPostPaymentResult.Loading(false))
-        verify(congratsResultLiveData).onChanged(BaseCongratsResult.BusinessPaymentResult(paymentCongratsModel))
+        verify(congratsResultLiveData).onChanged(CongratsResult.BusinessPaymentResult(paymentCongratsModel))
     }
 }

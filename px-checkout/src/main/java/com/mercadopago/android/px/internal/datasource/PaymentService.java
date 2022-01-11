@@ -115,7 +115,8 @@ public class PaymentService implements PaymentRepository {
 
         handlerWrapper =
             new PaymentServiceHandlerWrapper(this, disabledPaymentMethodRepository, escPaymentManager,
-                congratsRepository, userSelectionRepository, paymentSettingRepository);
+                congratsRepository, userSelectionRepository,
+                paymentSettingRepository.getAdvancedConfiguration().getPostPaymentConfiguration());
     }
 
     @Nullable

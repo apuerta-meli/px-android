@@ -12,9 +12,8 @@ import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactor
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.one_tap.RenderMode
-import com.mercadopago.android.px.internal.features.payment_congrats.BaseCongratsResult
-import com.mercadopago.android.px.internal.features.payment_congrats.CongratsPaymentResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsPaymentResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel
@@ -417,14 +416,14 @@ internal class PayButtonViewModelTest {
         }
         whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
-        whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(BaseCongratsResult.PaymentResult(paymentModel))
+        whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(CongratsResult.PaymentResult(paymentModel))
 
         payButtonViewModel.hasFinishPaymentAnimation()
 
         verify(handler).onPaymentFinished(eq(paymentModel), callback.capture())
         callback.firstValue.call()
-        verify(congratsStateObserver).onChanged(any<BaseCongratsResult.PaymentResult>())
-        val actual = payButtonViewModel.congratsResultLiveData.value as BaseCongratsResult.PaymentResult
+        verify(congratsStateObserver).onChanged(any<CongratsResult.PaymentResult>())
+        val actual = payButtonViewModel.congratsResultLiveData.value as CongratsResult.PaymentResult
         actual.paymentModel.assertEquals(paymentModel)
     }
 
@@ -458,7 +457,7 @@ internal class PayButtonViewModelTest {
         }
 
         whenever(congratsResultFactory.create(paymentModel, null)).thenReturn(
-            BaseCongratsResult.BusinessPaymentResult(congratsModel)
+            CongratsResult.BusinessPaymentResult(congratsModel)
         )
         whenever(state.paymentModel).thenReturn(paymentModel)
         whenever(postPaymentUrlsMapper.map(any<PostPaymentUrlsMapper.Model>())).thenReturn(mock())
@@ -467,8 +466,8 @@ internal class PayButtonViewModelTest {
 
         verify(handler).onPaymentFinished(eq(paymentModel), callback.capture())
         callback.firstValue.call()
-        verify(congratsStateObserver).onChanged(any<BaseCongratsResult.BusinessPaymentResult>())
-        val actual = payButtonViewModel.congratsResultLiveData.value as BaseCongratsResult.BusinessPaymentResult
+        verify(congratsStateObserver).onChanged(any<CongratsResult.BusinessPaymentResult>())
+        val actual = payButtonViewModel.congratsResultLiveData.value as CongratsResult.BusinessPaymentResult
         actual.paymentCongratsModel.assertEquals(congratsModel)
     }
 

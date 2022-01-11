@@ -28,9 +28,8 @@ import com.mercadopago.android.px.internal.features.Constants
 import com.mercadopago.android.px.internal.features.dummy_result.DummyResultActivity
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
-import com.mercadopago.android.px.internal.features.payment_congrats.BaseCongratsResult
-import com.mercadopago.android.px.internal.features.payment_congrats.CongratsPaymentResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsPaymentResult
 import com.mercadopago.android.px.internal.features.payment_congrats.PaymentCongrats
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
 import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActivity
@@ -137,12 +136,12 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
 
     private fun onCongratsResult(congratsResult: CongratsResult) {
         when (congratsResult) {
-            is BaseCongratsResult.PaymentResult -> PaymentResultActivity.start(
+            is CongratsResult.PaymentResult -> PaymentResultActivity.start(
                 this,
                 REQ_CODE_CONGRATS,
                 congratsResult.paymentModel
             )
-            is BaseCongratsResult.BusinessPaymentResult -> PaymentCongrats.show(
+            is CongratsResult.BusinessPaymentResult -> PaymentCongrats.show(
                 congratsResult.paymentCongratsModel,
                 this,
                 REQ_CODE_CONGRATS

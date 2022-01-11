@@ -4,12 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import com.mercadolibre.android.ui.widgets.MeliSpinner
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.internal.di.viewModel
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
 import com.mercadopago.android.px.internal.util.ErrorUtil
+import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.model.IPaymentDescriptor
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 
@@ -28,16 +28,16 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
         iPaymentDescriptor = intent.getSerializableExtra(PAYMENT_DESCRIPTOR) as? IPaymentDescriptor
         congratsViewModel.createCongratsResult(iPaymentDescriptor)
 
-        congratsViewModel.congratsResultLiveData.observe(this, Observer { state -> state?.let { onCongratsResult(it) } })
+        congratsViewModel.congratsResultLiveData.nonNullObserve(this) { onCongratsResult(it) }
     }
 
     private fun onCongratsResult(congratsResult: CongratsResult) {
         when (congratsResult) {
-            is BaseCongratsResult.PaymentResult -> {
+            is CongratsResult.PaymentResult -> {
                 PaymentResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
                 finish()
             }
-            is BaseCongratsResult.BusinessPaymentResult -> {
+            is CongratsResult.BusinessPaymentResult -> {
                 PaymentCongrats.show(congratsResult.paymentCongratsModel, this, REQ_CODE_CONGRATS)
                 finish()
             }
@@ -52,6 +52,7 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
             )
             is CongratsPostPaymentResult.BusinessError -> handleError(recoverable = false)
         }
+        findViewById<MeliSpinner>(R.id.loading_view).visibility = View.GONE
     }
 
     private fun handleError(message: String = "", recoverable: Boolean) {

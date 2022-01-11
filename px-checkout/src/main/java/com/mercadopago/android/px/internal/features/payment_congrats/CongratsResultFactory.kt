@@ -9,12 +9,16 @@ internal class CongratsResultFactory(private val paymentCongratsModelMapper: Pay
 
     fun create(paymentModel: PaymentModel, redirectUrl: String?): CongratsResult = when {
         redirectUrl.isNotNullNorEmpty() -> CongratsPaymentResult.SkipCongratsResult(paymentModel)
-        paymentModel is BusinessPaymentModel -> BaseCongratsResult.BusinessPaymentResult(paymentCongratsModelMapper.map(paymentModel))
-        else -> BaseCongratsResult.PaymentResult(paymentModel)
+        paymentModel is BusinessPaymentModel -> CongratsResult.BusinessPaymentResult(
+            paymentCongratsModelMapper.map(
+                paymentModel
+            )
+        )
+        else -> CongratsResult.PaymentResult(paymentModel)
     }
 
     fun create(paymentModel: PaymentModel) : CongratsResult = when (paymentModel) {
-        is BusinessPaymentModel -> BaseCongratsResult.BusinessPaymentResult(paymentCongratsModelMapper.map(paymentModel))
-        else -> BaseCongratsResult.PaymentResult(paymentModel)
+        is BusinessPaymentModel -> CongratsResult.BusinessPaymentResult(paymentCongratsModelMapper.map(paymentModel))
+        else -> CongratsResult.PaymentResult(paymentModel)
     }
 }

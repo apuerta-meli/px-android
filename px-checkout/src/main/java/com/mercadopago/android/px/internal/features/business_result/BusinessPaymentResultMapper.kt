@@ -48,7 +48,7 @@ internal class BusinessPaymentResultMapper(
             }}
             .apply {
                 if (model.shouldShowReceipt == true) {
-                    if (postPaymentConfiguration.getPostPaymentDeepLinkUrl().isNotNullNorEmpty()) {
+                    if (postPaymentConfiguration.hasPostPaymentUrl()) {
                         setReceiptId(model.paymentId.toString())
                     } else if (model.congratsType == PaymentCongratsModel.CongratsType.APPROVED) {
                         setReceiptId(model.paymentId.toString())

@@ -1,10 +1,8 @@
 package com.mercadopago.android.px.exceptions
 
 import com.mercadopago.android.px.internal.base.exception.ExceptionParser
-import com.mercadopago.android.px.internal.callbacks.ApiResponse
 import com.mercadopago.android.px.model.exceptions.ApiException
 import com.mercadopago.android.px.model.exceptions.SocketTimeoutApiException
-import junit.framework.Assert
 import okhttp3.ResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

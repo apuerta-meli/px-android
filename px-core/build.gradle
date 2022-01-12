@@ -17,7 +17,6 @@ android {
 
 dependencies {
     testImplementation "junit:junit:$junit"
-    testImplementation "org.mockito:mockito-core:$mockito"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlin"
     testImplementation "org.robolectric:robolectric:$robolectric"
     testImplementation "androidx.test:core:$androidTestCore"

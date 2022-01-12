@@ -68,7 +68,6 @@ public class SavedCardToken {
     }
 
     public void validateSecurityCode(final Card card) throws CardTokenException {
-
         // Validate security code length
         if (securityCode != null) {
             final int cvvLength = (card.getSecurityCode() != null) ? card.getSecurityCode().getLength() : 0;

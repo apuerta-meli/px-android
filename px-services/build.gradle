@@ -5,11 +5,31 @@ apply plugin: 'kotlin-android-extensions'
 
 def user_agent = "PX/Android/" + (libraryVersion as String)
 enum Environment {
-    PRODUCTION('"production"'), BETA('"beta"'), ALPHA('"alpha"'), GAMMA('"gamma"'), LEGACY_PROD('"v1"')
+    PRODUCTION('"production"'),
+    BETA('"beta"'),
+    ALPHA('"alpha"'),
+    GAMMA('"gamma"'),
+    STAGING('"staging"'),
+    LEGACY_PROD('"v1"')
 
     private final String value
 
     private Environment(String value) {
+        this.value = value
+    }
+
+    @Override
+    String toString() {
+        return value
+    }
+}
+enum GatewayEnvironment {
+    PRODUCTION('""'),
+    ZETA('"/zeta"')
+
+    private final String value
+
+    private GatewayEnvironment(String value) {
         this.value = value
     }
 
@@ -28,12 +48,14 @@ android {
         debug {
             buildConfigField "String", "API_ENVIRONMENT", "$Environment.LEGACY_PROD"
             buildConfigField "String", "API_ENVIRONMENT_NEW", "$Environment.PRODUCTION"
+            buildConfigField "String", "GATEWAY_ENVIRONMENT", "$GatewayEnvironment.PRODUCTION"
             buildConfigField "boolean", "HTTP_CLIENT_LOG", "true"
         }
 
         release {
             buildConfigField "String", "API_ENVIRONMENT", "$Environment.LEGACY_PROD"
             buildConfigField "String", "API_ENVIRONMENT_NEW", "$Environment.PRODUCTION"
+            buildConfigField "String", "GATEWAY_ENVIRONMENT", "$GatewayEnvironment.PRODUCTION"
             buildConfigField "boolean", "HTTP_CLIENT_LOG", "false"
         }
     }
@@ -45,7 +67,6 @@ android {
 
 dependencies {
     testImplementation "junit:junit:$junit"
-    testImplementation "org.mockito:mockito-core:$mockito"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlin"
 
     implementation project(':px-addons')

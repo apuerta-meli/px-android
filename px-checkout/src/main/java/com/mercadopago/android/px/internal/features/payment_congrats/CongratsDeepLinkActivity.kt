@@ -10,7 +10,7 @@ import com.mercadopago.android.px.internal.di.viewModel
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
 import com.mercadopago.android.px.internal.util.ErrorUtil
 import com.mercadopago.android.px.internal.util.nonNullObserve
-import com.mercadopago.android.px.model.IPaymentDescriptor
+import com.mercadopago.android.px.model.IParcelablePaymentDescriptor
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 
 private const val REQ_CODE_CONGRATS = 300
@@ -19,13 +19,13 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
 
     private val congratsViewModel by viewModel<CongratsViewModel>()
 
-    private var iPaymentDescriptor: IPaymentDescriptor? = null
+    private var iPaymentDescriptor: IParcelablePaymentDescriptor? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_congrats_deep_link)
 
-        iPaymentDescriptor = intent.getSerializableExtra(PAYMENT_DESCRIPTOR) as? IPaymentDescriptor
+        iPaymentDescriptor = intent.getParcelableExtra(EXTRA_PAYMENT) as? IParcelablePaymentDescriptor
         congratsViewModel.createCongratsResult(iPaymentDescriptor)
 
         congratsViewModel.congratsResultLiveData.nonNullObserve(this) { onCongratsResult(it) }

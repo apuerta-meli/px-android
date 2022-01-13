@@ -1,3 +1,7 @@
+## VERSION 4.100.1
+_13_01_2022_
+* FIX - Reverted debin version feature flag
+
 ## VERSION 4.100.0
 _13_01_2022_
 * ENHANCEMENT - Added debin version feature flag

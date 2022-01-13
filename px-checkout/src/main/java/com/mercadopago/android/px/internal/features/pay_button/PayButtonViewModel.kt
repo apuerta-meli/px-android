@@ -45,7 +45,6 @@ import com.mercadopago.android.px.model.PaymentResult
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.model.internal.PaymentConfiguration
 import com.mercadopago.android.px.tracking.internal.MPTracker
-import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.events.BiometricsFrictionTracker
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
 import com.mercadopago.android.px.tracking.internal.events.NoConnectionFrictionTracker
@@ -189,7 +188,7 @@ internal class PayButtonViewModel(
         val postPaymentStartedLiveData: LiveData<ButtonLoadingFinished?> =
             transform(serviceLiveData.postPaymentStartedLiveData) { descriptor ->
                 state.iPaymentDescriptor = descriptor
-                ButtonLoadingFinished(null)
+                ButtonLoadingFinished()
             }
         stateUILiveData.addSource(postPaymentStartedLiveData) { stateUILiveData.value = it }
 
@@ -290,32 +289,21 @@ internal class PayButtonViewModel(
     }
 
     override fun hasFinishPaymentAnimation() {
-        handler.onPaymentFinished(state.paymentModel, object : PayButton.OnPaymentFinishedCallback {
-            override fun call() {
-                if (state.paymentModel != null) {
-                    state.paymentModel?.let { paymentModel ->
-                        congratsResultLiveData.value = congratsResultFactory.create(
-                            paymentModel,
-                            resolvePostPaymentUrls(paymentModel)?.redirectUrl
-                        )
-                    }
-                } else if (getPostPaymentConfiguration().hasPostPaymentUrl()){
-                    if (state.iPaymentDescriptor != null) {
-                        val deeplink = getPostPaymentConfiguration().getPostPaymentDeepLinkUrl()
-                        stateUILiveData.value  = PostPaymentFlowStarted(state.iPaymentDescriptor!!, deeplink)
-                    } else {
-                        track(
-                            FrictionEventTracker.with(
-                                "${TrackWrapper.BASE_PATH}/post_payment_deep_link",
-                                FrictionEventTracker.Id.INVALID_I_PAYMENT_DESCRIPTOR,
-                                FrictionEventTracker.Style.SCREEN,
-                                MercadoPagoError.createNotRecoverable("")
-                            )
-                        )
-                    }
+        state.paymentModel?.let { paymentModel ->
+            handler.onPaymentFinished(paymentModel, object : PayButton.OnPaymentFinishedCallback {
+                override fun call() {
+                    congratsResultLiveData.value = congratsResultFactory.create(
+                        paymentModel,
+                        resolvePostPaymentUrls(paymentModel)?.redirectUrl
+                    )
                 }
-            }
-        })
+            })
+        }
+
+        state.iPaymentDescriptor?.let { iPaymentDescriptor ->
+            val deeplink = getPostPaymentConfiguration().getPostPaymentDeepLinkUrl()
+            stateUILiveData.value  = PostPaymentFlowStarted(iPaymentDescriptor, deeplink)
+        }
     }
 
     override fun onResultIconAnimation() {

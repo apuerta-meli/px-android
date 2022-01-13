@@ -43,7 +43,7 @@ internal interface PayButton {
         @JvmDefault fun onPostPaymentAction(postPaymentAction: PostPaymentAction) = Unit
         @JvmDefault fun onCvvRequested() = CvvRequestedModel()
         @JvmDefault fun onPaymentExecuted(configuration: PaymentConfiguration) = Unit
-        @JvmDefault fun onPaymentFinished(paymentModel: PaymentModel?, callback: OnPaymentFinishedCallback) = callback.call()
+        @JvmDefault fun onPaymentFinished(paymentModel: PaymentModel, callback: OnPaymentFinishedCallback) = callback.call()
         @JvmDefault fun onPaymentError(error: MercadoPagoError) = Unit
         @JvmDefault fun onPostCongrats(resultCode: Int, data: Intent?) = Unit
     }

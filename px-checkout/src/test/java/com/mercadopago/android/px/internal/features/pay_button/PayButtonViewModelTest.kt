@@ -442,10 +442,8 @@ internal class PayButtonViewModelTest {
     @Test
     fun onFinishPaymentAnimationWithPaymentModelAsNullThenPostPaymentFlowStarted() {
         val deeplink = "mercadopago://px/congrats"
-        val callback = argumentCaptor<PayButton.OnPaymentFinishedCallback>()
         val advancedConfiguration = mock<AdvancedConfiguration> {
             on { postPaymentConfiguration }.thenReturn(mock())
-            on { postPaymentConfiguration.hasPostPaymentUrl() }.thenReturn(true)
             on { postPaymentConfiguration.getPostPaymentDeepLinkUrl() }.thenReturn(deeplink)
         }
 
@@ -459,8 +457,6 @@ internal class PayButtonViewModelTest {
 
         payButtonViewModel.hasFinishPaymentAnimation()
 
-        verify(handler).onPaymentFinished(eq(null), callback.capture())
-        callback.firstValue.call()
         verify(uiStateObserver).onChanged(any<UIProgress.PostPaymentFlowStarted>())
     }
 

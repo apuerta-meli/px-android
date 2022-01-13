@@ -11,7 +11,7 @@ internal sealed class PayButtonUiState
 internal open class UIProgress : PayButtonUiState() {
     data class FingerprintRequired(val validationData: SecurityValidationData) : UIProgress()
     data class ButtonLoadingStarted(val timeOut: Int, val buttonConfig: ButtonConfig) : UIProgress()
-    data class ButtonLoadingFinished(val explodeDecorator: ExplodeDecorator?) : UIProgress()
+    data class ButtonLoadingFinished(val explodeDecorator: ExplodeDecorator? = null) : UIProgress()
     object ButtonLoadingCanceled : UIProgress()
     data class PostPaymentFlowStarted(
         val iPaymentDescriptor: IPaymentDescriptor,

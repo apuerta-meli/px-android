@@ -28,6 +28,7 @@ open class FrictionEventTracker protected constructor(private val path: String, 
         INVALID_ESC("invalid_esc"),
         INVALID_FINGERPRINT("invalid_fingerprint"),
         INVALID_POST_PAYMENT_DEEP_LINK("invalid_post_payment_deep_link"),
+        INVALID_I_PAYMENT_DESCRIPTOR("invalid_i_payment_descriptor"),
         EXECUTE_USE_CASE("error_execute_use_case");
 
         companion object {

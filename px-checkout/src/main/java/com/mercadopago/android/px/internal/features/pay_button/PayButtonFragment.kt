@@ -285,7 +285,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         super.onDestroy()
     }
 
-    private fun finishLoading(params: ExplodeDecorator) {
+    private fun finishLoading(params: ExplodeDecorator?) {
         ViewUtils.hideKeyboard(activity)
         childFragmentManager.findFragmentByTag(ExplodingFragment.TAG)
             ?.let { (it as ExplodingFragment).finishLoading(params) }

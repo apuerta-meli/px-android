@@ -4,7 +4,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.mercadopago.android.px.assertEquals
 import com.mercadopago.android.px.configuration.AdvancedConfiguration
-import com.mercadopago.android.px.configuration.PostPaymentConfiguration
 import com.mercadopago.android.px.internal.audio.AudioPlayer
 import com.mercadopago.android.px.internal.audio.PlaySoundUseCase
 import com.mercadopago.android.px.internal.core.ConnectionHelper
@@ -104,8 +103,6 @@ internal class PayButtonViewModelTest {
     private lateinit var playSoundUseCase: PlaySoundUseCase
     @Mock
     private lateinit var advancedConfiguration: AdvancedConfiguration
-    @Mock
-    private lateinit var postPaymentConfiguration: PostPaymentConfiguration
 
     private val paymentErrorLiveData = MutableSingleLiveData<MercadoPagoError>()
     private val postPaymentStartedLiveData = MutableSingleLiveData<IPaymentDescriptor>()
@@ -114,7 +111,6 @@ internal class PayButtonViewModelTest {
     private val recoverInvalidEscLiveData = MutableSingleLiveData<PaymentRecovery>()
     private val visualPaymentLiveData = MutableSingleLiveData<Unit>()
 
-    private val deepLink = "mercadopago://px/post-payment_url"
     private val redirectUrl = "redirect_url"
 
     /*
@@ -132,7 +128,6 @@ internal class PayButtonViewModelTest {
         whenever(paymentSettingRepository.site).thenReturn(Sites.ARGENTINA)
         whenever(renderModeMapper.map(any<RenderMode>())).thenReturn(mock())
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
-        whenever(advancedConfiguration.postPaymentConfiguration).thenReturn(postPaymentConfiguration)
 
         configurePaymentSettingServiceObservableEvents()
 
@@ -277,27 +272,14 @@ internal class PayButtonViewModelTest {
 
     @Test
     fun startPaymentAndObserveServiceWhenIsPostPaymentStartedEvent() {
-        val deepLink = "mercadopago://px/post-payment_url"
-        whenever(postPaymentConfiguration.getPostPaymentDeepLinkUrl()).thenReturn(deepLink)
-        val testStatementDescription = "test statement description"
         val callback = argumentCaptor<PayButton.OnEnqueueResolvedCallback>()
 
-        val iPaymentDescriptor = mock<IPaymentDescriptor> {
-            on { paymentStatus }.thenReturn(Payment.StatusCodes.STATUS_APPROVED)
-            on { statementDescription }.thenReturn(testStatementDescription)
-        }
-
         payButtonViewModel.startPayment()
-        postPaymentStartedLiveData.value = iPaymentDescriptor
+        postPaymentStartedLiveData.value = mock()
 
         verify(handler).enqueueOnExploding(callback.capture())
         callback.firstValue.success()
-        verify(uiStateObserver).onChanged(any<UIProgress.PostPaymentFlowStarted>())
-
-        val actual = (payButtonViewModel.stateUILiveData.value as UIProgress.PostPaymentFlowStarted)
-        deepLink.assertEquals(actual.postPaymentDeepLinkUrl)
-        Payment.StatusCodes.STATUS_APPROVED.assertEquals(actual.iPaymentDescriptor.paymentStatus)
-        testStatementDescription.assertEquals(actual.iPaymentDescriptor.statementDescription.orEmpty())
+        verify(uiStateObserver).onChanged(any<UIProgress.ButtonLoadingFinished>())
     }
 
     @Test
@@ -458,6 +440,31 @@ internal class PayButtonViewModelTest {
     }
 
     @Test
+    fun onFinishPaymentAnimationWithPaymentModelAsNullThenPostPaymentFlowStarted() {
+        val deeplink = "mercadopago://px/congrats"
+        val callback = argumentCaptor<PayButton.OnPaymentFinishedCallback>()
+        val advancedConfiguration = mock<AdvancedConfiguration> {
+            on { postPaymentConfiguration }.thenReturn(mock())
+            on { postPaymentConfiguration.hasPostPaymentUrl() }.thenReturn(true)
+            on { postPaymentConfiguration.getPostPaymentDeepLinkUrl() }.thenReturn(deeplink)
+        }
+
+        val state = mock<PayButtonViewModel.State>{
+            on { iPaymentDescriptor }.thenReturn(mock())
+        }
+
+        whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
+
+        payButtonViewModel.restoreState(state)
+
+        payButtonViewModel.hasFinishPaymentAnimation()
+
+        verify(handler).onPaymentFinished(eq(null), callback.capture())
+        callback.firstValue.call()
+        verify(uiStateObserver).onChanged(any<UIProgress.PostPaymentFlowStarted>())
+    }
+
+    @Test
     fun onFinishPaymentAnimationWithBusinessPaymentThenShowCongrats() {
         val callback = argumentCaptor<PayButton.OnPaymentFinishedCallback>()
         val congratsModel = mock<PaymentCongratsModel>()
@@ -484,13 +491,12 @@ internal class PayButtonViewModelTest {
     fun onSkipRevealAnimationWithPostPaymentDeepLinkUrlNotEmptyAndPaymentIsApprovedThenReturnTrue() {
         val advancedConfiguration = mock<AdvancedConfiguration> {
             on { postPaymentConfiguration }.thenReturn(mock())
-            on { postPaymentConfiguration.getPostPaymentDeepLinkUrl() }.thenReturn(deepLink)
+            on { postPaymentConfiguration.hasPostPaymentUrl() }.thenReturn(true)
         }
 
         val state = mock<PayButtonViewModel.State> {
-            on { paymentModel }.thenReturn(mock())
-            on { paymentModel?.paymentResult }.thenReturn(mock())
-            on { paymentModel?.paymentResult?.isApproved }.thenReturn(true)
+            on { iPaymentDescriptor }.thenReturn(mock())
+            on { iPaymentDescriptor?.paymentStatus }.thenReturn(Payment.StatusCodes.STATUS_APPROVED)
         }
 
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
@@ -504,7 +510,6 @@ internal class PayButtonViewModelTest {
     fun onSkipRevealAnimationWithPostPaymentDeepLinkUrlEmptyThenReturnsFalse() {
         val advancedConfiguration = mock<AdvancedConfiguration> {
             on { postPaymentConfiguration }.thenReturn(mock())
-            on { postPaymentConfiguration.getPostPaymentDeepLinkUrl() }.thenReturn("")
         }
 
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)

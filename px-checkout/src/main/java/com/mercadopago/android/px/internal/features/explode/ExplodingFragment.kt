@@ -31,7 +31,6 @@ import com.mercadopago.android.px.internal.extensions.gone
 import com.mercadopago.android.px.internal.extensions.invisible
 import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.internal.extensions.visible
-import com.mercadopago.android.px.internal.features.pay_button.PayButtonFragment
 import com.mercadopago.android.px.internal.util.ViewUtils
 import kotlin.math.hypot
 import kotlin.math.min
@@ -150,7 +149,7 @@ internal class ExplodingFragment : Fragment() {
      *
      * @param explodeDecorator information about the order result, useful for styling the view.
      */
-    fun finishLoading(explodeDecorator: ExplodeDecorator) {
+    fun finishLoading(explodeDecorator: ExplodeDecorator?) {
         this.explodeDecorator = explodeDecorator
         doFinishLoading()
     }

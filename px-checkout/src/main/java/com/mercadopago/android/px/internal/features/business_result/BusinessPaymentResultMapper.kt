@@ -1,8 +1,6 @@
 package com.mercadopago.android.px.internal.features.business_result
 
 import com.mercadopago.android.px.R
-import com.mercadopago.android.px.configuration.PostPaymentConfiguration
-import com.mercadopago.android.px.internal.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.internal.features.payment_congrats.model.CongratsViewModelMapper
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsResponse
@@ -19,8 +17,7 @@ import com.mercadopago.android.px.tracking.internal.MPTracker
 import java.util.ArrayList
 
 internal class BusinessPaymentResultMapper(
-    private val tracker: MPTracker,
-    private val postPaymentConfiguration: PostPaymentConfiguration
+    private val tracker: MPTracker
 ) : Mapper<PaymentCongratsModel, BusinessPaymentResultViewModel>() {
 
     override fun map(model: PaymentCongratsModel): BusinessPaymentResultViewModel {
@@ -48,7 +45,7 @@ internal class BusinessPaymentResultMapper(
             }}
             .apply {
                 if (model.shouldShowReceipt == true) {
-                    if (postPaymentConfiguration.hasPostPaymentUrl()) {
+                    if (model.forceShowReceipt) {
                         setReceiptId(model.paymentId.toString())
                     } else if (model.congratsType == PaymentCongratsModel.CongratsType.APPROVED) {
                         setReceiptId(model.paymentId.toString())

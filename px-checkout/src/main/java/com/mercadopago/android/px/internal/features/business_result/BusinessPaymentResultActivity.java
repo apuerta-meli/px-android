@@ -71,12 +71,7 @@ public class BusinessPaymentResultActivity extends PXActivity<BusinessPaymentRes
             model,
             BehaviourProvider.getFlowBehaviour(),
             isMP(this),
-            Session.getInstance().getTracker(),
-            Session.getInstance()
-                .getConfigurationModule()
-                .getPaymentSettings()
-                .getAdvancedConfiguration()
-                .getPostPaymentConfiguration()
+            Session.getInstance().getTracker()
         );
     }
 

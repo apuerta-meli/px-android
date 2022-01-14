@@ -16,9 +16,8 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentResultType
 import com.mercadopago.android.px.tracking.internal.MPTracker
 import java.util.ArrayList
 
-internal class BusinessPaymentResultMapper(
-    private val tracker: MPTracker
-) : Mapper<PaymentCongratsModel, BusinessPaymentResultViewModel>() {
+internal class BusinessPaymentResultMapper(private val tracker: MPTracker) :
+    Mapper<PaymentCongratsModel, BusinessPaymentResultViewModel>() {
 
     override fun map(model: PaymentCongratsModel): BusinessPaymentResultViewModel {
         return BusinessPaymentResultViewModel(

@@ -7,7 +7,6 @@ import com.mercadopago.android.px.internal.features.payment_result.remedies.Alte
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesBodyMapper
 import com.mercadopago.android.px.internal.repository.AmountRepository
 import com.mercadopago.android.px.internal.repository.CongratsRepository
-import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.internal.repository.CongratsRepository.PostPaymentCallback
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.OneTapItemRepository
@@ -15,6 +14,7 @@ import com.mercadopago.android.px.internal.repository.PayerComplianceRepository
 import com.mercadopago.android.px.internal.repository.PayerPaymentMethodKey
 import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.internal.services.CongratsService
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
 import com.mercadopago.android.px.internal.util.StatusHelper
@@ -52,11 +52,8 @@ internal class CongratsRepositoryImpl(
     private val paymentRewardCache = HashMap<String, CongratsResponse>()
     private val remediesCache = HashMap<String, RemediesResponse>()
 
-    override fun getPostPaymentData(
-        payment: IPaymentDescriptor,
-        paymentResult: PaymentResult,
-        callback: PostPaymentCallback
-    ) {
+    override fun getPostPaymentData(payment: IPaymentDescriptor, paymentResult: PaymentResult,
+        callback: PostPaymentCallback) {
         val whiteLabel = TextUtil.isEmpty(authorizationProvider.privateKey)
         val isSuccess = StatusHelper.isSuccess(payment)
         CoroutineScope(Dispatchers.IO).launch {
@@ -108,8 +105,7 @@ internal class CongratsRepositoryImpl(
                 alternativePayerPaymentMethodsMapper.map(payerPaymentMethodRepository.value).filter {
                     it.customOptionId != usedPayerPaymentMethodId &&
                         !disabledPaymentMethodRepository.hasKey(
-                            PayerPaymentMethodKey(it.customOptionId, it.paymentTypeId)
-                        )
+                            PayerPaymentMethodKey(it.customOptionId, it.paymentTypeId))
                 },
                 paymentSettingRepository
             ).map(paymentData)

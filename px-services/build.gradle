@@ -25,7 +25,7 @@ enum Environment {
 }
 enum GatewayEnvironment {
     PRODUCTION('""'),
-    ZETA('"/zeta"')
+    ZETA('"zeta"')
 
     private final String value
 

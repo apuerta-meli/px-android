@@ -10,7 +10,7 @@ import retrofit2.http.*
 
 interface GatewayService {
 
-    @POST("/v1/card_tokens${BuildConfig.GATEWAY_ENVIRONMENT}")
+    @POST("/v1/card_tokens/${BuildConfig.GATEWAY_ENVIRONMENT}")
     fun createToken(
         @Query("public_key") publicKey: String,
         @Body body: CardTokenBody

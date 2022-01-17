@@ -25,7 +25,8 @@ internal class CongratsDeepLinkActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_congrats_deep_link)
 
-        iPaymentDescriptor = intent.getParcelableExtra(EXTRA_PAYMENT) as? IParcelablePaymentDescriptor
+        val bundle = intent.getBundleExtra(EXTRA_BUNDLE)
+        iPaymentDescriptor = bundle?.getParcelable(EXTRA_PAYMENT) as? IParcelablePaymentDescriptor
         congratsViewModel.createCongratsResult(iPaymentDescriptor)
 
         congratsViewModel.congratsResultLiveData.nonNullObserve(this) { onCongratsResult(it) }

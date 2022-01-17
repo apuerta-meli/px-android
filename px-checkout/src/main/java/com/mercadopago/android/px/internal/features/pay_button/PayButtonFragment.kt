@@ -27,8 +27,9 @@ import com.mercadopago.android.px.internal.features.Constants
 import com.mercadopago.android.px.internal.features.dummy_result.DummyResultActivity
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
-import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsPaymentResult
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
+import com.mercadopago.android.px.internal.features.payment_congrats.EXTRA_BUNDLE
 import com.mercadopago.android.px.internal.features.payment_congrats.EXTRA_PAYMENT
 import com.mercadopago.android.px.internal.features.payment_congrats.PaymentCongrats
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
@@ -158,7 +159,9 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         runCatching {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
             extraData?.let { data ->
-                intent.putExtra(EXTRA_PAYMENT, data)
+                val bundle = Bundle()
+                bundle.putSerializable(EXTRA_PAYMENT, data)
+                intent.putExtra(EXTRA_BUNDLE, bundle)
             }
             startActivity(intent)
             activity?.finish()

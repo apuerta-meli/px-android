@@ -35,7 +35,6 @@ internal class TokenizeUseCase(
             TokenCreationWrapper
                 .Builder(cardTokenRepository, escManagerBehaviour, tokenizeWithCvvUseCase)
                 .with(it)
-                .with(it.paymentMethod!!)
                 .build()
                 .createToken(param.securityCode)
         }

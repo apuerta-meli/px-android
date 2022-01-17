@@ -36,6 +36,7 @@ public final class SavedESCCardToken extends SavedCardToken {
         return new SavedESCCardToken(cardId, securityCode, "");
     }
 
+    @Deprecated
     public static SavedESCCardToken createWithEsc(@NonNull final String cardId, @NonNull final String esc) {
         return new SavedESCCardToken(cardId, "", esc);
     }

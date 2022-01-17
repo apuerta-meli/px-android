@@ -40,7 +40,6 @@ internal class TokenizeWithCvvUseCase(
                 }
             )
         }
-
     }
 
     data class Params(val cardId: String, val cvv: String, val requireEsc: Boolean)

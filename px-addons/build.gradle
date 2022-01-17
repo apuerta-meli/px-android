@@ -14,7 +14,7 @@ dependencies {
     testImplementation "androidx.test.espresso:espresso-intents:$androidTestEspresso"
     testImplementation "androidx.fragment:fragment-testing:$androidTestFragment"
 
-    implementation "androidx.appcompat:appcompat:$appcompat"
     implementation "com.google.code.gson:gson:$gson"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin"
+    implementation "androidx.appcompat:appcompat:$appcompat"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin"
 }

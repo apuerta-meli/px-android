@@ -65,7 +65,6 @@ class TokenizeUseCaseTest {
     @Test
     fun whenIsSecurityCodeAndSuccess() {
         val cardMock = mock<Card> {
-            on { paymentMethod }.thenReturn(mock())
             on { id }.thenReturn("321")
         }
         val params = TokenizeParams("123", cardMock)
@@ -106,7 +105,6 @@ class TokenizeUseCaseTest {
         }
         val paymentRecovery = mock<PaymentRecovery> {
             on { card }.thenReturn(cardMock)
-            on { paymentMethod }.thenReturn(mock())
         }
         val params = TokenizeParams(cvv, cardMock, paymentRecovery)
         val tokenResultMock = mock<Token>()

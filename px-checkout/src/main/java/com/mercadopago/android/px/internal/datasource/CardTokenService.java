@@ -16,8 +16,6 @@ import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.services.Callback;
 
-import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT_NEW;
-
 public class CardTokenService implements CardTokenRepository {
 
     /* default */ @NonNull final PaymentSettingRepository paymentSettingRepository;
@@ -42,8 +40,7 @@ public class CardTokenService implements CardTokenRepository {
     public MPCall<Token> createToken(@NonNull final String cardId, @NonNull final String cvv,
         @Nullable final RemotePaymentToken remotePaymentToken, final boolean requireEsc) {
         final CardTokenBody body = new CardTokenBody(cardId, device, requireEsc, cvv, "", remotePaymentToken);
-        return gatewayService
-            .createToken(paymentSettingRepository.getPublicKey(), body);
+        return gatewayService.createToken(paymentSettingRepository.getPublicKey(), body);
     }
 
     @Override
@@ -52,17 +49,16 @@ public class CardTokenService implements CardTokenRepository {
             callback.execute();
             return;
         }
-        gatewayService.clearCap(API_ENVIRONMENT_NEW, cardId)
-            .enqueue(new Callback<String>() {
-                @Override
-                public void success(final String s) {
-                    callback.execute();
-                }
+        gatewayService.clearCap(cardId).enqueue(new Callback<String>() {
+            @Override
+            public void success(final String s) {
+                callback.execute();
+            }
 
-                @Override
-                public void failure(final ApiException apiException) {
-                    callback.execute();
-                }
-            });
+            @Override
+            public void failure(final ApiException apiException) {
+                callback.execute();
+            }
+        });
     }
 }

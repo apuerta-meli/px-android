@@ -7,13 +7,12 @@ package com.mercadopago.android.px.configuration
  */
 class PostPaymentConfiguration private constructor() {
 
-    private var postPaymentDeepLinkUrl: String? = null
+    var postPaymentDeepLinkUrl: String? = null
+        private set
 
     private constructor(builder: Builder): this() {
         this.postPaymentDeepLinkUrl = builder.getPostPaymentDeepLinkUrl()
     }
-
-    fun getPostPaymentDeepLinkUrl() = postPaymentDeepLinkUrl.orEmpty()
 
     fun hasPostPaymentUrl() = !postPaymentDeepLinkUrl.isNullOrEmpty()
 

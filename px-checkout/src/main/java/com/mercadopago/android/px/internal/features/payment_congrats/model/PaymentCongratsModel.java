@@ -431,6 +431,22 @@ public class PaymentCongratsModel implements Parcelable {
          * @param paymentId the receipt id to be shown.
          * @param shouldShowReceipt if the receipt should be drawn, default value is "false"
          * @param receiptAction a button that takes you to the payment receipt
+         * @return builder
+         */
+        public Builder withReceipt(final Long paymentId, final boolean shouldShowReceipt,
+            final PaymentCongratsResponse.Action receiptAction) {
+            this.paymentId = paymentId;
+            this.receiptAction = receiptAction;
+            this.shouldShowReceipt = shouldShowReceipt;
+            return this;
+        }
+
+        /**
+         * If value is set, then receipt view will appear.
+         *
+         * @param paymentId the receipt id to be shown.
+         * @param shouldShowReceipt if the receipt should be drawn, default value is "false"
+         * @param receiptAction a button that takes you to the payment receipt
          * @param forceShowReceipt Forces the drawn of the receipt independent of its status
          * @return builder
          */

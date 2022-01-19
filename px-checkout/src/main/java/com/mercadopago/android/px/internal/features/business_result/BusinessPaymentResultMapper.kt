@@ -44,9 +44,7 @@ internal class BusinessPaymentResultMapper(private val tracker: MPTracker) :
             }}
             .apply {
                 if (model.shouldShowReceipt == true) {
-                    if (model.forceShowReceipt) {
-                        setReceiptId(model.paymentId.toString())
-                    } else if (model.congratsType == PaymentCongratsModel.CongratsType.APPROVED) {
+                    if (model.forceShowReceipt || model.congratsType == PaymentCongratsModel.CongratsType.APPROVED) {
                         setReceiptId(model.paymentId.toString())
                     }
                 }

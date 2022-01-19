@@ -445,7 +445,7 @@ internal class PayButtonViewModelTest {
         val advancedConfiguration = mock<AdvancedConfiguration> {
             on { postPaymentConfiguration }.thenReturn(mock())
             on { postPaymentConfiguration.hasPostPaymentUrl() }.thenReturn(true)
-            on { postPaymentConfiguration.getPostPaymentDeepLinkUrl() }.thenReturn(deeplink)
+            on { postPaymentConfiguration.postPaymentDeepLinkUrl }.thenReturn(deeplink)
         }
 
         val state = mock<PayButtonViewModel.State>{

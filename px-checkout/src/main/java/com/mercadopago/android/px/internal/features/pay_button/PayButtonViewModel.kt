@@ -303,7 +303,7 @@ internal class PayButtonViewModel(
 
             state.iParcelablePaymentDescriptor != null -> {
                 if (getPostPaymentConfiguration().hasPostPaymentUrl()) {
-                    val deeplink = getPostPaymentConfiguration().getPostPaymentDeepLinkUrl()
+                    val deeplink = getPostPaymentConfiguration().postPaymentDeepLinkUrl.orEmpty()
                     stateUILiveData.value = PostPaymentFlowStarted(state.iParcelablePaymentDescriptor!!, deeplink)
                 }
             }

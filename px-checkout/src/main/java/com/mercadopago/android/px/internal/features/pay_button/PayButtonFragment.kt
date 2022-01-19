@@ -2,7 +2,6 @@ package com.mercadopago.android.px.internal.features.pay_button
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -38,7 +37,9 @@ import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActi
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeActivity
 import com.mercadopago.android.px.internal.features.security_code.SecurityCodeFragment
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeParams
+import com.mercadopago.android.px.internal.util.ErrorUtil
 import com.mercadopago.android.px.internal.util.FragmentUtil
+import com.mercadopago.android.px.internal.util.MercadoPagoUtil
 import com.mercadopago.android.px.internal.util.ViewUtils
 import com.mercadopago.android.px.internal.util.nonNullObserve
 import com.mercadopago.android.px.internal.view.OnSingleClickListener
@@ -157,7 +158,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
 
     private fun launchPostPaymentFlow(deepLink: String, extraData: Parcelable?) {
         runCatching {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
+            val intent = MercadoPagoUtil.getIntent(deepLink)
             extraData?.let { data ->
                 val bundle = Bundle()
                 bundle.putParcelable(EXTRA_PAYMENT, data)
@@ -174,6 +175,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
                     MercadoPagoError.createNotRecoverable(exception.message.orEmpty())
                 )
             )
+            ErrorUtil.startErrorActivity(this, MercadoPagoError("", false))
         }
     }
 
@@ -269,6 +271,8 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             viewModel.onPostPayment(PaymentProcessorActivity.getPaymentModel(data))
         } else if (resultCode == Constants.RESULT_FAIL_ESC) {
             viewModel.onRecoverPaymentEscInvalid(PaymentProcessorActivity.getPaymentRecovery(data)!!)
+        } else if (requestCode == ErrorUtil.ERROR_REQUEST_CODE) {
+            activity?.finish()
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }

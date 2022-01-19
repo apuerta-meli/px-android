@@ -5,20 +5,21 @@ package com.mercadopago.android.px.configuration
  *
  * @sample "Open a custom flow after a success payment and then continue with the congrats once the custom flow ends."
  */
-class PostPaymentConfiguration private constructor() {
+class PostPaymentConfiguration private constructor(builder: Builder) {
 
     var postPaymentDeepLinkUrl: String? = null
         private set
 
-    private constructor(builder: Builder): this() {
-        this.postPaymentDeepLinkUrl = builder.getPostPaymentDeepLinkUrl()
+    init {
+        this.postPaymentDeepLinkUrl = builder.postPaymentDeepLinkUrl
     }
 
     fun hasPostPaymentUrl() = !postPaymentDeepLinkUrl.isNullOrEmpty()
 
     class Builder {
 
-        private var postPaymentDeepLinkUrl: String? = null
+        var postPaymentDeepLinkUrl: String? = null
+            private set
 
         /***
          * Sets a DeepLink to be launched after a success payment
@@ -29,13 +30,6 @@ class PostPaymentConfiguration private constructor() {
         fun setPostPaymentDeepLinkUrl(url: String) = apply {
             postPaymentDeepLinkUrl = url
         }
-
-        /***
-         * Gets the DeepLink to be launched after a success payment
-         *
-         * @return the deepLink String
-         */
-        fun getPostPaymentDeepLinkUrl() = postPaymentDeepLinkUrl
 
         fun build() = PostPaymentConfiguration(this)
     }

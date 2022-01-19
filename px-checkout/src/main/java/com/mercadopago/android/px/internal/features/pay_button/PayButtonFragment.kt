@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
@@ -45,7 +46,6 @@ import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
-import java.io.Serializable
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
 private const val REQ_CODE_CONGRATS = 300
@@ -128,7 +128,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             is UIProgress.ButtonLoadingCanceled -> cancelLoading()
             is UIProgress.PostPaymentFlowStarted -> launchPostPaymentFlow(
                 stateUI.postPaymentDeepLinkUrl,
-                stateUI.iPaymentDescriptor
+                stateUI.iParcelablePaymentDescriptor
             )
             is UIResult.VisualProcessorResult -> PaymentProcessorActivity.start(this, REQ_CODE_PAYMENT_PROCESSOR)
             is UIError -> resolveError(stateUI)
@@ -155,12 +155,12 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         }
     }
 
-    private fun launchPostPaymentFlow(deepLink: String, extraData: Serializable?) {
+    private fun launchPostPaymentFlow(deepLink: String, extraData: Parcelable?) {
         runCatching {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
             extraData?.let { data ->
                 val bundle = Bundle()
-                bundle.putSerializable(EXTRA_PAYMENT, data)
+                bundle.putParcelable(EXTRA_PAYMENT, data)
                 intent.putExtra(EXTRA_BUNDLE, bundle)
             }
             startActivity(intent)

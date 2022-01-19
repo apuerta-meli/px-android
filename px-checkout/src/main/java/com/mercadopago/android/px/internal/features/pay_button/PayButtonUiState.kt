@@ -3,7 +3,7 @@ package com.mercadopago.android.px.internal.features.pay_button
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.addons.model.SecurityValidationData
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
-import com.mercadopago.android.px.model.IPaymentDescriptor
+import com.mercadopago.android.px.model.IParcelablePaymentDescriptor
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
 internal sealed class PayButtonUiState
@@ -14,7 +14,7 @@ internal open class UIProgress : PayButtonUiState() {
     data class ButtonLoadingFinished(val explodeDecorator: ExplodeDecorator? = null) : UIProgress()
     object ButtonLoadingCanceled : UIProgress()
     data class PostPaymentFlowStarted(
-        val iPaymentDescriptor: IPaymentDescriptor,
+        val iParcelablePaymentDescriptor: IParcelablePaymentDescriptor,
         val postPaymentDeepLinkUrl: String
     ) : UIProgress()
 }

@@ -12,8 +12,8 @@ import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactor
 import com.mercadopago.android.px.internal.features.checkout.PostPaymentUrlsMapper
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.one_tap.RenderMode
-import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsPaymentResult
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemediesModel
@@ -444,11 +444,12 @@ internal class PayButtonViewModelTest {
         val deeplink = "mercadopago://px/congrats"
         val advancedConfiguration = mock<AdvancedConfiguration> {
             on { postPaymentConfiguration }.thenReturn(mock())
+            on { postPaymentConfiguration.hasPostPaymentUrl() }.thenReturn(true)
             on { postPaymentConfiguration.getPostPaymentDeepLinkUrl() }.thenReturn(deeplink)
         }
 
         val state = mock<PayButtonViewModel.State>{
-            on { iPaymentDescriptor }.thenReturn(mock())
+            on { iParcelablePaymentDescriptor }.thenReturn(mock())
         }
 
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)
@@ -491,8 +492,8 @@ internal class PayButtonViewModelTest {
         }
 
         val state = mock<PayButtonViewModel.State> {
-            on { iPaymentDescriptor }.thenReturn(mock())
-            on { iPaymentDescriptor?.paymentStatus }.thenReturn(Payment.StatusCodes.STATUS_APPROVED)
+            on { iParcelablePaymentDescriptor }.thenReturn(mock())
+            on { iParcelablePaymentDescriptor?.paymentStatus }.thenReturn(Payment.StatusCodes.STATUS_APPROVED)
         }
 
         whenever(paymentSettingRepository.advancedConfiguration).thenReturn(advancedConfiguration)

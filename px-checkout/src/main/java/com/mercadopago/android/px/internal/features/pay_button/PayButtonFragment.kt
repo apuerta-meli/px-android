@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
@@ -27,7 +28,10 @@ import com.mercadopago.android.px.internal.features.Constants
 import com.mercadopago.android.px.internal.features.dummy_result.DummyResultActivity
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsPaymentResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
+import com.mercadopago.android.px.internal.features.payment_congrats.EXTRA_BUNDLE
+import com.mercadopago.android.px.internal.features.payment_congrats.EXTRA_PAYMENT
 import com.mercadopago.android.px.internal.features.payment_congrats.PaymentCongrats
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
 import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActivity
@@ -42,15 +46,12 @@ import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError
 import com.mercadopago.android.px.tracking.internal.TrackWrapper
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker
-import java.io.Serializable
 import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel as ButtonConfig
 
 private const val REQ_CODE_CONGRATS = 300
 private const val REQ_CODE_PAYMENT_PROCESSOR = 302
 private const val REQ_CODE_BIOMETRICS = 303
 private const val REQ_CODE_SECURITY_CODE = 304
-private const val REQ_CODE_POST_PAYMENT_RESULT_CODE = 305
-private const val EXTRA_POST_PAYMENT_RESULT = "extra_post_payment_result"
 private const val EXTRA_STATE = "extra_state"
 private const val EXTRA_VISIBILITY = "extra_visibility"
 private const val EXTRA_OBSERVING = "extra_observing"
@@ -125,6 +126,10 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             is UIProgress.ButtonLoadingStarted -> startLoadingButton(stateUI.timeOut, stateUI.buttonConfig)
             is UIProgress.ButtonLoadingFinished -> finishLoading(stateUI.explodeDecorator)
             is UIProgress.ButtonLoadingCanceled -> cancelLoading()
+            is UIProgress.PostPaymentFlowStarted -> launchPostPaymentFlow(
+                stateUI.postPaymentDeepLinkUrl,
+                stateUI.iParcelablePaymentDescriptor
+            )
             is UIResult.VisualProcessorResult -> PaymentProcessorActivity.start(this, REQ_CODE_PAYMENT_PROCESSOR)
             is UIError -> resolveError(stateUI)
         }
@@ -132,27 +137,34 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
 
     private fun onCongratsResult(congratsResult: CongratsResult) {
         when (congratsResult) {
-            is CongratsResult.CongratsPaymentResult -> PaymentResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
-            is CongratsResult.CongratsBusinessPaymentResult -> PaymentCongrats.show(
+            is CongratsResult.PaymentResult -> PaymentResultActivity.start(
+                this,
+                REQ_CODE_CONGRATS,
+                congratsResult.paymentModel
+            )
+            is CongratsResult.BusinessPaymentResult -> PaymentCongrats.show(
                 congratsResult.paymentCongratsModel,
                 this,
                 REQ_CODE_CONGRATS
             )
-            is CongratsResult.SkipCongratsResult -> DummyResultActivity.start(this, REQ_CODE_CONGRATS, congratsResult.paymentModel)
-            is CongratsResult.CongratsPostPaymentResult -> launchPostPaymentFlow(
-                congratsResult.postPaymentDeepLinkUrl,
-                congratsResult.paymentModel.payment
+            is CongratsPaymentResult.SkipCongratsResult -> DummyResultActivity.start(
+                this,
+                REQ_CODE_CONGRATS,
+                congratsResult.paymentModel
             )
         }
     }
 
-    private fun launchPostPaymentFlow(deepLink: String, extraData: Serializable?) {
+    private fun launchPostPaymentFlow(deepLink: String, extraData: Parcelable?) {
         runCatching {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
             extraData?.let { data ->
-                intent.putExtra(EXTRA_POST_PAYMENT_RESULT, data)
+                val bundle = Bundle()
+                bundle.putParcelable(EXTRA_PAYMENT, data)
+                intent.putExtra(EXTRA_BUNDLE, bundle)
             }
-            startActivityForResult(intent, REQ_CODE_POST_PAYMENT_RESULT_CODE)
+            startActivity(intent)
+            activity?.finish()
         }.onFailure { exception ->
             viewModel.track(
                 FrictionEventTracker.with(
@@ -253,8 +265,6 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
             } else {
                 viewModel.handleSecurityCodeResult(resultCode, data)
             }
-        } else if (requestCode == REQ_CODE_POST_PAYMENT_RESULT_CODE) {
-            //TODO: Semovi step 2:  https://mercadolibre.atlassian.net/browse/PXN-2842
         } else if (resultCode == Constants.RESULT_PAYMENT) {
             viewModel.onPostPayment(PaymentProcessorActivity.getPaymentModel(data))
         } else if (resultCode == Constants.RESULT_FAIL_ESC) {
@@ -278,7 +288,7 @@ internal class PayButtonFragment : BaseFragment(), PayButton.View, SecurityValid
         super.onDestroy()
     }
 
-    private fun finishLoading(params: ExplodeDecorator) {
+    private fun finishLoading(params: ExplodeDecorator?) {
         ViewUtils.hideKeyboard(activity)
         childFragmentManager.findFragmentByTag(ExplodingFragment.TAG)
             ?.let { (it as ExplodingFragment).finishLoading(params) }

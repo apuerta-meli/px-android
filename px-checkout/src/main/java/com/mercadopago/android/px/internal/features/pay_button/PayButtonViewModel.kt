@@ -21,10 +21,10 @@ import com.mercadopago.android.px.internal.features.pay_button.UIProgress.Button
 import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingFinished
 import com.mercadopago.android.px.internal.features.pay_button.UIProgress.ButtonLoadingStarted
 import com.mercadopago.android.px.internal.features.pay_button.UIProgress.FingerprintRequired
+import com.mercadopago.android.px.internal.features.pay_button.UIProgress.PostPaymentFlowStarted
 import com.mercadopago.android.px.internal.features.pay_button.UIResult.VisualProcessorResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory
-import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModelMapper
 import com.mercadopago.android.px.internal.features.security_code.RenderModeMapper
 import com.mercadopago.android.px.internal.features.security_code.model.SecurityCodeParams
 import com.mercadopago.android.px.internal.livedata.MediatorSingleLiveData
@@ -38,6 +38,7 @@ import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction
 import com.mercadopago.android.px.model.Card
 import com.mercadopago.android.px.model.Currency
+import com.mercadopago.android.px.model.IParcelablePaymentDescriptor
 import com.mercadopago.android.px.model.Payment
 import com.mercadopago.android.px.model.PaymentRecovery
 import com.mercadopago.android.px.model.PaymentResult
@@ -183,6 +184,14 @@ internal class PayButtonViewModel(
             }
         stateUILiveData.addSource(paymentFinishedLiveData) { stateUILiveData.value = it }
 
+        // PostPayment started event
+        val postPaymentStartedLiveData: LiveData<ButtonLoadingFinished?> =
+            transform(serviceLiveData.postPaymentStartedLiveData) { descriptor ->
+                state.iParcelablePaymentDescriptor = descriptor as? IParcelablePaymentDescriptor
+                ButtonLoadingFinished()
+            }
+        stateUILiveData.addSource(postPaymentStartedLiveData) { stateUILiveData.value = it }
+
         // Cvv required event
         val cvvRequiredLiveData: LiveData<Pair<Card, Reason>?> = transform(serviceLiveData.requireCvvLiveData) { it }
         this.cvvRequiredLiveData.addSource(cvvRequiredLiveData) { value ->
@@ -233,12 +242,13 @@ internal class PayButtonViewModel(
         handler.onPostPaymentAction(postPaymentAction)
     }
 
-    override fun skipRevealAnimation() = getPostPaymentDeepLinkUrl().isNotEmpty() && state.paymentModel?.paymentResult?.isApproved == true
+    override fun skipRevealAnimation() =
+        getPostPaymentConfiguration().hasPostPaymentUrl() &&
+                state.iParcelablePaymentDescriptor?.paymentStatus == Payment.StatusCodes.STATUS_APPROVED
 
-    private fun getPostPaymentDeepLinkUrl() = paymentSettingRepository
+    private fun getPostPaymentConfiguration() = paymentSettingRepository
         .advancedConfiguration
         .postPaymentConfiguration
-        .getPostPaymentDeepLinkUrl()
 
     override fun handleCongratsResult(resultCode: Int, data: Intent?) {
         handler.onPostCongrats(resultCode, data)
@@ -279,15 +289,24 @@ internal class PayButtonViewModel(
     }
 
     override fun hasFinishPaymentAnimation() {
-        state.paymentModel?.let { paymentModel ->
-            handler.onPaymentFinished(paymentModel, object : PayButton.OnPaymentFinishedCallback {
-                override fun call() {
-                    congratsResultLiveData.value = congratsResultFactory.create(
-                        paymentModel,
-                        resolvePostPaymentUrls(paymentModel)?.redirectUrl
-                    )
+        when {
+            state.paymentModel != null -> {
+                handler.onPaymentFinished(state.paymentModel!!, object : PayButton.OnPaymentFinishedCallback {
+                    override fun call() {
+                        congratsResultLiveData.value = congratsResultFactory.create(
+                            state.paymentModel!!,
+                            resolvePostPaymentUrls(state.paymentModel!!)?.redirectUrl
+                        )
+                    }
+                })
+            }
+
+            state.iParcelablePaymentDescriptor != null -> {
+                if (getPostPaymentConfiguration().hasPostPaymentUrl()) {
+                    val deeplink = getPostPaymentConfiguration().getPostPaymentDeepLinkUrl()
+                    stateUILiveData.value = PostPaymentFlowStarted(state.iParcelablePaymentDescriptor!!, deeplink)
                 }
-            })
+            }
         }
     }
 
@@ -328,6 +347,7 @@ internal class PayButtonViewModel(
     data class State(
         var paymentConfiguration: PaymentConfiguration? = null,
         var paymentModel: PaymentModel? = null,
+        var iParcelablePaymentDescriptor: IParcelablePaymentDescriptor? = null,
         var retryCounter: Int = 0,
         var observingService: Boolean = false
     ) : BaseState

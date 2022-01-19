@@ -4,7 +4,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.addons.ESCManagerBehaviour;
-import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.core.internal.CheckoutData;
 import com.mercadopago.android.px.core.internal.PaymentWrapper;
 import com.mercadopago.android.px.core.v2.PaymentProcessor;
@@ -116,7 +115,8 @@ public class PaymentService implements PaymentRepository {
 
         handlerWrapper =
             new PaymentServiceHandlerWrapper(this, disabledPaymentMethodRepository, escPaymentManager,
-                congratsRepository, userSelectionRepository);
+                congratsRepository, userSelectionRepository,
+                paymentSettingRepository.getAdvancedConfiguration().getPostPaymentConfiguration());
     }
 
     @Nullable

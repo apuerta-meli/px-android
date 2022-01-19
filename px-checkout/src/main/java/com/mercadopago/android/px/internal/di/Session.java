@@ -31,6 +31,7 @@ import com.mercadopago.android.px.internal.datasource.PaymentService;
 import com.mercadopago.android.px.internal.datasource.PrefetchInitService;
 import com.mercadopago.android.px.internal.datasource.TokenizeService;
 import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactory;
+import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResultFactory;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PXPaymentCongratsTracking;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
@@ -82,6 +83,7 @@ public final class Session extends ApplicationModule {
     private EscPaymentManagerImp escPaymentManager;
     private MPTracker tracker;
     private PaymentResultViewModelFactory paymentResultViewModelFactory;
+    private CongratsResultFactory congratsResultFactory;
     private ViewModelModule viewModelModule;
     private PayerPaymentMethodRepository payerPaymentMethodRepository;
     private OneTapItemRepository oneTapItemRepository;
@@ -198,6 +200,7 @@ public final class Session extends ApplicationModule {
         cardHolderAuthenticatorRepository = null;
         customOptionIdSolver = null;
         audioPlayer = null;
+        congratsResultFactory = null;
     }
 
     @NonNull
@@ -441,6 +444,14 @@ public final class Session extends ApplicationModule {
             paymentResultViewModelFactory = new PaymentResultViewModelFactory(getTracker());
         }
         return paymentResultViewModelFactory;
+    }
+
+    @NonNull
+    public CongratsResultFactory getCongratsResultFactory() {
+        if (congratsResultFactory == null) {
+            congratsResultFactory = new CongratsResultFactory(MapperProvider.INSTANCE.getPaymentCongratsMapper());
+        }
+        return congratsResultFactory;
     }
 
     @NonNull

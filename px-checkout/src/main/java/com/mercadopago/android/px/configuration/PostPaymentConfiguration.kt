@@ -7,14 +7,13 @@ package com.mercadopago.android.px.configuration
  */
 class PostPaymentConfiguration private constructor(builder: Builder) {
 
-    var postPaymentDeepLinkUrl: String? = null
-        private set
+    val postPaymentDeepLinkUrl: String
 
     init {
-        this.postPaymentDeepLinkUrl = builder.postPaymentDeepLinkUrl
+        postPaymentDeepLinkUrl = builder.postPaymentDeepLinkUrl.orEmpty()
     }
 
-    fun hasPostPaymentUrl() = !postPaymentDeepLinkUrl.isNullOrEmpty()
+    fun hasPostPaymentUrl() = postPaymentDeepLinkUrl.isNotEmpty()
 
     class Builder {
 
@@ -32,5 +31,10 @@ class PostPaymentConfiguration private constructor(builder: Builder) {
         }
 
         fun build() = PostPaymentConfiguration(this)
+    }
+
+    companion object {
+        const val EXTRA_BUNDLE = "extra_bundle"
+        const val EXTRA_PAYMENT = "extra_payment"
     }
 }

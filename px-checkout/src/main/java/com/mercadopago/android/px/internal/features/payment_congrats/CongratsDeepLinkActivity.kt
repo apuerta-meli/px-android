@@ -6,6 +6,8 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.mercadolibre.android.ui.widgets.MeliSpinner
 import com.mercadopago.android.px.R
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration.Companion.EXTRA_BUNDLE
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration.Companion.EXTRA_PAYMENT
 import com.mercadopago.android.px.internal.di.viewModel
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
 import com.mercadopago.android.px.internal.util.ErrorUtil

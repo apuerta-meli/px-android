@@ -435,10 +435,12 @@ public class PaymentCongratsModel implements Parcelable {
          */
         public Builder withReceipt(final Long paymentId, final boolean shouldShowReceipt,
             final PaymentCongratsResponse.Action receiptAction) {
-            this.paymentId = paymentId;
-            this.receiptAction = receiptAction;
-            this.shouldShowReceipt = shouldShowReceipt;
-            return this;
+            return withReceipt(
+                paymentId,
+                shouldShowReceipt,
+                receiptAction,
+                false
+            );
         }
 
         /**

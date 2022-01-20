@@ -19,6 +19,8 @@ import com.mercadopago.android.px.R
 import com.mercadopago.android.px.addons.BehaviourProvider
 import com.mercadopago.android.px.addons.internal.SecurityValidationHandler
 import com.mercadopago.android.px.addons.model.SecurityValidationData
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration.Companion.EXTRA_BUNDLE
+import com.mercadopago.android.px.configuration.PostPaymentConfiguration.Companion.EXTRA_PAYMENT
 import com.mercadopago.android.px.internal.base.BaseFragment
 import com.mercadopago.android.px.internal.di.viewModel
 import com.mercadopago.android.px.internal.extensions.runIfNull
@@ -29,8 +31,6 @@ import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsPaymentResult
 import com.mercadopago.android.px.internal.features.payment_congrats.CongratsResult
-import com.mercadopago.android.px.internal.features.payment_congrats.EXTRA_BUNDLE
-import com.mercadopago.android.px.internal.features.payment_congrats.EXTRA_PAYMENT
 import com.mercadopago.android.px.internal.features.payment_congrats.PaymentCongrats
 import com.mercadopago.android.px.internal.features.payment_result.PaymentResultActivity
 import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActivity

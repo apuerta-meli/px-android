@@ -37,11 +37,13 @@ import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.PaymentMethod;
+import com.mercadopago.android.px.model.PaymentMethods;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.Split;
 import com.mercadopago.android.px.model.Token;
+import com.mercadopago.android.px.model.TransactionInfo;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.PaymentConfiguration;
@@ -79,6 +81,7 @@ public class PaymentService implements PaymentRepository {
     @NonNull private final PaymentMethodMapper paymentMethodMapper;
     @NonNull private final PaymentMethodRepository paymentMethodRepository;
     @NonNull private final ValidationProgramUseCase validationProgramUseCase;
+    @NonNull private final TransactionInfoFactory transactionInfoFactory;
 
     public PaymentService(@NonNull final UserSelectionRepository userSelectionRepository,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
@@ -95,7 +98,8 @@ public class PaymentService implements PaymentRepository {
         @NonNull final FromPayerPaymentMethodToCardMapper fromPayerPaymentMethodToCardMapper,
         @NonNull final PaymentMethodMapper paymentMethodMapper,
         @NonNull final PaymentMethodRepository paymentMethodRepository,
-        @NonNull final ValidationProgramUseCase validationProgramUseCase) {
+        @NonNull final ValidationProgramUseCase validationProgramUseCase,
+        @NonNull final TransactionInfoFactory transactionInfoFactory) {
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.escPaymentManager = escPaymentManager;
         this.escManagerBehaviour = escManagerBehaviour;
@@ -107,6 +111,7 @@ public class PaymentService implements PaymentRepository {
         this.tokenRepository = tokenRepository;
         this.fileManager = fileManager;
         this.validationProgramUseCase = validationProgramUseCase;
+        this.transactionInfoFactory = transactionInfoFactory;
 
         paymentFile = fileManager.create(FILE_PAYMENT);
         this.fromPayerPaymentMethodToCardMapper = fromPayerPaymentMethodToCardMapper;
@@ -182,6 +187,8 @@ public class PaymentService implements PaymentRepository {
             configuration.getPaymentTypeId());
         final PaymentMethod paymentMethod = paymentMethodMapper.map(pair);
         userSelectionRepository.select(paymentMethod, null);
+        userSelectionRepository.select(configuration.getCustomOptionId());
+
         if (PaymentTypes.isCardPaymentType(paymentMethod.getPaymentTypeId())) {
             // cards
             final Card card = fromPayerPaymentMethodToCardMapper.map(
@@ -331,6 +338,7 @@ public class PaymentService implements PaymentRepository {
         final DiscountConfigurationModel discountModel = discountRepository.getCurrentConfiguration();
         final PaymentMethod secondaryPaymentMethod = userSelectionRepository.getSecondaryPaymentMethod();
         final PaymentMethod paymentMethod = userSelectionRepository.getPaymentMethod();
+        final TransactionInfo transactionInfo = transactionInfoFactory.create(userSelectionRepository.getCustomOptionId(), paymentMethod);
         final PayerCost payerCost = userSelectionRepository.getPayerCost();
         final BigDecimal amountToPay = amountRepository.getAmountToPay(paymentMethod.getPaymentTypeId(), payerCost);
 
@@ -344,6 +352,7 @@ public class PaymentService implements PaymentRepository {
                 .setToken(paymentSettingRepository.getToken())
                 .setIssuer(userSelectionRepository.getIssuer())
                 .setPayer(paymentSettingRepository.getCheckoutPreference().getPayer())
+                .setTransactionInfo(transactionInfo)
                 .setTransactionAmount(amountToPay)
                 .setCampaign(discountModel.getCampaign())
                 .setDiscount(splitConfiguration.primaryPaymentMethod.discount)
@@ -375,6 +384,7 @@ public class PaymentService implements PaymentRepository {
             final PaymentData paymentData = new PaymentData.Builder()
                 .setPaymentMethod(paymentMethod)
                 .setPayerCost(payerCost)
+                .setTransactionInfo(transactionInfo)
                 .setToken(paymentSettingRepository.getToken())
                 .setIssuer(userSelectionRepository.getIssuer())
                 .setDiscount(discount)

@@ -92,9 +92,11 @@ public final class Session extends ApplicationModule {
     private ConfigurationSolver configurationSolver;
     private CardHolderAuthenticatorRepositoryImpl cardHolderAuthenticatorRepository;
     private UseCaseModule useCaseModule;
+    private FactoryModule factoryModule;
     private CustomOptionIdSolver customOptionIdSolver;
     private AudioPlayer audioPlayer;
     private final NetworkModule networkModule;
+    private HelperModule helperModule;
 
     private Session(@NonNull final Context context) {
         super(context);
@@ -183,6 +185,8 @@ public final class Session extends ApplicationModule {
         getAmountConfigurationRepository().reset();
         getDiscountRepository().reset();
         useCaseModule = null;
+        factoryModule = null;
+        helperModule = null;
         discountRepository = null;
         amountRepository = null;
         checkoutRepository = null;
@@ -306,7 +310,8 @@ public final class Session extends ApplicationModule {
                 MapperProvider.INSTANCE.getFromPayerPaymentMethodToCardMapper(),
                 MapperProvider.INSTANCE.getPaymentMethodMapper(),
                 getPaymentMethodRepository(),
-                getUseCaseModule().getValidationProgramUseCase());
+                getUseCaseModule().getValidationProgramUseCase(),
+                getFactoryModule().getTransactionInfoFactory());
         }
 
         return paymentRepository;
@@ -479,6 +484,21 @@ public final class Session extends ApplicationModule {
         if (TextUtil.isNotEmpty(accessToken)) {
             configurationModule.getAuthorizationProvider().configure(accessToken);
         }
+    }
+
+    private FactoryModule getFactoryModule() {
+        if (factoryModule == null) {
+            factoryModule = new FactoryModule();
+        }
+        return factoryModule;
+    }
+
+    @NonNull
+    public HelperModule getHelperModule() {
+        if (helperModule == null) {
+            helperModule = new HelperModule();
+        }
+        return helperModule;
     }
 
     public enum State {

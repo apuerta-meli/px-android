@@ -117,6 +117,7 @@ public class PaymentServiceTest {
     @Mock private PaymentMethodRepository paymentMethodRepository;
     @Mock private ValidationProgramUseCase validationProgramUseCase;
     @Mock private CustomOptionIdSolver customOptionIdSolver;
+    @Mock private TransactionInfoFactory transactionInfoFactory;
 
     private PaymentService paymentService;
 
@@ -143,7 +144,8 @@ public class PaymentServiceTest {
             fromPayerPaymentMethodToCardMapper,
             paymentMethodMapper,
             paymentMethodRepository,
-            validationProgramUseCase
+            validationProgramUseCase,
+            transactionInfoFactory
         );
 
         application = mock(Application.class);

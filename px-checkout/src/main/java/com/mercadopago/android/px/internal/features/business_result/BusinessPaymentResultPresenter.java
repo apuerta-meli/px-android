@@ -9,6 +9,8 @@ import com.mercadopago.android.px.internal.features.payment_congrats.model.Payme
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsResponse;
 import com.mercadopago.android.px.internal.features.payment_result.CongratsAutoReturn;
 import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter;
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.PaymentResultBody;
 import com.mercadopago.android.px.model.ExitAction;
@@ -37,11 +39,12 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
     @Nullable /* default */ CongratsAutoReturn autoReturnTimer;
 
     /* default */ BusinessPaymentResultPresenter(@NonNull final PaymentCongratsModel model,
-        @NonNull final FlowBehaviour flowBehaviour, final boolean isMP, @NonNull final MPTracker tracker) {
+         @NonNull final FlowBehaviour flowBehaviour, final boolean isMP, @NonNull final MPTracker tracker,
+         @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository, @NonNull final UserSelectionRepository userSelectionRepository) {
         super(tracker);
         this.model = model;
         this.flowBehaviour = flowBehaviour;
-        viewTracker = new ResultViewTrack(model, isMP);
+        viewTracker = new ResultViewTrack(model, isMP, payerPaymentMethodRepository, userSelectionRepository);
     }
 
     @Override

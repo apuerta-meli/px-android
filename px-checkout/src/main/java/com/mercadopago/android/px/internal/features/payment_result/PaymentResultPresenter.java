@@ -18,7 +18,9 @@ import com.mercadopago.android.px.internal.features.payment_result.presentation.
 import com.mercadopago.android.px.internal.features.payment_result.presentation.PaymentResultFooter;
 import com.mercadopago.android.px.internal.features.payment_result.viewmodel.PaymentResultViewModel;
 import com.mercadopago.android.px.internal.mappers.FlowBehaviourResultMapper;
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.ActionDispatcher;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
@@ -52,6 +54,8 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
         @NonNull final FlowBehaviour flowBehaviour, final boolean isMP,
         @NonNull final PaymentCongratsModelMapper paymentCongratsMapper,
         @NonNull final PaymentResultViewModelMapper paymentResultViewModelMapper,
+        @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
+        @NonNull final UserSelectionRepository userSelectionRepository,
         @NonNull final MPTracker tracker) {
         super(tracker);
         this.paymentModel = paymentModel;
@@ -61,7 +65,7 @@ import com.mercadopago.android.px.tracking.internal.views.ResultViewTrack;
         final PaymentResultScreenConfiguration screenConfiguration =
             paymentSettings.getAdvancedConfiguration().getPaymentResultScreenConfiguration();
         this.paymentResultViewModelMapper = paymentResultViewModelMapper;
-        setViewTrack(new ResultViewTrack(paymentModel, screenConfiguration, paymentSettings, isMP));
+        setViewTrack(new ResultViewTrack(paymentModel, screenConfiguration, paymentSettings, isMP, payerPaymentMethodRepository, userSelectionRepository));
     }
 
     @Override

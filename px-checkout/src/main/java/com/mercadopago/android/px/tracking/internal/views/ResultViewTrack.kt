@@ -3,7 +3,9 @@ package com.mercadopago.android.px.tracking.internal.views
 import com.mercadopago.android.px.configuration.PaymentResultScreenConfiguration
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel
 import com.mercadopago.android.px.internal.features.payment_result.remedies.RemedyType
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.model.PaymentResult
 import com.mercadopago.android.px.model.internal.remedies.RemediesResponse
@@ -20,16 +22,17 @@ internal class ResultViewTrack : TrackWrapper {
     private var isStandaloneCongrats: Boolean = false
 
     constructor(paymentModel: PaymentModel, screenConfiguration: PaymentResultScreenConfiguration,
-                paymentSetting: PaymentSettingRepository, isMP: Boolean) {
+                paymentSetting: PaymentSettingRepository, isMP: Boolean,
+                payerPaymentMethodRepository: PayerPaymentMethodRepository, userSelectionRepository: UserSelectionRepository) {
         resultViewTrackModel = ResultViewTrackModel(paymentModel, screenConfiguration, paymentSetting.checkoutPreference!!,
-                paymentSetting.currency.id, isMP)
+                paymentSetting.currency.id, isMP, payerPaymentMethodRepository, userSelectionRepository)
         relativePath = getMappedResult(paymentModel.paymentResult)
         this.remediesResponse = paymentModel.remedies
     }
 
-    constructor(paymentModel: PaymentCongratsModel, isMP: Boolean) {
+    constructor(paymentModel: PaymentCongratsModel, isMP: Boolean, payerPaymentMethodRepository: PayerPaymentMethodRepository, userSelectionRepository: UserSelectionRepository) {
         isStandaloneCongrats = paymentModel.isStandAloneCongrats
-        resultViewTrackModel = ResultViewTrackModel(paymentModel, isMP)
+        resultViewTrackModel = ResultViewTrackModel(paymentModel, isMP, payerPaymentMethodRepository, userSelectionRepository)
         relativePath = paymentModel.trackingRelativePath
         this.remediesResponse = RemediesResponse.EMPTY
     }

@@ -5,9 +5,12 @@ import androidx.annotation.Nullable;
 import com.mercadopago.android.px.configuration.PaymentResultScreenConfiguration;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.FromPaymentCongratsDiscountItemToItemId;
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsModel;
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.PaymentDataHelper;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel;
+import com.mercadopago.android.px.model.CustomSearchItem;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.internal.TrackingHelper;
@@ -37,10 +40,13 @@ public final class ResultViewTrackModel extends TrackingMapModel {
     private boolean hasTopView;
     private boolean hasImportantView;
     private boolean hasMoneySplitView;
+    private final String bankName;
+    private final String externalAccountId;
 
     public ResultViewTrackModel(@NonNull final PaymentModel paymentModel,
         @NonNull final PaymentResultScreenConfiguration screenConfiguration,
-        @NonNull final CheckoutPreference checkoutPreference, @NonNull final String currencyId, final boolean isMP) {
+        @NonNull final CheckoutPreference checkoutPreference, @NonNull final String currencyId, final boolean isMP,
+        @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository, @NonNull final UserSelectionRepository userSelectionRepository) {
         this(Style.GENERIC,
             paymentModel.getPaymentResult().getPaymentId(),
             paymentModel.getPaymentResult().getPaymentStatus(),
@@ -63,14 +69,17 @@ public final class ResultViewTrackModel extends TrackingMapModel {
             paymentModel.getPaymentResult().getPaymentData().getPaymentMethod() != null ? paymentModel
                 .getPaymentResult().getPaymentData().getPaymentMethod().getPaymentTypeId() : null,
             currencyId,
-            paymentModel.getPaymentResult().getPaymentData());
+            paymentModel.getPaymentResult().getPaymentData(),
+            getBankName(payerPaymentMethodRepository, userSelectionRepository),
+            getExternalAccountId(payerPaymentMethodRepository, userSelectionRepository));
         hasBottomView = screenConfiguration.hasBottomFragment();
         hasTopView = screenConfiguration.hasTopFragment();
         hasImportantView = false;
         hasMoneySplitView = isMP && paymentModel.getCongratsResponse().getMoneySplit() != null;
     }
 
-    public ResultViewTrackModel(@NonNull final PaymentCongratsModel paymentCongratsModel, final boolean isMP) {
+    public ResultViewTrackModel(@NonNull final PaymentCongratsModel paymentCongratsModel, final boolean isMP,
+        @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository, @NonNull final UserSelectionRepository userSelectionRepository) {
         this(Style.CUSTOM,
             paymentCongratsModel.getPaymentId(),
             TrackingHelper.getPaymentStatus(paymentCongratsModel),
@@ -91,7 +100,9 @@ public final class ResultViewTrackModel extends TrackingMapModel {
             paymentCongratsModel.getPxPaymentCongratsTracking().getPaymentMethodId(),
             paymentCongratsModel.getPxPaymentCongratsTracking().getPaymentMethodType().toLowerCase(),
             paymentCongratsModel.getPxPaymentCongratsTracking().getCurrencyId(),
-            paymentCongratsModel.getPaymentData());
+            paymentCongratsModel.getPaymentData(),
+            getBankName(payerPaymentMethodRepository, userSelectionRepository),
+            getExternalAccountId(payerPaymentMethodRepository, userSelectionRepository));
         hasBottomView = paymentCongratsModel.hasBottomFragment();
         hasTopView = paymentCongratsModel.hasTopFragment();
         hasMoneySplitView = isMP && paymentCongratsModel.getPaymentCongratsResponse().getExpenseSplit() != null;
@@ -105,7 +116,9 @@ public final class ResultViewTrackModel extends TrackingMapModel {
         @Nullable final String campaignId,
         @Nullable final String paymentMethodId, @Nullable final String paymentMethodType,
         @NonNull final String currencyId,
-        @Nullable final PaymentData paymentData) {
+        @Nullable final PaymentData paymentData,
+        @Nullable final String bankName,
+        @Nullable final String externalAccountId) {
         this.style = style.value;
         this.currencyId = currencyId;
         this.paymentId = paymentId;
@@ -120,6 +133,8 @@ public final class ResultViewTrackModel extends TrackingMapModel {
         this.campaignId = campaignId;
         this.paymentMethodId = paymentMethodId;
         this.paymentMethodType = paymentMethodType;
+        this.bankName = bankName;
+        this.externalAccountId = externalAccountId;
 
         if (paymentData != null) {
             extraInfo.putAll(PaymentDataExtraInfo.resultPaymentDataExtraInfo(paymentData).toMap());
@@ -134,6 +149,36 @@ public final class ResultViewTrackModel extends TrackingMapModel {
 
         Style(@NonNull final String value) {
             this.value = value;
+        }
+    }
+
+    @Nullable
+    private static String getExternalAccountId(PayerPaymentMethodRepository payerPaymentMethodRepository, UserSelectionRepository userSelectionRepository) {
+        final String customOptionId = userSelectionRepository.getCustomOptionId();
+        if (customOptionId != null) {
+            final CustomSearchItem payerPaymentMethod = payerPaymentMethodRepository.get(customOptionId);
+            if (payerPaymentMethod != null) {
+                return payerPaymentMethod.getId();
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    private static String getBankName(PayerPaymentMethodRepository payerPaymentMethodRepository, UserSelectionRepository userSelectionRepository) {
+        final String customOptionId = userSelectionRepository.getCustomOptionId();
+        if (customOptionId != null) {
+            final CustomSearchItem payerPaymentMethod = payerPaymentMethodRepository.get(customOptionId);
+            if (payerPaymentMethod != null && payerPaymentMethod.getBankInfo() != null) {
+                return payerPaymentMethod.getBankInfo().getName();
+            } else {
+                return null;
+            }
+        } else {
+            return null;
         }
     }
 }

@@ -98,7 +98,7 @@ internal class OneTapPresenter(
     private val trackingRepository: TrackingRepository,
     private val customTextsRepository: CustomTextsRepository,
     private val oneTapItemRepository: OneTapItemRepository,
-    payerPaymentMethodRepository: PayerPaymentMethodRepository,
+    private val payerPaymentMethodRepository: PayerPaymentMethodRepository,
     private val modalRepository: ModalRepository,
     private val customOptionIdSolver: CustomOptionIdSolver,
     private val paymentMethodDrawableItemMapper: PaymentMethodDrawableItemMapper,
@@ -428,7 +428,9 @@ internal class OneTapPresenter(
             FromSelectedExpressMetadataToAvailableMethods(
                 applicationSelectionRepository, fromApplicationToApplicationInfo,
                 escManagerBehaviour.escCardIds, configuration.payerCost, configuration.splitPayment
-            ).map(getCurrentOneTapItem())
+            ).map(getCurrentOneTapItem()),
+            payerPaymentMethodRepository,
+            customOptionIdSolver[getCurrentOneTapItem()]
         )
         val experiment = experimentsRepository.getExperiment(KnownExperiment.INSTALLMENTS_HIGHLIGHT)
         if (getCurrentPayerCosts().size > 1 && experiment != null) {

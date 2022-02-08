@@ -3,9 +3,11 @@ package com.mercadopago.android.px.tracking.internal.model;
 import android.os.Parcel;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
-import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
-import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
+import androidx.annotation.Nullable;
 
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
+import com.mercadopago.android.px.model.CustomSearchItem;
 import com.mercadopago.android.px.tracking.internal.mapper.FromUserSelectionToAvailableMethod;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,8 @@ public class ConfirmData extends AvailableMethod {
 
     private final String reviewType;
     private int paymentMethodSelectedIndex;
+    private String bankName;
+    private String externalAccountId;
 
     public static final Creator<ConfirmData> CREATOR = new Creator<ConfirmData>() {
         @Override
@@ -30,28 +34,34 @@ public class ConfirmData extends AvailableMethod {
         }
     };
 
-    public static ConfirmData from(final String paymentTypeId, final String paymentMethodId, final boolean isCompliant, final boolean hasAdditionalInfoNeeded) {
+    public static ConfirmData from(final String paymentTypeId, final String paymentMethodId, final boolean isCompliant, final boolean hasAdditionalInfoNeeded,
+                                   @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository, @NonNull final String customOptionId) {
         final Map<String, Object> extraInfo = new HashMap<>();
         extraInfo.put("has_payer_information", isCompliant);
         extraInfo.put("additional_information_needed", hasAdditionalInfoNeeded);
-        return new ConfirmData(ReviewType.ONE_TAP, new AvailableMethod(paymentMethodId, paymentTypeId, extraInfo));
+        return new ConfirmData(ReviewType.ONE_TAP, new AvailableMethod(paymentMethodId, paymentTypeId, extraInfo), payerPaymentMethodRepository, customOptionId);
     }
 
     public static ConfirmData from(@NonNull final Set<String> cardsWithEsc,
-        @NonNull final UserSelectionRepository userSelectionRepository) {
+        @NonNull final UserSelectionRepository userSelectionRepository, @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
+        @NonNull final String customOptionId) {
         final AvailableMethod ava = new FromUserSelectionToAvailableMethod(cardsWithEsc).map(userSelectionRepository);
-        return new ConfirmData(ReviewType.TRADITIONAL, ava);
+        return new ConfirmData(ReviewType.TRADITIONAL, ava, payerPaymentMethodRepository, customOptionId);
     }
 
     public ConfirmData(@NonNull final ReviewType reviewType, final int paymentMethodSelectedIndex,
-        @NonNull final AvailableMethod availableMethod) {
+                       @NonNull final AvailableMethod availableMethod, @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
+                       @NonNull final String customOptionId) {
         super(availableMethod.paymentMethodId, availableMethod.paymentMethodType, availableMethod.extraInfo);
         this.reviewType = reviewType.value;
         this.paymentMethodSelectedIndex = paymentMethodSelectedIndex;
+        this.bankName = getBankName(payerPaymentMethodRepository, customOptionId);
+        this.externalAccountId = getExternalAccountId(payerPaymentMethodRepository, customOptionId);
     }
 
     public ConfirmData(@NonNull final ReviewType reviewType,
-        @NonNull final AvailableMethod availableMethod) {
+        @NonNull final AvailableMethod availableMethod, @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
+        @NonNull final String customOptionId) {
         super(availableMethod.paymentMethodId, availableMethod.paymentMethodType, availableMethod.extraInfo);
         this.reviewType = reviewType.value;
     }
@@ -83,6 +93,28 @@ public class ConfirmData extends AvailableMethod {
 
         ReviewType(@NonNull final String value) {
             this.value = value;
+        }
+    }
+
+    @Nullable
+    private String getBankName(@NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
+                               @NonNull final String customOptionId) {
+        final CustomSearchItem payerPaymentMethod = payerPaymentMethodRepository.get(customOptionId);
+        if (payerPaymentMethod != null && payerPaymentMethod.getBankInfo() != null) {
+            return payerPaymentMethod.getBankInfo().getName();
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    private String getExternalAccountId(@NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
+                                        @NonNull final String customOptionId) {
+        final CustomSearchItem payerPaymentMethod = payerPaymentMethodRepository.get(customOptionId);
+        if (payerPaymentMethod != null && payerPaymentMethod.getBankInfo() != null) {
+            return payerPaymentMethod.getId();
+        } else {
+            return null;
         }
     }
 }

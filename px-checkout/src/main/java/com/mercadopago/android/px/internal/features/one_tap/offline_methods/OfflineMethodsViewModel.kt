@@ -29,6 +29,7 @@ internal class OfflineMethodsViewModel(
     private val discountRepository: DiscountRepository,
     private val oneTapItemRepository: OneTapItemRepository,
     private val payerComplianceRepository: PayerComplianceRepository,
+    private val payerPaymentMethodRepository: PayerPaymentMethodRepository,
     tracker: MPTracker) : BaseViewModel(tracker), OfflineMethods.ViewModel {
 
     private lateinit var viewTracker: OfflineMethodsViewTracker
@@ -92,7 +93,8 @@ internal class OfflineMethodsViewModel(
 
     override fun onPaymentExecuted(configuration: PaymentConfiguration) {
         val confirmData = ConfirmData.from(configuration.paymentTypeId, configuration.paymentMethodId,
-            payerCompliance?.isCompliant == true, selectedItem?.isAdditionalInfoNeeded == true)
+            payerCompliance?.isCompliant == true, selectedItem?.isAdditionalInfoNeeded == true,
+            payerPaymentMethodRepository, configuration.customOptionId)
         track(ConfirmEvent(confirmData))
     }
 

@@ -13,21 +13,7 @@ import com.mercadopago.android.px.internal.domain.CheckoutWithNewCardUseCase
 import com.mercadopago.android.px.internal.features.AmountDescriptorViewModelFactory
 import com.mercadopago.android.px.internal.mappers.ElementDescriptorMapper
 import com.mercadopago.android.px.internal.mappers.SummaryInfoMapper
-import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository
-import com.mercadopago.android.px.internal.repository.AmountRepository
-import com.mercadopago.android.px.internal.repository.ApplicationSelectionRepository
-import com.mercadopago.android.px.internal.repository.ChargeRepository
-import com.mercadopago.android.px.internal.repository.CheckoutRepository
-import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository
-import com.mercadopago.android.px.internal.repository.DiscountRepository
-import com.mercadopago.android.px.internal.repository.ExperimentsRepository
-import com.mercadopago.android.px.internal.repository.ModalRepository
-import com.mercadopago.android.px.internal.repository.OneTapItemRepository
-import com.mercadopago.android.px.internal.repository.PayerComplianceRepository
-import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository
-import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
-import com.mercadopago.android.px.internal.repository.PaymentRepository
-import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
+import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
 import com.mercadopago.android.px.internal.view.SummaryDetailDescriptorMapper
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState
@@ -132,6 +118,8 @@ class OneTapPresenterTest {
 
     private val authorizationProvider = mockk<AuthorizationProvider>()
 
+    private val userSelectionRepository = mockk<UserSelectionRepository>(relaxed = true)
+
     private lateinit var checkoutUseCase: CheckoutUseCase
     private lateinit var checkoutWithNewCardUseCase: CheckoutWithNewCardUseCase
 
@@ -202,6 +190,7 @@ class OneTapPresenterTest {
             mockk(relaxed = true),
             authorizationProvider,
             amountDescriptorViewModelFactory,
+            userSelectionRepository,
             tracker
         )
         verifyAttachView()

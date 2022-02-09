@@ -1,7 +1,9 @@
 package com.mercadopago.android.px.internal.features.payment_result
 
 import com.mercadopago.android.px.configuration.AdvancedConfiguration
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.internal.viewmodel.PaymentModel
 import com.mercadopago.android.px.model.PaymentResult
 import com.mercadopago.android.px.tracking.internal.MPTracker
@@ -27,6 +29,9 @@ class PaymentResultPresenterTest {
         val advancedConfiguration = mock<AdvancedConfiguration>()
         val paymentModel = mock<PaymentModel>()
         val paymentResult = mock<PaymentResult>()
+        val payerPaymentMethodRepository = mock<PayerPaymentMethodRepository>()
+        val userSelectionRepository = mock<UserSelectionRepository>()
+
         whenever(paymentModel.paymentResult).thenReturn(paymentResult)
         whenever(paymentModel.congratsResponse).thenReturn(mock())
         whenever(paymentModel.remedies).thenReturn(mock())
@@ -42,6 +47,8 @@ class PaymentResultPresenterTest {
             true,
             mock(),
             mock(),
+            payerPaymentMethodRepository,
+            userSelectionRepository,
             tracker
         )
     }

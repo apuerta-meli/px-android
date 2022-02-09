@@ -153,30 +153,24 @@ public final class ResultViewTrackModel extends TrackingMapModel {
     }
 
     @Nullable
-    private static String getExternalAccountId(PayerPaymentMethodRepository payerPaymentMethodRepository, UserSelectionRepository userSelectionRepository) {
+    private static String getExternalAccountId(@NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
+                                               @NonNull final UserSelectionRepository userSelectionRepository) {
         final String customOptionId = userSelectionRepository.getCustomOptionId();
         if (customOptionId != null) {
             final CustomSearchItem payerPaymentMethod = payerPaymentMethodRepository.get(customOptionId);
-            if (payerPaymentMethod != null) {
-                return payerPaymentMethod.getId();
-            } else {
-                return null;
-            }
+            return payerPaymentMethod != null ? payerPaymentMethod.getId() : null;
         } else {
             return null;
         }
     }
 
     @Nullable
-    private static String getBankName(PayerPaymentMethodRepository payerPaymentMethodRepository, UserSelectionRepository userSelectionRepository) {
+    private static String getBankName(@NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
+                                      @NonNull final UserSelectionRepository userSelectionRepository) {
         final String customOptionId = userSelectionRepository.getCustomOptionId();
         if (customOptionId != null) {
             final CustomSearchItem payerPaymentMethod = payerPaymentMethodRepository.get(customOptionId);
-            if (payerPaymentMethod != null && payerPaymentMethod.getBankInfo() != null) {
-                return payerPaymentMethod.getBankInfo().getName();
-            } else {
-                return null;
-            }
+            return payerPaymentMethod != null && payerPaymentMethod.getBankInfo() != null ? payerPaymentMethod.getBankInfo().getName() : null;
         } else {
             return null;
         }

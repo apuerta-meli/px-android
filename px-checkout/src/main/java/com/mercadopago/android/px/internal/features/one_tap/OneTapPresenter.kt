@@ -34,7 +34,11 @@ import com.mercadopago.android.px.internal.mappers.PaymentMethodDescriptorMapper
 import com.mercadopago.android.px.internal.mappers.SplitHeaderMapper
 import com.mercadopago.android.px.internal.mappers.SummaryInfoMapper
 import com.mercadopago.android.px.internal.mappers.SummaryViewModelMapper
-import com.mercadopago.android.px.internal.repository.*
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository
+import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodKey
+import com.mercadopago.android.px.internal.repository.ChargeRepository
+import com.mercadopago.android.px.internal.repository.AmountRepository
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository
 import com.mercadopago.android.px.internal.repository.ApplicationSelectionRepository
 import com.mercadopago.android.px.internal.repository.CustomTextsRepository

@@ -4,7 +4,7 @@ import com.mercadopago.android.px.internal.repository.PayerPaymentMethodReposito
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.tracking.internal.model.TrackingMapModel
 
-internal class BankInfoModalViewModel(
+internal class RemedyModalViewModel(
     payerPaymentMethodRepository: PayerPaymentMethodRepository,
     userSelectionRepository: UserSelectionRepository
 ) : TrackingMapModel() {

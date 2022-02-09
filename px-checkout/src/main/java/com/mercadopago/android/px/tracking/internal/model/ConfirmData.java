@@ -7,9 +7,11 @@ import androidx.annotation.Nullable;
 import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.model.CustomSearchItem;
+import com.mercadopago.android.px.model.PaymentMethods;
 import com.mercadopago.android.px.tracking.internal.mapper.FromUserSelectionToAvailableMethod;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @SuppressWarnings("unused")
@@ -54,8 +56,8 @@ public class ConfirmData extends AvailableMethod {
         super(availableMethod.paymentMethodId, availableMethod.paymentMethodType, availableMethod.extraInfo);
         this.reviewType = reviewType.value;
         this.paymentMethodSelectedIndex = paymentMethodSelectedIndex;
-        this.bankName = getBankName(payerPaymentMethodRepository, userSelectionRepository);
-        this.externalAccountId = getExternalAccountId(payerPaymentMethodRepository, userSelectionRepository);
+        this.bankName = getBankName(payerPaymentMethodRepository, userSelectionRepository, availableMethod);
+        this.externalAccountId = getExternalAccountId(payerPaymentMethodRepository, userSelectionRepository, availableMethod);
     }
 
     public ConfirmData(@NonNull final ReviewType reviewType,
@@ -63,8 +65,8 @@ public class ConfirmData extends AvailableMethod {
         @NonNull final UserSelectionRepository userSelectionRepository) {
         super(availableMethod.paymentMethodId, availableMethod.paymentMethodType, availableMethod.extraInfo);
         this.reviewType = reviewType.value;
-        this.bankName = getBankName(payerPaymentMethodRepository, userSelectionRepository);
-        this.externalAccountId = getExternalAccountId(payerPaymentMethodRepository, userSelectionRepository);
+        this.bankName = getBankName(payerPaymentMethodRepository, userSelectionRepository, availableMethod);
+        this.externalAccountId = getExternalAccountId(payerPaymentMethodRepository, userSelectionRepository, availableMethod);
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -99,9 +101,10 @@ public class ConfirmData extends AvailableMethod {
 
     @Nullable
     private static String getExternalAccountId(@NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
-                                               @NonNull final UserSelectionRepository userSelectionRepository) {
+                                               @NonNull final UserSelectionRepository userSelectionRepository,
+                                               @NonNull final AvailableMethod availableMethod) {
         final String customOptionId = userSelectionRepository.getCustomOptionId();
-        if (customOptionId != null) {
+        if (customOptionId != null && Objects.equals(availableMethod.paymentMethodId, PaymentMethods.ARGENTINA.DEBIN)) {
             final CustomSearchItem payerPaymentMethod = payerPaymentMethodRepository.get(customOptionId);
             return payerPaymentMethod != null ? payerPaymentMethod.getId() : null;
         } else {
@@ -111,9 +114,10 @@ public class ConfirmData extends AvailableMethod {
 
     @Nullable
     private static String getBankName(@NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
-                                      @NonNull final UserSelectionRepository userSelectionRepository) {
+                                      @NonNull final UserSelectionRepository userSelectionRepository,
+                                      @NonNull final AvailableMethod availableMethod) {
         final String customOptionId = userSelectionRepository.getCustomOptionId();
-        if (customOptionId != null) {
+        if (customOptionId != null && Objects.equals(availableMethod.paymentMethodId, PaymentMethods.ARGENTINA.DEBIN)) {
             final CustomSearchItem payerPaymentMethod = payerPaymentMethodRepository.get(customOptionId);
             return payerPaymentMethod != null && payerPaymentMethod.getBankInfo() != null ? payerPaymentMethod.getBankInfo().getName() : null;
         } else {

@@ -34,10 +34,9 @@ import com.mercadopago.android.px.internal.mappers.PaymentMethodDescriptorMapper
 import com.mercadopago.android.px.internal.mappers.SplitHeaderMapper
 import com.mercadopago.android.px.internal.mappers.SummaryInfoMapper
 import com.mercadopago.android.px.internal.mappers.SummaryViewModelMapper
+import com.mercadopago.android.px.internal.repository.*
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository
-import com.mercadopago.android.px.internal.repository.AmountRepository
 import com.mercadopago.android.px.internal.repository.ApplicationSelectionRepository
-import com.mercadopago.android.px.internal.repository.ChargeRepository
 import com.mercadopago.android.px.internal.repository.CustomTextsRepository
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.DiscountRepository
@@ -45,8 +44,6 @@ import com.mercadopago.android.px.internal.repository.ExperimentsRepository
 import com.mercadopago.android.px.internal.repository.ModalRepository
 import com.mercadopago.android.px.internal.repository.OneTapItemRepository
 import com.mercadopago.android.px.internal.repository.PayerComplianceRepository
-import com.mercadopago.android.px.internal.repository.PayerCostSelectionRepository
-import com.mercadopago.android.px.internal.repository.PayerPaymentMethodKey
 import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository
 import com.mercadopago.android.px.internal.tracking.TrackingRepository
@@ -109,6 +106,7 @@ internal class OneTapPresenter(
     private val fromApplicationToApplicationInfo: FromApplicationToApplicationInfo,
     private val authorizationProvider: AuthorizationProvider,
     private val amountDescriptorViewModelFactory: AmountDescriptorViewModelFactory,
+    private val userSelectionRepository: UserSelectionRepository,
     tracker: MPTracker
 ) : BasePresenterWithState<OneTap.View, OneTapState>(tracker), OneTap.Presenter, AmountDescriptorView.OnClickListener {
 
@@ -430,7 +428,7 @@ internal class OneTapPresenter(
                 escManagerBehaviour.escCardIds, configuration.payerCost, configuration.splitPayment
             ).map(getCurrentOneTapItem()),
             payerPaymentMethodRepository,
-            customOptionIdSolver[getCurrentOneTapItem()]
+            userSelectionRepository
         )
         val experiment = experimentsRepository.getExperiment(KnownExperiment.INSTALLMENTS_HIGHLIGHT)
         if (getCurrentPayerCosts().size > 1 && experiment != null) {

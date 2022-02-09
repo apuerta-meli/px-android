@@ -43,6 +43,7 @@ internal class ViewModelFactory : ViewModelProvider.Factory {
                     session.oneTapItemRepository,
                     session.configurationModule.payerComplianceRepository,
                     session.payerPaymentMethodRepository,
+                    session.configurationModule.userSelectionRepository,
                     session.tracker)
             }
             modelClass.isAssignableFrom(SecurityCodeViewModel::class.java) -> {

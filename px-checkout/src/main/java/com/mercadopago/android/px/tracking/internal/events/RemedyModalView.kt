@@ -9,12 +9,12 @@ internal class RemedyModalView(
     payerPaymentMethodRepository: PayerPaymentMethodRepository
 ) : TrackWrapper() {
 
-    private val remedyModalViewModel = BankInfoModel(customOptionId, payerPaymentMethodRepository)
+    private val bankInfoModel = BankInfoModel(customOptionId, payerPaymentMethodRepository)
 
     override fun getTrack() = TrackFactory.withView(PATH).addData(getData()).build()
 
     private fun getData(): Map<String, Any> {
-        return remedyModalViewModel.toMap()
+        return bankInfoModel.toMap()
     }
 
     companion object {

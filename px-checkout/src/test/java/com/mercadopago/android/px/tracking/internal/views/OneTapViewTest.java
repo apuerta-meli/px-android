@@ -1,6 +1,9 @@
 package com.mercadopago.android.px.tracking.internal.views;
 
 import androidx.annotation.NonNull;
+
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
@@ -28,12 +31,18 @@ public class OneTapViewTest {
 
     @Mock private CheckoutPreference checkoutPreference;
 
+    @Mock
+    private PayerPaymentMethodRepository payerPaymentMethodRepository;
+
+    @Mock
+    private UserSelectionRepository userSelectionRepository;
     @Test
     public void verifyPath() {
         assertEquals(EXPECTED_PATH,
             new OneTapViewTracker(mock(FromApplicationToApplicationInfo.class),
                 Collections.EMPTY_LIST, checkoutPreference, discountModel, Collections.emptySet(),
-                Collections.emptySet(), DISABLED_METHODS_QUANTITY, Collections.emptyList()).getTrack().getPath());
+                Collections.emptySet(), DISABLED_METHODS_QUANTITY, Collections.emptyList(),
+                    payerPaymentMethodRepository, userSelectionRepository).getTrack().getPath());
     }
 
     @Test
@@ -41,7 +50,8 @@ public class OneTapViewTest {
         final OneTapViewTracker track =
             new OneTapViewTracker(mock(FromApplicationToApplicationInfo.class),
                 Collections.EMPTY_LIST, checkoutPreference, discountModel, Collections.emptySet(),
-                Collections.emptySet(), DISABLED_METHODS_QUANTITY, Collections.emptyList());
+                Collections.emptySet(), DISABLED_METHODS_QUANTITY, Collections.emptyList(),
+                    payerPaymentMethodRepository, userSelectionRepository);
         assertEquals(expectedOneTapData(), track.getTrack().getData());
     }
 

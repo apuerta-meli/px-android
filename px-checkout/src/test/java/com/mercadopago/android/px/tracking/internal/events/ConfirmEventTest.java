@@ -50,6 +50,7 @@ public class ConfirmEventTest {
             new FromSelectedExpressMetadataToAvailableMethods(
                 applicationSelectionRepository,
                 mock(FromApplicationToApplicationInfo.class),
+                payerPaymentMethodRepository,
                 cardIdsWithEsc,
                 payerCost, false)
                 .map(oneTapItem),

@@ -33,8 +33,7 @@ public final class OneTapData extends SelectMethodData {
             final Iterable<OneTapItem> oneTapItems,
             final CheckoutPreference checkoutPreference, final DiscountConfigurationModel discountModel,
             @NonNull final Set<String> cardsWithEsc, @NonNull final Set<String> cardsWithSplit,
-            final int disabledMethodsQuantity, @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
-            @NonNull final UserSelectionRepository userSelectionRepository) {
+            final int disabledMethodsQuantity, @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository) {
 
         final List<ItemInfo> itemInfoList = new FromItemToItemInfo().map(checkoutPreference.getItems());
 
@@ -42,7 +41,7 @@ public final class OneTapData extends SelectMethodData {
             DiscountInfo.with(discountModel.getDiscount(), discountModel.getCampaign(), discountModel.isAvailable());
 
         return new OneTapData(
-            new FromExpressMetadataToAvailableMethods(fromApplicationToApplicationInfo, cardsWithEsc, cardsWithSplit, payerPaymentMethodRepository, userSelectionRepository)
+            new FromExpressMetadataToAvailableMethods(fromApplicationToApplicationInfo, cardsWithEsc, cardsWithSplit, payerPaymentMethodRepository)
                 .map(oneTapItems),
             checkoutPreference.getTotalAmount(), discountInfo, itemInfoList, disabledMethodsQuantity);
     }

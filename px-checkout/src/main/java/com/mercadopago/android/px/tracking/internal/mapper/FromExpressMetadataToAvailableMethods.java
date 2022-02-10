@@ -3,7 +3,6 @@ package com.mercadopago.android.px.tracking.internal.mapper;
 import androidx.annotation.NonNull;
 import com.mercadopago.android.px.internal.mappers.NonNullMapper;
 import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
-import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.model.AccountMoneyMetadata;
 import com.mercadopago.android.px.model.BenefitsMetadata;
 import com.mercadopago.android.px.model.CardMetadata;
@@ -21,19 +20,16 @@ public class FromExpressMetadataToAvailableMethods extends NonNullMapper<OneTapI
     @NonNull private final Set<String> cardsWithEsc;
     @NonNull private final Set<String> cardsWithSplit;
     @NonNull private final PayerPaymentMethodRepository payerPaymentMethodRepository;
-    @NonNull private final UserSelectionRepository userSelectionRepository;
 
     public FromExpressMetadataToAvailableMethods(
             @NonNull final FromApplicationToApplicationInfo fromApplicationToApplicationInfo,
             @NonNull final Set<String> cardsWithEsc,
             @NonNull final Set<String> cardsWithSplit,
-            @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
-            @NonNull final UserSelectionRepository userSelectionRepository) {
+            @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository) {
         this.fromApplicationToApplicationInfo = fromApplicationToApplicationInfo;
         this.cardsWithEsc = cardsWithEsc;
         this.cardsWithSplit = cardsWithSplit;
         this.payerPaymentMethodRepository = payerPaymentMethodRepository;
-        this.userSelectionRepository = userSelectionRepository;
     }
 
     @Override

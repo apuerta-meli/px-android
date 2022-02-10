@@ -125,8 +125,7 @@ internal class OneTapPresenter(
             payerPaymentMethodRepository.getIdsWithSplitAllowed(),
             disabledPaymentMethodRepository.value.size,
             experimentsRepository.getExperiments(Configuration.TrackingMode.NO_CONDITIONAL),
-            payerPaymentMethodRepository,
-            userSelectionRepository
+            payerPaymentMethodRepository
         )
     }
 
@@ -431,7 +430,10 @@ internal class OneTapPresenter(
             ConfirmData.ReviewType.ONE_TAP, state.paymentMethodIndex,
             FromSelectedExpressMetadataToAvailableMethods(
                 applicationSelectionRepository, fromApplicationToApplicationInfo,
-                escManagerBehaviour.escCardIds, configuration.payerCost, configuration.splitPayment
+                payerPaymentMethodRepository,
+                escManagerBehaviour.escCardIds,
+                configuration.payerCost,
+                configuration.splitPayment
             ).map(getCurrentOneTapItem()),
             payerPaymentMethodRepository,
             userSelectionRepository

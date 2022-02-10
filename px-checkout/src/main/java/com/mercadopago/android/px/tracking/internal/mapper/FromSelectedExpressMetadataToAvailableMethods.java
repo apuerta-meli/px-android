@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mercadopago.android.px.internal.mappers.Mapper;
 import com.mercadopago.android.px.internal.repository.ApplicationSelectionRepository;
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
 import com.mercadopago.android.px.model.AccountMoneyMetadata;
 import com.mercadopago.android.px.model.BenefitsMetadata;
 import com.mercadopago.android.px.model.CardMetadata;
@@ -12,6 +13,7 @@ import com.mercadopago.android.px.model.PaymentMethods;
 import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.internal.Application;
 import com.mercadopago.android.px.model.internal.OneTapItem;
+import com.mercadopago.android.px.tracking.internal.events.BankInfoModel;
 import com.mercadopago.android.px.tracking.internal.model.AccountMoneyExtraInfo;
 import com.mercadopago.android.px.tracking.internal.model.AvailableMethod;
 import com.mercadopago.android.px.tracking.internal.model.CardExtraExpress;
@@ -23,6 +25,7 @@ public class FromSelectedExpressMetadataToAvailableMethods extends Mapper<OneTap
 
     @NonNull private final FromApplicationToApplicationInfo fromApplicationToApplicationInfo;
     @NonNull private final ApplicationSelectionRepository applicationSelectionRepository;
+    @NonNull private final PayerPaymentMethodRepository payerPaymentMethodRepository;
     @NonNull private final Set<String> cardsWithEsc;
     @Nullable private final PayerCost selectedPayerCost;
     private final boolean isSplit;
@@ -30,10 +33,12 @@ public class FromSelectedExpressMetadataToAvailableMethods extends Mapper<OneTap
     public FromSelectedExpressMetadataToAvailableMethods(
         @NonNull final ApplicationSelectionRepository applicationSelectionRepository,
         @NonNull final FromApplicationToApplicationInfo fromApplicationToApplicationInfo,
+        @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
         @NonNull final Set<String> cardsWithEsc,
         @Nullable final PayerCost selectedPayerCost, final boolean isSplit) {
         this.applicationSelectionRepository = applicationSelectionRepository;
         this.fromApplicationToApplicationInfo = fromApplicationToApplicationInfo;
+        this.payerPaymentMethodRepository = payerPaymentMethodRepository;
         this.cardsWithEsc = cardsWithEsc;
         this.selectedPayerCost = selectedPayerCost;
         this.isSplit = isSplit;
@@ -68,6 +73,10 @@ public class FromSelectedExpressMetadataToAvailableMethods extends Mapper<OneTap
                 .setExtraInfo(new AccountMoneyExtraInfo(accountMoney.getBalance(), accountMoney.isInvested()).toMap());
         } else if (PaymentMethods.CONSUMER_CREDITS.equals(paymentMethod.getType()) && selectedPayerCost != null) {
             builder.setExtraInfo(new CreditsExtraInfo(new PayerCostInfo(selectedPayerCost)).toMap());
+        } else if (oneTapItem.isBankTransfer() && oneTapItem.getPaymentMethodId().equals(PaymentMethods.ARGENTINA.DEBIN) && oneTapItem.getBankTransfer() != null) {
+            builder.setExtraInfo(
+                    new BankInfoModel(oneTapItem.getBankTransfer().getId(), payerPaymentMethodRepository).toMap()
+            );
         }
 
         return builder.build();

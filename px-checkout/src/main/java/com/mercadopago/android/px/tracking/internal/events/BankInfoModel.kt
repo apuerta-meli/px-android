@@ -4,7 +4,7 @@ import com.mercadopago.android.px.internal.repository.PayerPaymentMethodReposito
 import com.mercadopago.android.px.tracking.internal.model.TrackingMapModel
 
 internal class BankInfoModel(
-    customOptionId: String,
+    customOptionId: String?,
     payerPaymentMethodRepository: PayerPaymentMethodRepository
 ) : TrackingMapModel() {
 
@@ -12,7 +12,7 @@ internal class BankInfoModel(
     private var externalAccountId: String? = null
 
     init {
-        bankName = payerPaymentMethodRepository[customOptionId]?.bankInfo?.name
-        externalAccountId = customOptionId
+        bankName = customOptionId?.let { payerPaymentMethodRepository[it] }?.bankInfo?.name
+        externalAccountId = customOptionId?.let { payerPaymentMethodRepository[it] }?.id
     }
 }

@@ -38,8 +38,6 @@ internal class RemediesViewModel(
     private val escManagerBehaviour: ESCManagerBehaviour,
     private val amountConfigurationRepository: AmountConfigurationRepository,
     private val applicationSelectionRepository: ApplicationSelectionRepository,
-    private val payerPaymentMethodRepository: PayerPaymentMethodRepository,
-    private val userSelectionRepository: UserSelectionRepository,
     oneTapItemRepository: OneTapItemRepository,
     fromPayerPaymentMethodToCardMapper: FromPayerPaymentMethodToCardMapper,
     tracker: MPTracker
@@ -90,7 +88,7 @@ internal class RemediesViewModel(
         previousPaymentModel.remedies.suggestedPaymentMethod?.modal?.takeUnless {
             showedModal
         }?.let {
-            track(RemedyModalView(getMethodIds().customOptionId, payerPaymentMethodRepository))
+            track(RemedyModalView())
             remedyState.value = RemedyState.ShowModal(it)
         } ?: callback.call(paymentConfiguration!!)
     }

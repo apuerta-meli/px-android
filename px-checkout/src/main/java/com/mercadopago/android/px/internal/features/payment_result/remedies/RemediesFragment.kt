@@ -50,8 +50,6 @@ internal class RemediesFragment : Fragment(), Remedies.View, CvvRemedy.Listener,
                 remediesModel!!, paymentModel!!, session.paymentRepository,
                 session.configurationModule.paymentSettings, session.cardTokenRepository, session.mercadoPagoESC,
                 session.amountConfigurationRepository, session.configurationModule.applicationSelectionRepository,
-                session.payerPaymentMethodRepository,
-                session.configurationModule.userSelectionRepository,
                 session.oneTapItemRepository,
                 MapperProvider.getFromPayerPaymentMethodToCardMapper(),
                 session.tracker

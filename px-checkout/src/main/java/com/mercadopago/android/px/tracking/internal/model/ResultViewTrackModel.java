@@ -71,8 +71,8 @@ public final class ResultViewTrackModel extends TrackingMapModel {
                 .getPaymentResult().getPaymentData().getPaymentMethod().getPaymentTypeId() : null,
             currencyId,
             paymentModel.getPaymentResult().getPaymentData(),
-            getBankName(payerPaymentMethodRepository, userSelectionRepository, paymentModel.getPaymentResult().getPaymentMethodId()),
-            getExternalAccountId(payerPaymentMethodRepository, userSelectionRepository, paymentModel.getPaymentResult().getPaymentMethodId()));
+            getBankName(payerPaymentMethodRepository, userSelectionRepository, paymentModel.getPaymentResult().getPaymentData().getPaymentMethod().getId()),
+            getExternalAccountId(payerPaymentMethodRepository, userSelectionRepository, paymentModel.getPaymentResult().getPaymentData().getPaymentMethod().getId()));
         hasBottomView = screenConfiguration.hasBottomFragment();
         hasTopView = screenConfiguration.hasTopFragment();
         hasImportantView = false;

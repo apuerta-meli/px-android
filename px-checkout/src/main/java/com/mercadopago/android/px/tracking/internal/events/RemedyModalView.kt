@@ -1,16 +1,15 @@
 package com.mercadopago.android.px.tracking.internal.events
 
 import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
-import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.tracking.internal.TrackFactory
 import com.mercadopago.android.px.tracking.internal.TrackWrapper
 
 internal class RemedyModalView(
-    payerPaymentMethodRepository: PayerPaymentMethodRepository,
-    userSelectionRepository: UserSelectionRepository
+    customOptionId: String,
+    payerPaymentMethodRepository: PayerPaymentMethodRepository
 ) : TrackWrapper() {
 
-    private val remedyModalViewModel = RemedyModalViewModel(payerPaymentMethodRepository, userSelectionRepository)
+    private val remedyModalViewModel = BankInfoModel(customOptionId, payerPaymentMethodRepository)
 
     override fun getTrack() = TrackFactory.withView(PATH).addData(getData()).build()
 

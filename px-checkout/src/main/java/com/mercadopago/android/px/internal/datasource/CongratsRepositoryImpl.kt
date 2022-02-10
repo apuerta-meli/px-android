@@ -111,7 +111,7 @@ internal class CongratsRepositoryImpl(
                 payerPaymentMethodRepository
             ).map(paymentData)
             congratsService.getRemedies(
-                payment.id.toString(),
+               null.toString(),
                 hasOneTap,
                 body
             )

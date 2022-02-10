@@ -1,6 +1,8 @@
 package com.mercadopago.android.px.tracking.internal.views
 
 import com.mercadopago.android.px.addons.model.internal.Experiment
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.model.DiscountConfigurationModel
 import com.mercadopago.android.px.model.internal.OneTapItem
 import com.mercadopago.android.px.preferences.CheckoutPreference
@@ -17,10 +19,13 @@ internal class OneTapViewTracker(
     cardsWithEsc: Set<String?>,
     cardsWithSplit: Set<String?>,
     disabledMethodsQuantity: Int,
-    private val experiments: List<Experiment>) : TrackWrapper() {
+    private val experiments: List<Experiment>,
+    payerPaymentMethodRepository: PayerPaymentMethodRepository,
+    userSelectionRepository: UserSelectionRepository
+) : TrackWrapper() {
 
     private val data = OneTapData.createFrom(fromApplicationToApplicationInfo, oneTapItem, checkoutPreference,
-        discountModel, cardsWithEsc, cardsWithSplit, disabledMethodsQuantity)
+        discountModel, cardsWithEsc, cardsWithSplit, disabledMethodsQuantity, payerPaymentMethodRepository, userSelectionRepository)
 
     override fun getTrack() = TrackFactory.withView(PATH_REVIEW_ONE_TAP_VIEW)
         .addData(data.toMap())

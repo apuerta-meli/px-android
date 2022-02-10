@@ -3,6 +3,8 @@ package com.mercadopago.android.px.tracking.internal.model;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
+import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.internal.OneTapItem;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
@@ -27,11 +29,12 @@ public final class OneTapData extends SelectMethodData {
 
     @NonNull
     public static OneTapData createFrom(
-        @NonNull final FromApplicationToApplicationInfo fromApplicationToApplicationInfo,
-        final Iterable<OneTapItem> oneTapItems,
-        final CheckoutPreference checkoutPreference, final DiscountConfigurationModel discountModel,
-        @NonNull final Set<String> cardsWithEsc, @NonNull final Set<String> cardsWithSplit,
-        final int disabledMethodsQuantity) {
+            @NonNull final FromApplicationToApplicationInfo fromApplicationToApplicationInfo,
+            final Iterable<OneTapItem> oneTapItems,
+            final CheckoutPreference checkoutPreference, final DiscountConfigurationModel discountModel,
+            @NonNull final Set<String> cardsWithEsc, @NonNull final Set<String> cardsWithSplit,
+            final int disabledMethodsQuantity, @NonNull final PayerPaymentMethodRepository payerPaymentMethodRepository,
+            @NonNull final UserSelectionRepository userSelectionRepository) {
 
         final List<ItemInfo> itemInfoList = new FromItemToItemInfo().map(checkoutPreference.getItems());
 
@@ -39,7 +42,7 @@ public final class OneTapData extends SelectMethodData {
             DiscountInfo.with(discountModel.getDiscount(), discountModel.getCampaign(), discountModel.isAvailable());
 
         return new OneTapData(
-            new FromExpressMetadataToAvailableMethods(fromApplicationToApplicationInfo, cardsWithEsc, cardsWithSplit)
+            new FromExpressMetadataToAvailableMethods(fromApplicationToApplicationInfo, cardsWithEsc, cardsWithSplit, payerPaymentMethodRepository, userSelectionRepository)
                 .map(oneTapItems),
             checkoutPreference.getTotalAmount(), discountInfo, itemInfoList, disabledMethodsQuantity);
     }

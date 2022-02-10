@@ -124,7 +124,9 @@ internal class OneTapPresenter(
             discountRepository.getCurrentConfiguration(), escManagerBehaviour.escCardIds,
             payerPaymentMethodRepository.getIdsWithSplitAllowed(),
             disabledPaymentMethodRepository.value.size,
-            experimentsRepository.getExperiments(Configuration.TrackingMode.NO_CONDITIONAL)
+            experimentsRepository.getExperiments(Configuration.TrackingMode.NO_CONDITIONAL),
+            payerPaymentMethodRepository,
+            userSelectionRepository
         )
     }
 

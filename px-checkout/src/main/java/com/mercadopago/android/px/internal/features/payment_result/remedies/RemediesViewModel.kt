@@ -90,7 +90,7 @@ internal class RemediesViewModel(
         previousPaymentModel.remedies.suggestedPaymentMethod?.modal?.takeUnless {
             showedModal
         }?.let {
-            track(RemedyModalView(payerPaymentMethodRepository, userSelectionRepository))
+            track(RemedyModalView(getMethodIds().customOptionId, payerPaymentMethodRepository))
             remedyState.value = RemedyState.ShowModal(it)
         } ?: callback.call(paymentConfiguration!!)
     }

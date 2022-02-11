@@ -6,7 +6,7 @@ import com.mercadopago.android.px.internal.features.payment_congrats.model.Payme
 import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.model.PaymentData
-import com.mercadopago.android.px.model.display_info.BankTransferDisplayInfo
+import com.mercadopago.android.px.model.display_info.CustomSearchItemDisplayInfo
 import com.mercadopago.android.px.model.display_info.DisplayInfo
 import com.mercadopago.android.px.model.internal.Text
 
@@ -39,10 +39,10 @@ internal class DisplayInfoHelper(
     }
 
     private fun resolveBankTransferDisplayInfo(
-        bankTransferDisplayInfo: BankTransferDisplayInfo?,
+        customSearchItemDisplayInfo: CustomSearchItemDisplayInfo?,
         paymentInfoBuilder: PaymentInfo.Builder
     ) {
-        bankTransferDisplayInfo?.let {
+        customSearchItemDisplayInfo?.let {
             with(it.result.paymentMethod) {
                 paymentInfoBuilder
                     .withDescriptionText(buildPaymentCongratsText(detail[0]))

@@ -13,7 +13,7 @@ import com.mercadopago.android.px.model.PaymentMethods;
 import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.internal.Application;
 import com.mercadopago.android.px.model.internal.OneTapItem;
-import com.mercadopago.android.px.tracking.internal.events.BankInfoModel;
+import com.mercadopago.android.px.tracking.internal.events.BankTransferExtraInfo;
 import com.mercadopago.android.px.tracking.internal.model.AccountMoneyExtraInfo;
 import com.mercadopago.android.px.tracking.internal.model.AvailableMethod;
 import com.mercadopago.android.px.tracking.internal.model.CardExtraExpress;
@@ -73,9 +73,9 @@ public class FromSelectedExpressMetadataToAvailableMethods extends Mapper<OneTap
                 .setExtraInfo(new AccountMoneyExtraInfo(accountMoney.getBalance(), accountMoney.isInvested()).toMap());
         } else if (PaymentMethods.CONSUMER_CREDITS.equals(paymentMethod.getType()) && selectedPayerCost != null) {
             builder.setExtraInfo(new CreditsExtraInfo(new PayerCostInfo(selectedPayerCost)).toMap());
-        } else if (oneTapItem.isBankTransfer() && oneTapItem.getPaymentMethodId().equals(PaymentMethods.ARGENTINA.DEBIN) && oneTapItem.getBankTransfer() != null) {
+        } else if (oneTapItem.isBankTransfer() && oneTapItem.getPaymentMethodId().equals(PaymentMethods.ARGENTINA.DEBIN)) {
             builder.setExtraInfo(
-                    new BankInfoModel(oneTapItem.getBankTransfer().getId(), payerPaymentMethodRepository).toMap()
+                    new BankTransferExtraInfo(oneTapItem.getBankTransfer().getId(), payerPaymentMethodRepository).toMap()
             );
         }
 

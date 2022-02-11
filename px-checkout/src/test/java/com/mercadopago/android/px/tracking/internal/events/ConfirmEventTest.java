@@ -5,11 +5,14 @@ import com.mercadopago.android.px.internal.repository.ApplicationSelectionReposi
 import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.model.AccountMoneyMetadata;
+import com.mercadopago.android.px.model.BankTransferInfo;
 import com.mercadopago.android.px.model.CardDisplayInfo;
 import com.mercadopago.android.px.model.CardMetadata;
+import com.mercadopago.android.px.model.CustomSearchItem;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.internal.Application;
 import com.mercadopago.android.px.model.internal.Application.PaymentMethod;
+import com.mercadopago.android.px.model.internal.BankTransfer;
 import com.mercadopago.android.px.model.internal.OneTapItem;
 import com.mercadopago.android.px.tracking.internal.mapper.FromApplicationToApplicationInfo;
 import com.mercadopago.android.px.tracking.internal.mapper.FromSelectedExpressMetadataToAvailableMethods;
@@ -34,6 +37,8 @@ public class ConfirmEventTest {
     private static final String EXPECTED_JUST_AM =
         "{review_type=one_tap, payment_method_selected_index=2, bank_name=null, external_account_id=null, payment_method_id=account_money, payment_method_type=account_money, extra_info={has_interest_free=false, balance=10, has_reimbursement=false, invested=true, methods_applications=[]}}";
     private static final int PAYMENT_METHOD_SELECTED_INDEX = 2;
+    private static final String EXPECTED_JUST_DEBIN_TRANSFER =
+            "{review_type=one_tap, payment_method_selected_index=2, bank_name=banco galicia, external_account_id=123456, payment_method_id=debin_transfer, payment_method_type=bank_transfer, extra_info={has_interest_free=false, external_account_id=123456, bank_name=banco galicia, has_reimbursement=false, methods_applications=[]}}";
 
     @Mock private OneTapItem oneTapItem;
     @Mock private Set<String> cardIdsWithEsc;
@@ -41,7 +46,6 @@ public class ConfirmEventTest {
     @Mock private ApplicationSelectionRepository applicationSelectionRepository;
     @Mock private PayerPaymentMethodRepository payerPaymentMethodRepository;
     @Mock private UserSelectionRepository userSelectionRepository;
-
 
     @NonNull
     private ConfirmEvent getConfirmEvent(final PayerCost payerCost) {
@@ -96,5 +100,35 @@ public class ConfirmEventTest {
         final ConfirmEvent event = getConfirmEvent(payerCost);
         assertEquals(EXPECTED_PATH, event.getTrack().getPath());
         assertEquals(EXPECTED_JUST_CARD, event.getTrack().getData().toString());
+    }
+
+    @Test
+    public void whenExpressMetadataHasDebinTransferThenShowItInMetadata() {
+        final String paymentMethodId = "debin_transfer";
+        final String accountId = "123456";
+        final String paymentTypeId = "bank_transfer";
+        final String bankName = "banco galicia";
+        final String customOptionId = "123456";
+        final BankTransfer bankTransfer = mock(BankTransfer.class);
+        final BankTransferInfo bankTransferInfo = mock(BankTransferInfo.class);
+        final CustomSearchItem payerPaymentMethod = mock(CustomSearchItem.class);
+
+        when(bankTransferInfo.getName()).thenReturn(bankName);
+        when(payerPaymentMethod.getBankInfo()).thenReturn(bankTransferInfo);
+        when(payerPaymentMethod.getId()).thenReturn(accountId);
+        when(payerPaymentMethodRepository.get(accountId)).thenReturn(payerPaymentMethod);
+        when(application.getPaymentMethod()).thenReturn(new PaymentMethod(paymentMethodId, paymentTypeId));
+        when(applicationSelectionRepository.get(oneTapItem)).thenReturn(application);
+        when(bankTransfer.getId()).thenReturn(accountId);
+        when(oneTapItem.getBankTransfer()).thenReturn(bankTransfer);
+        when(oneTapItem.isAccountMoney()).thenReturn(false);
+        when(oneTapItem.isBankTransfer()).thenReturn(true);
+        when(oneTapItem.getPaymentMethodId()).thenReturn(paymentMethodId);
+        when(userSelectionRepository.getCustomOptionId()).thenReturn(customOptionId);
+
+        final ConfirmEvent event = getConfirmEvent(mock(PayerCost.class));
+
+        assertEquals(EXPECTED_PATH, event.getTrack().getPath());
+        assertEquals(EXPECTED_JUST_DEBIN_TRANSFER, event.getTrack().getData().toString());
     }
 }

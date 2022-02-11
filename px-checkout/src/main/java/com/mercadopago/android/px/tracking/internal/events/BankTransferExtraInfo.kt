@@ -3,16 +3,11 @@ package com.mercadopago.android.px.tracking.internal.events
 import com.mercadopago.android.px.internal.repository.PayerPaymentMethodRepository
 import com.mercadopago.android.px.tracking.internal.model.TrackingMapModel
 
-internal class BankInfoModel(
+internal class BankTransferExtraInfo @JvmOverloads constructor(
     customOptionId: String?,
     payerPaymentMethodRepository: PayerPaymentMethodRepository
 ) : TrackingMapModel() {
 
-    private var bankName: String? = null
-    private var externalAccountId: String? = null
-
-    init {
-        bankName = customOptionId?.let { payerPaymentMethodRepository[it] }?.bankInfo?.name
-        externalAccountId = customOptionId?.let { payerPaymentMethodRepository[it] }?.id
-    }
+    private val bankName: String? = customOptionId?.let { payerPaymentMethodRepository[it] }?.bankInfo?.name
+    private val externalAccountId: String? = customOptionId?.let { payerPaymentMethodRepository[it] }?.id
 }

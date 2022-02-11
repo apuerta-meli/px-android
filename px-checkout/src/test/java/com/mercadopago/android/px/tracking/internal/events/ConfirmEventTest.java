@@ -121,7 +121,6 @@ public class ConfirmEventTest {
         when(applicationSelectionRepository.get(oneTapItem)).thenReturn(application);
         when(bankTransfer.getId()).thenReturn(accountId);
         when(oneTapItem.getBankTransfer()).thenReturn(bankTransfer);
-        when(oneTapItem.isAccountMoney()).thenReturn(false);
         when(oneTapItem.isBankTransfer()).thenReturn(true);
         when(oneTapItem.getPaymentMethodId()).thenReturn(paymentMethodId);
         when(userSelectionRepository.getCustomOptionId()).thenReturn(customOptionId);

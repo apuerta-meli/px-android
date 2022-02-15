@@ -4,12 +4,15 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import com.mercadopago.android.px.R
 import com.mercadopago.android.px.core.commons.extensions.isNotNullNorEmpty
 import com.mercadopago.android.px.core.presentation.extensions.loadOrElse
 import com.mercadopago.android.px.core.presentation.extensions.loadOrGone
+import com.mercadopago.android.px.internal.features.payment_congrats.adapter.ExtraInfoAdapter
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentCongratsText
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentInfo
+import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentResultExtraInfo
 import com.mercadopago.android.px.internal.features.payment_congrats.model.PaymentResultInfo
 import com.mercadopago.android.px.internal.util.TextUtil
 import com.mercadopago.android.px.internal.util.ViewUtils
@@ -28,6 +31,7 @@ internal class PaymentResultMethod @JvmOverloads constructor(
     private var amount: PaymentResultAmount
     private var infoTitle: MPTextView
     private var infoSubtitle: MPTextView
+    private var extraInfo: AdapterLinearLayout
 
     init {
         inflate(context, R.layout.px_payment_result_method, this)
@@ -38,6 +42,7 @@ internal class PaymentResultMethod @JvmOverloads constructor(
         amount = findViewById(R.id.amount)
         infoTitle = findViewById(R.id.info_title)
         infoSubtitle = findViewById(R.id.info_subtitle)
+        extraInfo = findViewById(R.id.extra_info)
     }
 
     fun setModel(model: Model) {
@@ -47,6 +52,7 @@ internal class PaymentResultMethod @JvmOverloads constructor(
         statement.loadOrGone(getStatement(model))
         amount.setModel(model.amountModel)
         renderInfo(model.info)
+        renderExtraInfo(model.extraInfo)
     }
 
     private fun getStatement(model: Model): String? {
@@ -75,6 +81,13 @@ internal class PaymentResultMethod @JvmOverloads constructor(
         }
     }
 
+    private fun renderExtraInfo(info: PaymentResultExtraInfo?) {
+        info?.let {
+            extraInfo.isVisible = true
+            extraInfo.setAdapter(ExtraInfoAdapter(context, it.details))
+        }
+    }
+
     private fun renderInfo(info: PaymentResultInfo?) {
         infoTitle.loadOrGone(info?.title)
         infoSubtitle.loadOrGone(info?.subtitle)
@@ -86,10 +99,11 @@ internal class PaymentResultMethod @JvmOverloads constructor(
         val imageUrl: String? = builder.imageUrl
         val paymentMethodDescriptionText: PaymentCongratsText = builder.paymentMethodDescriptionText
         val paymentTypeId: String = builder.paymentTypeId
-        val amountModel: PaymentResultAmount.Model = builder.amountModel!!
+        val amountModel: PaymentResultAmount.Model = builder.amountModel
         val lastFourDigits: String? = builder.lastFourDigits
         val statement: String? = builder.statement
         val info: PaymentResultInfo? = builder.info
+        val extraInfo: PaymentResultExtraInfo? = builder.extraInfo
         val descriptionText: PaymentCongratsText? = builder.descriptionText
         val statementText: PaymentCongratsText? = builder.statementText
 
@@ -104,12 +118,15 @@ internal class PaymentResultMethod @JvmOverloads constructor(
             var lastFourDigits: String? = null
             var statement: String? = null
             var info: PaymentResultInfo? = null
+            var extraInfo: PaymentResultExtraInfo? = null
             var descriptionText: PaymentCongratsText? = null
             var statementText: PaymentCongratsText? = null
 
             fun setLastFourDigits(lastFourDigits: String?) = apply { this.lastFourDigits = lastFourDigits }
 
             fun setInfo(info: PaymentResultInfo?) = apply { this.info = info }
+
+            fun setExtraInfo(extraInfo: PaymentResultExtraInfo?) = apply { this.extraInfo = extraInfo }
 
             fun setDescriptionText(descriptionText: PaymentCongratsText?) = apply { this.descriptionText = descriptionText }
 
@@ -132,9 +149,10 @@ internal class PaymentResultMethod @JvmOverloads constructor(
                         .setInstallmentsTotalAmount(installmentsTotalAmount)
                         .build()
                     val description = paymentMethodDescriptionText ?: PaymentCongratsText.EMPTY
-                    return Builder(paymentMethodName, iconUrl, description!!, paymentMethodType.value, amountModel)
+                    return Builder(paymentMethodName, iconUrl, description, paymentMethodType.value, amountModel)
                         .setLastFourDigits(lastFourDigits)
                         .setInfo(consumerCreditsInfo)
+                        .setExtraInfo(extraInfo)
                         .setDescriptionText(descriptionText)
                         .setStatement(statement)
                         .setStatementText(statementText)

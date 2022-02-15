@@ -177,7 +177,7 @@ public class CustomSearchItem implements Serializable, Parcelable {
     }
 
     @Nullable
-    public CustomSearchItemDisplayInfo getBankTransferDisplayInfo() { return displayInfo; }
+    public CustomSearchItemDisplayInfo getDisplayInfo() { return displayInfo; }
 
     @Nullable
     public String getPaymentMethodName() { return paymentMethodName; }

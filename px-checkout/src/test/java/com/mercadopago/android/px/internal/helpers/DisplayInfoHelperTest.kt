@@ -7,10 +7,11 @@ import com.mercadopago.android.px.internal.repository.UserSelectionRepository
 import com.mercadopago.android.px.model.CustomSearchItem
 import com.mercadopago.android.px.model.PaymentData
 import com.mercadopago.android.px.model.PaymentMethod
-import com.mercadopago.android.px.model.display_info.BankTransferDisplayInfo
+import com.mercadopago.android.px.model.display_info.CustomSearchItemDisplayInfo
 import com.mercadopago.android.px.model.display_info.DisplayInfo
 import com.mercadopago.android.px.model.display_info.ResultInfo
 import com.mercadopago.android.px.model.internal.Text
+import com.mercadopago.android.px.model.internal.TextAlignment
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -55,32 +56,36 @@ class DisplayInfoHelperTest {
             every { backgroundColor } returns BACKGROUND_COLOR
             every { textColor } returns TEXT_COLOR
             every { weight } returns WEIGHT
+            every { alignment } returns null
         }
         val bankName = mockkClass(Text::class) {
             every { message } returns BANK_NAME
             every { backgroundColor } returns BACKGROUND_COLOR
             every { textColor } returns TEXT_COLOR
             every { weight } returns WEIGHT
+            every { alignment } returns null
         }
         val cbu = mockkClass(Text::class) {
             every { message } returns CBU
             every { backgroundColor } returns BACKGROUND_COLOR
             every { textColor } returns TEXT_COLOR
             every { weight } returns WEIGHT
+            every { alignment } returns null
         }
 
-        val bankTransferDisplayInfoResultPaymentMethod = mockkClass(BankTransferDisplayInfo.Result.PaymentMethod::class) {
+        val bankTransferDisplayInfoResultPaymentMethod = mockkClass(CustomSearchItemDisplayInfo.Result.PaymentMethod::class) {
             every { detail } returns listOf(title, bankName, cbu)
             every { iconUrl } returns ICON_URL
         }
-        val bankTransferDisplayInfoResult = mockkClass(BankTransferDisplayInfo.Result::class) {
+        val bankTransferDisplayInfoResult = mockkClass(CustomSearchItemDisplayInfo.Result::class) {
             every { paymentMethod } returns bankTransferDisplayInfoResultPaymentMethod
+            every { extraInfo } returns null
         }
-        val bankTransferDisplayInfo = mockkClass(BankTransferDisplayInfo::class) {
+        val bankTransferDisplayInfo = mockkClass(CustomSearchItemDisplayInfo::class) {
             every { result } returns bankTransferDisplayInfoResult
         }
 
-        every { payerPaymentMethod.bankTransferDisplayInfo } returns bankTransferDisplayInfo
+        every { payerPaymentMethod.displayInfo } returns bankTransferDisplayInfo
         every { userSelectionRepository.customOptionId } returns CUSTOM_OPTION_ID
         every { payerPaymentMethodRepository[CUSTOM_OPTION_ID] } returns payerPaymentMethod
 
@@ -92,16 +97,19 @@ class DisplayInfoHelperTest {
         assertEquals(BACKGROUND_COLOR, paymentInfo.descriptionText!!.backgroundColor)
         assertEquals(TEXT_COLOR, paymentInfo.descriptionText!!.textColor)
         assertEquals(WEIGHT, paymentInfo.descriptionText!!.weight)
+        assertEquals(TextAlignment.LEFT, paymentInfo.descriptionText!!.alignment)
 
         assertEquals(BANK_NAME, paymentInfo.paymentMethodDescriptionText!!.message)
         assertEquals(BACKGROUND_COLOR, paymentInfo.paymentMethodDescriptionText!!.backgroundColor)
         assertEquals(TEXT_COLOR, paymentInfo.paymentMethodDescriptionText!!.textColor)
         assertEquals(WEIGHT, paymentInfo.paymentMethodDescriptionText!!.weight)
+        assertEquals(TextAlignment.LEFT, paymentInfo.paymentMethodDescriptionText!!.alignment)
 
         assertEquals(CBU, paymentInfo.statementText!!.message)
         assertEquals(BACKGROUND_COLOR, paymentInfo.statementText!!.backgroundColor)
         assertEquals(TEXT_COLOR, paymentInfo.statementText!!.textColor)
         assertEquals(WEIGHT, paymentInfo.statementText!!.weight)
+        assertEquals(TextAlignment.LEFT, paymentInfo.statementText!!.alignment)
     }
 
     @Test
@@ -113,6 +121,7 @@ class DisplayInfoHelperTest {
             every { backgroundColor } returns BACKGROUND_COLOR
             every { textColor } returns TEXT_COLOR
             every { weight } returns WEIGHT
+            every { alignment } returns null
         }
         val resultInfoMock = mockkClass(ResultInfo::class) {
             every { title } returns RESULT_INFO_TITLE
@@ -131,7 +140,7 @@ class DisplayInfoHelperTest {
 
         every { userSelectionRepository.customOptionId } returns CUSTOM_OPTION_ID
         every { payerPaymentMethodRepository[CUSTOM_OPTION_ID] } returns payerPaymentMethod
-        every { payerPaymentMethod.bankTransferDisplayInfo } returns null
+        every { payerPaymentMethod.displayInfo } returns null
 
         displayInfoHelper.resolve(paymentData, paymentInfoBuilder)
 
@@ -144,5 +153,6 @@ class DisplayInfoHelperTest {
         assertEquals(BACKGROUND_COLOR, paymentInfo.paymentMethodDescriptionText!!.backgroundColor)
         assertEquals(TEXT_COLOR, paymentInfo.paymentMethodDescriptionText!!.textColor)
         assertEquals(WEIGHT, paymentInfo.paymentMethodDescriptionText!!.weight)
+        assertEquals(TextAlignment.LEFT, paymentInfo.paymentMethodDescriptionText!!.alignment)
     }
 }

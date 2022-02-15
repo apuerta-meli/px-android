@@ -32,6 +32,7 @@ public class PaymentInfo implements Parcelable {
     @Nullable public final String installmentsTotalAmount;
     @Nullable public final BigDecimal installmentsRate;
     @Nullable public final PaymentResultInfo consumerCreditsInfo;
+    @Nullable public final PaymentResultExtraInfo extraInfo;
     @Nullable public final PaymentCongratsText paymentMethodDescriptionText;
     @Nullable public final PaymentCongratsText descriptionText;
     @Nullable public final PaymentCongratsText statementText;
@@ -48,6 +49,7 @@ public class PaymentInfo implements Parcelable {
         installmentsAmount = builder.installmentsAmount;
         installmentsRate = builder.installmentsRate;
         consumerCreditsInfo = builder.consumerCreditsInfo;
+        extraInfo = builder.extraInfo;
         paymentMethodDescriptionText = builder.paymentMethodDescriptionText;
         installmentsTotalAmount = builder.installmentsTotalAmount;
         descriptionText = builder.descriptionText;
@@ -71,6 +73,7 @@ public class PaymentInfo implements Parcelable {
             installmentsRate = new BigDecimal(in.readString());
         }
         consumerCreditsInfo = in.readParcelable(ResultInfo.class.getClassLoader());
+        extraInfo = in.readParcelable(PaymentResultExtraInfo.class.getClassLoader());
         paymentMethodDescriptionText = in.readParcelable(PaymentCongratsText.class.getClassLoader());
         descriptionText = in.readParcelable(PaymentCongratsText.class.getClassLoader());
         statementText = in.readParcelable(PaymentCongratsText.class.getClassLoader());
@@ -100,6 +103,7 @@ public class PaymentInfo implements Parcelable {
             dest.writeString(installmentsRate.toString());
         }
         dest.writeParcelable(consumerCreditsInfo, flags);
+        dest.writeParcelable(extraInfo, flags);
         dest.writeParcelable(paymentMethodDescriptionText, flags);
         dest.writeParcelable(descriptionText, flags);
         dest.writeParcelable(statementText, flags);
@@ -148,6 +152,7 @@ public class PaymentInfo implements Parcelable {
         /* default */ String installmentsTotalAmount;
         /* default */ BigDecimal installmentsRate;
         /* default */ PaymentResultInfo consumerCreditsInfo;
+        /* default */ PaymentResultExtraInfo extraInfo;
         /* default */ PaymentCongratsText paymentMethodDescriptionText;
         /* default */ PaymentCongratsText descriptionText;
         /* default */ PaymentCongratsText statementText;
@@ -244,6 +249,17 @@ public class PaymentInfo implements Parcelable {
             this.installmentsAmount = installmentsAmount;
             this.installmentsTotalAmount = installmentsTotalAmount;
             this.installmentsRate = installmentsRate;
+            return this;
+        }
+
+        /**
+         * Adds extra info to be displayed below the PaymentMethod (e.g. regulations info)
+         *
+         * @param extraInfo extra info shown
+         * @return Builder
+         */
+        public Builder withExtraInfo(final PaymentResultExtraInfo extraInfo) {
+            this.extraInfo = extraInfo;
             return this;
         }
 

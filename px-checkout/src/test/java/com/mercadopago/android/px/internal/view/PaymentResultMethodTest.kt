@@ -1,7 +1,8 @@
 package com.mercadopago.android.px.internal.view
 
 import android.widget.TextView
-import com.mercadopago.android.px.*
+import com.mercadopago.android.px.BasicRobolectricTest
+import com.mercadopago.android.px.assertGone
 import com.mercadopago.android.px.assertText
 import com.mercadopago.android.px.assertVisible
 import com.mercadopago.android.px.getField
@@ -12,8 +13,14 @@ import com.mercadopago.android.px.internal.features.payment_congrats.model.Payme
 import com.mercadopago.android.px.internal.util.CurrenciesUtil
 import com.mercadopago.android.px.internal.util.JsonUtil
 import com.mercadopago.android.px.internal.util.PaymentDataHelper
-import com.mercadopago.android.px.model.*
+import com.mercadopago.android.px.model.Currency
+import com.mercadopago.android.px.model.Discount
+import com.mercadopago.android.px.model.PaymentData
+import com.mercadopago.android.px.model.PaymentMethod
+import com.mercadopago.android.px.model.PaymentTypes
+import com.mercadopago.android.px.model.Token
 import com.mercadopago.android.px.model.display_info.DisplayInfo
+import java.math.BigDecimal
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,7 +28,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
-import java.math.BigDecimal
 
 @RunWith(RobolectricTestRunner::class)
 class PaymentResultMethodTest : BasicRobolectricTest() {
@@ -77,11 +83,7 @@ class PaymentResultMethodTest : BasicRobolectricTest() {
             .setPaymentMethod(paymentMethod)
             .createPaymentData()
 
-        val paymentCongratsText = mock(PaymentCongratsText::class.java)
-        `when`(paymentCongratsText.message).thenReturn(displayInfo!!.description.message)
-        `when`(paymentCongratsText.backgroundColor).thenReturn(displayInfo.description.backgroundColor)
-        `when`(paymentCongratsText.textColor).thenReturn(displayInfo.description.textColor)
-        `when`(paymentCongratsText.weight).thenReturn(displayInfo.description.weight)
+        val paymentCongratsText = PaymentCongratsText.from(displayInfo!!.description)
 
         val paymentResultInfo = mock(PaymentResultInfo::class.java)
         `when`(paymentResultInfo.title).thenReturn(displayInfo.resultInfo.title)
@@ -117,6 +119,7 @@ class PaymentResultMethodTest : BasicRobolectricTest() {
                 assertText(paymentMethodStatement)
                 assertVisible()
             }
+            getField<AdapterLinearLayout>("extraInfo").assertGone()
             getField<TextView>("statement").assertGone()
         }
     }
